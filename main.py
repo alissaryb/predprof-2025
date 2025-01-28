@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, \
     logout_user, UserMixin
@@ -11,6 +14,8 @@ from forms.courses import FormAddCourse
 import json
 import datetime
 
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
 
@@ -18,7 +23,7 @@ app.config['SECRET_KEY'] = 'secret_key'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template("index.html", title="")
+    return render_template("a.html", title="")
 
 
 @app.route('/practice', methods=['GET', 'POST'])
@@ -83,6 +88,7 @@ def work():
         return render_template("work.html", title="", tasks=tasks, is_check=True, form=form, users_answers=users_answers, mark=mark, max_mark=len(tasks))
 
     return render_template("work.html", title="", tasks=tasks, is_check=False, form=form, users_answers=users_answers)
+
 
 
 @app.route('/all_courses', methods=['GET', 'POST'])
