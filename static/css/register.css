@@ -1,0 +1,13 @@
+.tablo-block-reg
+{
+    border: 2px solid #fcfafe;
+    border-radius: 0.5rem;
+    min-height: 1vh;
+    list-style-position: outside;
+    padding: 25px;
+    background-color: #fcfafe;
+    margin-top: 3rem; /* 48px */
+}
+
+
+

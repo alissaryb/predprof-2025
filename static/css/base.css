@@ -1,0 +1,164 @@
+header
+{
+    min-height: 80px;
+    border-bottom: 1px solid #dddddd;
+}
+.text-logo {
+    color: rgb(117, 93, 162);
+}
+
+.tablo {
+    border: 1px solid #dddddd;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    min-height: 1vh;
+    list-style-position: outside;
+    margin-top: 1rem;
+    padding: 15px 15px 15px 15px;
+}
+
+.stroke-panel {
+    border: 1px solid rgb(117, 93, 162);
+    border-radius: 0.5rem;
+    padding: 5px 5px 5px 5px;
+}
+
+
+.custom-box {
+    background-color: #ebebeb;
+    border-radius: 0.5rem;
+    padding: 10px 15px;
+    text-align: center;
+    width: 150px;
+}
+
+.dropdown-item:focus {
+    outline: none;
+    background-color: transparent;
+    color: black;
+}
+
+.dropdown-item:hover {
+    background-color: #dddddd;
+}
+
+
+/*@media (max-width: 768px) {*/
+/*    .text-task {*/
+/*        font-size: 16px;*/
+/*    }*/
+/*}*/
+
+/*@media (min-width: 769px) {*/
+/*    .text-task {*/
+/*        font-size: 18px;*/
+/*    }*/
+/*}*/
+
+.line {
+    display:inline-block;
+}
+ .answer {
+    display: none; /* Скрываем ответ по умолчанию */
+}
+
+ .small-br {
+   height: 5px;
+  }
+
+
+.cen {
+    display: block;
+    margin-left: auto;
+    margin-right:  auto;
+}
+
+.square {
+    width: 80px;
+
+    height: 80px; /* Высота контейнера */
+    position: relative;
+}
+
+.square1 img {
+    width: 100%; /* Заполняет контейнер по ширине */
+    height: auto; /* Сохраняет пропорции изображения */
+    position: absolute; /* Позволяет позиционировать изображение */
+    top: 50%; /* Центрирует изображение по вертикали */
+
+}
+
+
+.dim {
+    color: #6b6b6b;
+    margin-bottom: 0px;
+}
+
+.bright {
+    color: #000000;
+    margin-bottom: 7px;
+}
+
+.correct-ans{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #20ff00;
+    border-radius: 0.5rem;
+    width: 150px;
+    color: #20ff00;
+}
+
+.incorrect-ans {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ff0000;
+    border-radius: 0.5rem;
+    width: 150px;
+    color: #ff0000;
+}
+
+.not-exist {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #777777;
+    border-radius: 0.5rem;
+    width: 150px;
+    color: #777777;
+}
+
+.video-container {
+    width: 100%;
+    aspect-ratio: 2 / 1; /* Соотношение ширины к высоте (2:1) */
+    overflow: hidden;
+}
+
+.video-container iframe {
+    width: 100%;
+    height: 100%; /* Высота будет равна ширине, деленной на 2 */
+    border: 0; /* Убираем рамку */
+}
+
+.radio-label {
+    list-style-type: none;
+}
+
+
+my-table {
+    margin-left: auto;
+    margin-right:  auto;
+    border-collapse: collapse; /* Убирает двойные границы */
+    max-width: 800px;
+}
+
+.plus-text {
+    color: rgb(117, 93, 162);
+    text-decoration: none;
+    height: 80%;
+    display: flex; /* Используем flex для центрирования */
+    align-items: center; /* Вертикальное центрирование */
+    justify-content: center; /* Горизонтальное центрирование */
+    font-size: 10rem; /* Размер шрифта (можно изменить по желанию) */
+}

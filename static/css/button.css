@@ -1,0 +1,32 @@
+button {
+    cursor: pointer;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.btn-answer {
+  width: 150px;
+}
+
+.btn-violet{
+  background: rgb(156, 144, 210);
+    color: black;
+}
+.btn-green {
+  background: rgb(154, 199, 137);
+    color: black;
+}
+.btn-red {
+  background: rgb(203, 135, 135);
+    color: black;
+}
+
+.btn-theme
+{
+    background: rgb(236, 236, 236);
+    color: black;
+}
+
+
+
