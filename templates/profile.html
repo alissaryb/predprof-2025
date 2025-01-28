@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="container py-3">
+   <div class="col-xs-10 col-sm-9 col-md-8 col-lg-7 col-xl-6 cen">
+       <div class="tablo">
+
+           <h6>Личные данные</h6>
+
+          <hr>
+          <div class="dim">Фамилия</div>
+          <div class="bright">{{user['surname']}}</div>
+
+          <div class="dim">Имя</div>
+          <div class="bright">{{user['name']}}</div>
+
+          <div class="dim">Отчество</div>
+          <div class="bright">{{user['lastname']}}</div>
+
+          <div class="dim">Класс обучения</div>
+          <div class="bright">{{user['class_num']}}</div>
+      </div>
+
+
+       <div class="tablo">
+          <h6>Контактная информация</h6>
+          <hr>
+          <div class="dim">Почта</div>
+          <div class="bright">{{user['email']}}</div>
+
+          <div class="dim">Номер телефона</div>
+          <div class="bright">{{user['phone_number']}}</div>
+      </div>
+
+        {% if 1 %}
+        <div class="tablo">
+            <h6>Группы</h6>
+            <hr>
+
+            <table>
+                <tbody>
+                    {% for i in user_group %}
+                    <tr>
+                       <td style="padding-right: 10px;">
+                          {{i['group_name']}}:
+                       </td>
+                       <td> {{i['token']}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+         </div>
+        {% endif %}
+  </div>
+
+
+</div>
+
+{% endblock %}

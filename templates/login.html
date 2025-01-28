@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+<div class="main tablo-block-reg col-md-10 col-lg-6 cen mt-5">
+    <form action="" method="post">
+        <h1 class="text-center">{{title}}</h1>
+
+        {{ form.hidden_tag() }}
+
+        <div class="col-12 cen">
+        <div class="form-group mb-1">
+            {{ form.email.label }} <br>
+            {{ form.email(class="form-control") }}<br>
+            {% for error in form.email.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+
+        <div class="col-12 cen">
+        <div class="form-group mb-1">
+            {{ form.password.label }} <br>
+            {{ form.password(class="form-control") }}<br>
+            {% for error in form.password.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+
+
+        <div class="d-grid gap-3 col-12 mx-auto">
+            {{ form.submit(type="submit", class="btn btn-green btn-lg") }}
+
+            <a href="/" class="btn btn-violet btn-lg">На главную</a>
+
+        </div>
+
+
+
+        {% if message %}
+        <div class="mt-4 alert alert-warning" role="alert">{{message}}</div>
+        {%endif%}
+    </form>
+</div>
+
+
+{% endblock %}
