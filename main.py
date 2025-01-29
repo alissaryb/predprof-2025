@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from flask import Flask, render_template, request, redirect, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, \
     logout_user, UserMixin
@@ -23,7 +20,7 @@ app.config['SECRET_KEY'] = 'secret_key'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template("a.html", title="")
+    return render_template("index.html", title="")
 
 
 @app.route('/practice', methods=['GET', 'POST'])
@@ -38,9 +35,10 @@ def practice():
     tasks = []
     for i in range(len(a)):
         b = a[str(i)]
-        with open(f'tasks/task{i}.txt', "r") as f:
+        with open(f'tasks/task{i}.txt', "r", encoding="utf-8") as f:
             s = f.read()
             b['text'] = s
+            print(s)
         tasks.append(b)
 
     print(tasks)
