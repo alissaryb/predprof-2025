@@ -23,7 +23,7 @@
     </select>
 </div>
 
-<div class="container cen" >
+<div class="container cen">
     <div class="row">
 
         <div class="col-md-9">
@@ -69,66 +69,42 @@
             }
         }
 
-        function filterTasks() {
-            const difficultySelect = document.getElementById('difficultySelect');
-            const taskNumberSelect = document.getElementById('taskNumberSelect');
-            const selectedDifficulty = difficultySelect.value;
-            const selectedTaskNumber = taskNumberSelect.value;
+        function filterTasks(checkbox) {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            if (checkbox && checkbox.value === "Все") {
+                checkboxes.forEach(cb => {
+                    if (cb !== checkbox) {
+                        cb.checked = false;
+                    }
+                });
+            } else if (checkbox) {
+                const allCheckbox = document.querySelector('input[value="Все"]');
+                allCheckbox.checked = false;
+            }
+
+            const selectedLevels = Array.from(checkboxes)
+                .filter(cb => cb.checked && cb.value !== "Все")
+                .map(cb => cb.value);
 
             const tasks = document.querySelectorAll('.task-item');
 
             tasks.forEach(task => {
-                const taskDifficulty = task.getAttribute('data-difficulty');
-                const taskId = task.getAttribute('data-id');
+                const taskLevel = task.getAttribute('data-difficulty');
+                const taskType = task.getAttribute('data-type');
 
-                const matchesDifficulty = selectedDifficulty === '' || taskDifficulty === selectedDifficulty;
-                const matchesTaskNumber = selectedTaskNumber === '' || taskId === selectedTaskNumber;
+                const levelMatch = selectedLevels.length === 0 || selectedLevels.includes(taskLevel);
+                const typeMatch = !typeFilter || taskType == typeFilter;
 
-                task.style.display = matchesDifficulty && matchesTaskNumber ? '' : 'none';
+                if ((checkbox && checkbox.value === "Все") || levelMatch) {
+                    task.style.display = typeMatch ? 'block' : 'none';
+                } else {
+                    task.style.display = 'none';
+                }
             });
         }
     </script>
 </div>
 
-<script>
-    function filterTasks(checkbox) {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        const typeFilter = document.getElementById('typeFilter').value;
-
-        if (checkbox.value === "Все") {
-            checkboxes.forEach(cb => {
-                if (cb !== checkbox) {
-                    cb.checked = false;
-                }
-            });
-        }
-        else {
-            const allCheckbox = document.querySelector('input[value="Все"]');
-            allCheckbox.checked = false;
-        }
-
-        const selectedLevels = Array.from(checkboxes)
-            .filter(cb => cb.checked && cb.value !== "Все")
-            .map(cb => cb.value);
-
-        const tasks = document.querySelectorAll('.task-item');
-
-        tasks.forEach(task => {
-            const taskLevel = task.getAttribute('data-difficulty');
-            const taskType = task.getAttribute('data-type');
-
-            const levelMatch = selectedLevels.length === 0 || selectedLevels.includes(taskLevel);
-            const typeMatch = !typeFilter || taskType == typeFilter;
-
-            if ((checkbox.value === "Все" || levelMatch) && typeMatch) {
-                task.style.display = 'block';
-            } else {
-                task.style.display = 'none';
-            }
-        });
-    }
-</script>
-
 {% endblock %}
-
-
