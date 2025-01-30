@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, TextAreaField, SelectField, BooleanField, FieldList, FormField
 from wtforms.validators import InputRequired, NumberRange
 
-LEVEL = ['Для овощей', 'Очень легка', 'Легка', 'Средняя', 'Тяжелая', 'Очень тяжелая', 'Гроб']
+LEVEL = ['Для овощей', 'Очень легкая', 'Легкая', 'Средняя', 'Тяжелая', 'Очень тяжелая', 'Гроб']
 class FormAddTask(FlaskForm):
     type = IntegerField('Введите тип задания', validators=[InputRequired('Обязательное поле'), NumberRange(min=1, max=27)])
     source = StringField('Введите источник задачи', validators=[InputRequired('Обязательное поле')])

@@ -38,7 +38,7 @@ def practice():
         tasks.append(b)
 
     print(tasks)
-    return render_template("3.html", title="", tasks=tasks)
+    return render_template("practice.html", title="", tasks=tasks)
 
 
 @app.route('/work', methods=['GET', 'POST'])

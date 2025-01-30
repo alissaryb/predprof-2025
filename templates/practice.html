@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 {% block main_content %}
 
-<div class="filter-container">
+
+<div class="container cen">
+    <div class="row">
+        <div class="col">
+<div class="filter-container tablo mt-5" style="position: sticky; top: 2rem; overflow-y: auto;">
+
     <label>Фильтр по сложности:</label>
     <div>
-        <label><input type="checkbox" value="Все" onchange="filterTasks(this)"> Все</label>
+        <label><input type="checkbox" value="Все" onchange="filterTasks(this)"> Все</label><br>
         <label><input type="checkbox" value="Для овощей" onchange="filterTasks(this)"> Для овощей</label>
-        <label><input type="checkbox" value="Очень легка" onchange="filterTasks(this)"> Очень легка</label>
-        <label><input type="checkbox" value="Легка" onchange="filterTasks(this)"> Легка</label>
+        <label><input type="checkbox" value="Очень легка" onchange="filterTasks(this)"> Очень легкая</label>
+        <label><input type="checkbox" value="Легка" onchange="filterTasks(this)"> Легкая</label>
         <label><input type="checkbox" value="Средняя" onchange="filterTasks(this)"> Средняя</label>
         <label><input type="checkbox" value="Тяжелая" onchange="filterTasks(this)"> Тяжелая</label>
         <label><input type="checkbox" value="Очень тяжелая" onchange="filterTasks(this)"> Очень тяжелая</label>
@@ -23,8 +28,7 @@
     </select>
 </div>
 
-<div class="container cen">
-    <div class="row">
+        </div>
 
         <div class="col-md-9">
             {% for i in tasks %}
