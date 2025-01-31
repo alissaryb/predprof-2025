@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from flask_login import LoginManager, login_required, current_user, login_user, \
     logout_user, UserMixin
 from flask_wtf.csrf import CSRFProtect
@@ -19,6 +19,16 @@ app.config['SECRET_KEY'] = 'secret_key'
 def index():
     return render_template("index.html", title="")
 
+
+@app.route('/materials/<name>')
+def download_file(name):
+    return send_from_directory('materials', name)
+
+@app.route('/random_work', methods=['GET', 'POST'])
+def random_work():
+
+
+    return render_template("random_work.html")
 
 @app.route('/practice', methods=['GET', 'POST'])
 def practice():
@@ -135,7 +145,7 @@ def courses(id):
 
     course = courses[int(id)]
 
-    publications = [{"uuid": "0", "title": "Кейс 2", "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете", "made_on_datetime": "432872", "files_folder_path": [("/materiale/KE_task3_video1"), ()], "type": "courses", "author": "Ф К Е"}, {}, {}]
+    publications = [{"uuid": "0", "title": "Кейс 2", "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете", "made_on_datetime": "432872", "files_folder_path": [("/materials/KE_task3_video1.mp4", "video"), ("/materials/prefixes.pptx", "other"), ("/materials/correct_ip.png", "img")], "type": "courses", "author": "Ф К Е"}, {}, {}]
     return render_template("course.html", title="", id=id, course=course, publications=publications)
 
 

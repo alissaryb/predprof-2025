@@ -19,10 +19,13 @@
         }
 
         .custom-checkbox:after {
+            /*content: '';*/
             content: '✔';
             position: absolute;
-            top: 20%; /* Центрирование по вертикали */
-            left: 45%; /* Центрирование по горизонтали */
+            /*top: 0;*/
+            /*left: 0;*/
+            top: 22%; /* Центрирование по вертикали */
+            left: 42%; /* Центрирование по горизонтали */
             transform: translate(-50%, -50%); /* Центрирование */
             font-size: 10px; /* Размер шрифта */
             width: 100%;
@@ -33,6 +36,7 @@
 
         input[type="checkbox"]:checked + .custom-checkbox:after {
             opacity: 1;
+            /*background: rgb(117, 93, 162);*/
         }
     </style>
 
