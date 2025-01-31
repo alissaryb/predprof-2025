@@ -1,22 +1,66 @@
 {% extends 'base.html' %}
 {% block main_content %}
 
+
+<style>
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        .custom-checkbox {
+            width: 13px;
+            height: 13px;
+            border: 1px solid #000;
+            border-radius: 0.3rem;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .custom-checkbox:after {
+            content: '✔';
+            position: absolute;
+            top: 20%; /* Центрирование по вертикали */
+            left: 45%; /* Центрирование по горизонтали */
+            transform: translate(-50%, -50%); /* Центрирование */
+            font-size: 10px; /* Размер шрифта */
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: background-color 0.3s;
+        }
+
+        input[type="checkbox"]:checked + .custom-checkbox:after {
+            opacity: 1;
+        }
+    </style>
+
+
+
+
 <div class="container cen">
     <div class="row">
         <div class="col">
 <div class="filter-container tablo mt-5" style="position: sticky; top: 2rem; overflow-y: auto;">
 
+
+
+
     <label>Фильтр по сложности:</label>
+    <br>
     <div>
-        <label><input type="checkbox" value="Все" onchange="filterTasks(this)"> Все</label><br>
-        <label><input type="checkbox" value="Для овощей" onchange="filterTasks(this)"> Для овощей</label>
-        <label><input type="checkbox" value="Очень легка" onchange="filterTasks(this)"> Очень легкая</label>
-        <label><input type="checkbox" value="Легка" onchange="filterTasks(this)"> Легкая</label>
-        <label><input type="checkbox" value="Средняя" onchange="filterTasks(this)"> Средняя</label>
-        <label><input type="checkbox" value="Тяжелая" onchange="filterTasks(this)"> Тяжелая</label>
-        <label><input type="checkbox" value="Очень тяжелая" onchange="filterTasks(this)"> Очень тяжелая</label>
-        <label><input type="checkbox" value="Гроб" onchange="filterTasks(this)"> Гроб</label>
+        <label><input type="checkbox" value="Все" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Все</label><br>
+        <label><input type="checkbox" value="Для овощей" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Для овощей</label><br>
+        <label><input type="checkbox" value="Очень легка" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень легкая</label><br>
+        <label><input type="checkbox" value="Легка" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Легкая</label><br>
+        <label><input type="checkbox" value="Средняя" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Средняя</label><br>
+        <label><input type="checkbox" value="Тяжелая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Тяжелая</label><br>
+        <label><input type="checkbox" value="Очень тяжелая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень тяжелая</label><br>
+        <label><input type="checkbox" value="Гроб" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Гроб</label>
     </div>
+
+    <br>
 
     <label for="typeFilter">Фильтр по типу:</label>
     <select id="typeFilter" onchange="filterTasks()">
