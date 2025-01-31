@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+<script>
+    let fileCount = 1;
+    function addFileInput() {
+        if (fileCount < 5) {
+            const fileInputs = document.getElementById('file-inputs');
+            const newInput = document.createElement('input');
+            newInput.type = 'file';
+            newInput.name = 'file';
+            fileInputs.appendChild(newInput);
+            fileCount++;
+        }
+        else {
+            alert('Максимальное количество файлов - 5');
+        }
+    }
+</script>
+
+
+<div class="container py-4 py-xl-5">
+    <h1>Загрузите до 5 файлов</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+
+        {{ form.hidden_tag() }}
+
+        <div class="form-group mb-2">
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}<br>
+            {% for error in form.title.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="form-group mb-2">
+            {{ form.text.label }}<br>
+            {{ form.text(class="form-control") }}<br>
+            {% for error in form.text.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <div id="file-inputs">
+            <input type="file" name="file" multiple>
+        </div>
+        <button type="button" onclick="addFileInput()">Добавить файл</button>
+        <br>
+
+        <div class="d-grid gap-4 col-7 mx-auto">
+            {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

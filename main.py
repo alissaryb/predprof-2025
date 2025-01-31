@@ -11,7 +11,7 @@ from requests import get
 
 from forms.register import FormRegisterUser, FormLoginUser
 from forms.tasks import FormAddTask, QuizForm
-from forms.courses import FormAddCourse
+from forms.courses import FormAddCourse, FormAddPublication
 import json
 import datetime
 
@@ -45,14 +45,19 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-@app.route(f'/{app.config["UPLOAD_FOLDER"]}/<name>')
-def download_file(name):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], name)
-
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template("index.html", title="")
+
+
+@app.route('/materials/<name>')
+def download_file(name):
+    return send_from_directory('materials', name)
+
+
+@app.route('/random_work', methods=['GET', 'POST'])
+def random_work():
+    return render_template("random_work.html")
 
 
 @app.route('/practice', methods=['GET', 'POST'])
@@ -63,17 +68,17 @@ def practice():
     except ValueError:
         a = {}
 
-
     tasks = []
     for i in range(len(a)):
         b = a[str(i)]
-        with open(f'tasks/task{i}.txt', "r") as f:
+        with open(f'tasks/task{i}.txt', "r", encoding="utf-8") as f:
             s = f.read()
             b['text'] = s
+            print(s)
         tasks.append(b)
 
     print(tasks)
-    return render_template("3.html", title="", tasks=tasks)
+    return render_template("practice.html", title="", tasks=tasks)
 
 
 @app.route('/work', methods=['GET', 'POST'])
@@ -114,47 +119,63 @@ def work():
         with open("answers_users.json", 'w') as json_file:
             json.dump(cur_ans_user, json_file)
 
-        return render_template("work.html", title="", tasks=tasks, is_check=True, form=form, users_answers=users_answers, mark=mark, max_mark=len(tasks))
+        return render_template("work.html", title="", tasks=tasks,
+                               is_check=True, form=form,
+                               users_answers=users_answers, mark=mark,
+                               max_mark=len(tasks))
 
-    return render_template("work.html", title="", tasks=tasks, is_check=False, form=form, users_answers=users_answers)
+    return render_template("work.html", title="", tasks=tasks, is_check=False,
+                           form=form, users_answers=users_answers)
 
+
+@app.route('/add_publication', methods=['GET', 'POST'])
+def add_publication():
+    form = FormAddPublication()
+
+    my_courses = ["1", "2", "3"]
+    form.my_courses.choices = my_courses
+
+    return render_template("add_publication.html", form=form)
 
 
 @app.route('/all_courses', methods=['GET', 'POST'])
 def all_courses():
-    courses = [{"id": "0", "cours_name": "Подготовка к ЕГЭ на Пупоне",
-                "subject": "Инфа", "type": "video",
-                "link": "https://rutube.ru/play/embed/9852193",
-                "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса"},
-               {"id": "1", "cours_name": "HHHHHHHHHHHHH", "subject": "Русич",
-                "type": "presentation",
-                "link": "https://nsportal.ru/sites/default/files/2023/01/05/podgotovka_k_ege_2023_no1.pptx",
-                "description": "Господи, это такой крутой курс."},
-               {"id": "2", "cours_name": "UUUUUUUUUUUU", "subject": "Матан",
-                "description": "Господи, это такой крутой курс."},
-               {"id": "3", "cours_name": "IIIIIIIIII", "subject": "Физ",
-                "description": "Господи, это такой крутой курс."}]
+    courses = [
+        {"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
+        {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
+        {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
 
     return render_template("all_courses.html", title="", courses=courses)
 
+
 @app.route('/course/<id>', methods=['GET', 'POST'])
 def courses(id):
-    courses = [{"id": "0", "cours_name": "Подготовка к ЕГЭ на Пупоне",
-                "subject": "Инфа", "type": "video", "link": "https://rutube.ru/play/embed/9852193",
-                "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса"},
-               {"id": "1", "cours_name": "HHHHHHHHHHHHH", "subject": "Русич",
-                "type": "presentation", "link": "https://nsportal.ru/sites/default/files/2023/01/05/podgotovka_k_ege_2023_no1.pptx",
-                "description": "Господи, это такой крутой курс."},
-               {"id": "2", "cours_name": "UUUUUUUUUUUU", "subject": "Матан",
-                "description": "Господи, это такой крутой курс."},
-               {"id": "3", "cours_name": "IIIIIIIIII", "subject": "Физ",
-                "description": "Господи, это такой крутой курс."}]
+    courses = [{"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
+        {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
+        {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
 
-    course1 = courses[int(id)]
-    print(id, course1['id'])
-    return render_template("course.html", title="", id=id, course1=course1)
+    course = courses[int(id)]
 
-
+    publications = [{"uuid": "0", "title": "Кейс 2", "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете", "made_on_datetime": "432872", "files_folder_path": [("/materials/KE_task3_video1.mp4", "video"), ("/materials/prefixes.pptx", "other"), ("/materials/correct_ip.png", "img")], "type": "courses", "author": "Ф К Е"}, {}, {}]
+    return render_template("course.html", title="", id=id, course=course, publications=publications)
 
 
 @app.route('/profile', methods=['GET'])
@@ -187,7 +208,9 @@ def profile():
             print(user)
 
             user_group = []
-            return render_template("profile.html", title="Личный кабинет", user=user, user_group=user_group, len=len(user_group))
+            return render_template("profile.html", title="Личный кабинет",
+                                   user=user, user_group=user_group,
+                                   len=len(user_group))
 
     return render_template("profile.html", title="Личный кабинет",
                            user={'id': '0', 'name': 'Алиса',
@@ -195,13 +218,15 @@ def profile():
                                  'email': 'a1@a.com',
                                  'phone_number': '89154559579',
                                  'password': 'qwerty123', 'class_num': 10})
-                           #user_group=user_group, len=len(user_group))
+    # user_group=user_group, len=len(user_group))
 
 
 @app.route('/statistic', methods=['GET', 'POST'])
 def statistic():
-    arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15}, 3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100}, 5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
-    d = [i for i in range(1, len(arr)+1)]
+    arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15},
+           3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100},
+           5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
+    d = [i for i in range(1, len(arr) + 1)]
 
     for i in d:
         p = arr[i]['correct'] / arr[i]['all'] * 100
@@ -214,12 +239,11 @@ def statistic():
 def add_course():
     form = FormAddCourse()
     if form.submit.data == True:
-
         print(form.type.data)
 
         return redirect("/")
-    return render_template("add_course.html", title="Добавление курса", form=form)
-
+    return render_template("add_course.html", title="Добавление курса",
+                           form=form)
 
 
 @app.route('/add_task', methods=['GET', 'POST'])
@@ -254,7 +278,8 @@ def add_task():
             f.write(form.task.data)
 
         return redirect("/")
-    return render_template("add_task.html", title="Добавление задания", form=form)
+    return render_template("add_task.html", title="Добавление задания",
+                           form=form)
 
 
 @app.route('/teacher_groups', methods=['GET', 'POST'])

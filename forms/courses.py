@@ -8,10 +8,16 @@ SUBJECT = ['Английский', 'Астрономия', 'Биология', '
 
 
 class FormAddCourse(FlaskForm):
-    cours_name = StringField('Введите название курса', validators=[InputRequired('Обязательное поле')])
-    description = TextAreaField('Введите описание курса', validators=[InputRequired('Обязательное поле')])
+    title = StringField('Введите название курса', validators=[InputRequired('Обязательное поле')])
     subject = SelectField('Введите предмет изучения', choices=SUBJECT, validators=[DataRequired('Обязательное поле')])
+    description = TextAreaField('Введите описание курса', validators=[InputRequired('Обязательное поле')])
 
-    type = RadioField('Выберите опцию', choices=[('presentation', 'Презентация'), ('video', 'Видео'), ('metodichka', 'Методические материалы')], validators=[InputRequired('Обязательное поле')])
-    link = StringField('Введите ссылку на учебный материал', validators=[InputRequired('Обязательное поле')])
     submit = SubmitField('Добавить')
+
+
+class FormAddPublication(FlaskForm):
+    title = StringField('Название публикации', validators=[InputRequired('Обязательное поле')])
+    text = TextAreaField('Текст публикации', validators=[InputRequired('Обязательное поле')])
+    my_courses = SelectField('Категория', choices=[], validators=[InputRequired('Выберите категорию')])
+
+    submit = SubmitField('Опубликовать')

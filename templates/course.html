@@ -1,26 +1,63 @@
 {% extends 'base.html' %}
 {% block main_content %}
-<div class="p-5 mt-5 tablo" style="margin: 5%;">
 
-    <h4>{{ course1['cours_name'] }}</h4>
-    <p>{{ course1['description'] }}</p>
 
-    {% if course1['type'] == 'video' %}
-        <div class="video-container mb-3">
-                 <iframe src="{{course1['link']}}"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-            </iframe>
+<div class="p-5 mt-5 " style="margin: 5%;">
+
+     <h3>{{ course['title'] }}</h3>
+    <div>Предмет: {{ course['subject'] }}</div>
+    <div>Токен: {{ course['token'] }}</div>
+
+    <br>
+    <p>{{ course['description'] }}</p>
+
+    <div>Автор:  {{ course['author'] }}</div>
+    <div>Создан {{ course['made_on_datetime'] }}</div>
+    <br>
+
+
+    {% for i in publications %}
+        <div class="tablo">
+            <h5>{{ i['title'] }}</h5>
+            <hr>
+            <div>{{ i['text'] }}</div>
+            <br>
+            <div>Автор:  {{ i['author'] }}</div>
+            <div>Создан {{ i['made_on_datetime'] }}</div>
+            <br>
+            <h6>Материалы:</h6>
+            {% for j in i['files_folder_path'] %}
+                {% if j[1] == 'video' %}
+                    <iframe src="{{j[0]}}" frameborder="0"></iframe>
+                    <br>
+                    <a href="{{j[0]}}" download class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
+                        Скачать видео
+                    </a>
+                {% elif j[1] == 'img' %}
+            <iframe src="{{j[0]}}" frameborder="0"></iframe>
+                    <br>
+                    <a href="{{j[0]}}" download class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                        Скачать фото
+                    </a>
+                {% else %}
+                    <a href="{{j[0]}}" download class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                        Скачать материал
+                    </a>
+                {% endif %}
+
+
+                <br>
+
+
+            {% endfor %}
         </div>
-    {% elif  course1['type'] == 'presentation' %}
-        <a></a>
-    {% endif %}
-
+    {% endfor %}
 
     <div class="col-md-6 col-lg-4 cen">
         <a href="/all_courses" class="btn btn-violet cen">Вернутся ко всем курсам</a>
     </div>
+
+
 
 </div>
 
