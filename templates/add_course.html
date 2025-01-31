@@ -38,35 +38,6 @@
         </div>
 
 
-
-        <div class="form-group mb-4">
-            {{ form.type.label }}<br>
-            <div class="radio-label">
-                {% for subfield in form.type %}
-                    <label>
-                        {{ subfield() }} {{ subfield.label.text }}
-                    </label><br>
-                {% endfor %}
-            </div>
-            {% for error in form.type.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </div>
-
-
-        <div class="form-group mb-2">
-            {{ form.link.label }}<br>
-            {{ form.link(class="form-control") }}<br>
-            {% for error in form.link.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
-
-
         <div class="d-grid gap-4 col-7 mx-auto">
             {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
         </div>

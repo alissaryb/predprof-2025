@@ -7,7 +7,7 @@ from requests import get
 
 from forms.register import FormRegisterUser, FormLoginUser
 from forms.tasks import FormAddTask, QuizForm
-from forms.courses import FormAddCourse
+from forms.courses import FormAddCourse, FormAddPublication
 import json
 import datetime
 
@@ -86,6 +86,17 @@ def work():
 
     return render_template("work.html", title="", tasks=tasks, is_check=False,
                            form=form, users_answers=users_answers)
+
+
+
+@app.route('/add_publication', methods=['GET', 'POST'])
+def add_publication():
+    form = FormAddPublication()
+
+    my_courses = ["1", "2", "3"]
+    form.my_courses.choices = my_courses
+
+    return render_template("add_publication.html", form=form)
 
 
 @app.route('/all_courses', methods=['GET', 'POST'])
