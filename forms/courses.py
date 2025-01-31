@@ -2,7 +2,10 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, TextAreaField, SelectField, BooleanField, FieldList, FormField, RadioField
 from wtforms.validators import InputRequired, NumberRange, DataRequired
 
-SUBJECT = ['Английский', 'Астрономия', 'Биология', 'География', 'Информатика', 'История ', 'Литература', 'Математика', 'Обществознание', 'Русский язык', 'Физика', 'Химия']
+
+SUBJECT = ['Английский', 'Астрономия', 'Биология', 'География', 'Информатика', 'История ', 'Литература', 'Математика',
+           'Обществознание', 'Русский язык', 'Физика', 'Химия']
+
 
 class FormAddCourse(FlaskForm):
     cours_name = StringField('Введите название курса', validators=[InputRequired('Обязательное поле')])

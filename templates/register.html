@@ -1,140 +1,158 @@
 {% extends 'base.html' %}
 {% block main_content %}
 
-
 <div class="main tablo-block-reg col-md-10 col-lg-6 cen">
     <form action="" method="post">
-        <h1 class="text-center">{{title}}</h1>
+        <h1 class="text-center">{{ title }}</h1>
 
         {{ form.hidden_tag() }}
 
         <div class="container">
 
-
-        <div class="col-12 cen">
-        <div class="form-group mb-1">
-            {{ form.name.label }} <br>
-
-            {{ form.name(class="form-control") }}<br>
-            {% for error in form.name.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
-        </div>
-
-        <div class="col-12 cen">
-        <div class="form-group mb-1">
-            {{ form.surname.label }} <br>
-            {{ form.surname(class="form-control") }}<br>
-            {% for error in form.surname.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
-        </div>
-
-        <div class="col-12 cen">
-        <div class="form-group mb-1">
-            {{ form.lastname.label }} <br>
-            {{ form.lastname(class="form-control") }}<br>
-            {% for error in form.lastname.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
-        </div>
-
-
-        <div class="col-12 cen">
-        <div class="form-group mb-1">
-            {{ form.email.label }} <br>
-            {{ form.email(class="form-control") }}<br>
-            {% for error in form.email.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
-        </div>
-
-        <div class="col-12 cen">
-        <div class="form-group mb-1">
-            {{ form.phone_number.label }} <br>
-            {{ form.phone_number(class="form-control") }}<br>
-            {% for error in form.phone_number.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
-        </div>
-
-<div class="col-12 cen">
-    <div class="row">
-        <div class="col-md-12 col-lg-6">
-            <div class="content">
+            <div class="col-12 cen">
                 <div class="form-group mb-1">
-                    {{ form.password.label }} <br>
-                    {{ form.password(class="form-control") }}<br>
-                    {% for error in form.password.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
+                    {{ form.username.label }} <br>
+
+                    {{ form.username(class="form-control") }}<br>
+                    {% for error in form.username.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
                     {% endfor %}
                 </div>
             </div>
-        </div>
-        <div class="col-md-12 col-lg-6">
-            <div class="content">
+
+            <div class="col-12 cen">
                 <div class="form-group mb-1">
-                    {{ form.password_check.label }} <br>
-                    {{ form.password_check(class="form-control") }}<br>
-                    {% for error in form.password_check.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
+                    {{ form.email.label }} <br>
+                    {{ form.email(class="form-control") }}<br>
+                    {% for error in form.email.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
                     {% endfor %}
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
+            <div class="col-12 cen">
+                <div class="form-group mb-1">
+                    {{ form.name.label }} <br>
 
-
-
-        <div class="col-12 cen">
-        <div class="form-group mb-1">
-            {{ form.class_num.label }} <br>
-            {{ form.class_num(class="form-control") }}<br>
-            {% for error in form.class_num.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
+                    {{ form.name(class="form-control") }}<br>
+                    {% for error in form.name.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-            {% endfor %}
-        </div>
-        </div>
 
+            <div class="col-12 cen">
+                <div class="form-group mb-1">
+                    {{ form.surname.label }} <br>
+                    {{ form.surname(class="form-control") }}<br>
+                    {% for error in form.surname.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
 
-</div>
+            <div class="col-12 cen">
+                <div class="form-group mb-1">
+                    {{ form.lastname.label }} <br>
+                    {{ form.lastname(class="form-control") }}<br>
+                    {% for error in form.lastname.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-12 cen">
+                <div class="form-group mb-1">
+                    {{ form.class_num.label }} <br>
+                    {{ form.class_num(class="form-control") }}<br>
+                    {% for error in form.class_num.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-12 cen">
+                <div class="form-group mb-1">
+                    {{ form.phone_number.label }} <br>
+                    {{ form.phone_number(class="form-control") }}<br>
+                    {% for error in form.phone_number.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-12 cen">
+                <div class="form-group mb-1">
+                    {{ form.school.label }} <br>
+                    {{ form.school(class="form-control") }}<br>
+                    {% for error in form.school.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-12 cen">
+                <div class="row">
+                    <div class="col-md-12 col-lg-6">
+                        <div class="content">
+                            <div class="form-group mb-1">
+                                {{ form.password.label }} <br>
+                                {{ form.password(class="form-control") }}<br>
+                                {% for error in form.password.errors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-lg-6">
+                        <div class="content">
+                            <div class="form-group mb-1">
+                                {{ form.password_check.label }} <br>
+                                {{ form.password_check(class="form-control") }}<br>
+                                {% for error in form.password_check.errors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
 
         <br>
 
         <div class="d-grid gap-3 col-10 mx-auto">
             {{ form.submit(type="submit", class="btn btn-green btn-lg") }}
-
-            <input class="btn btn-red btn-lg" type="reset" value="Сбросить">  <!-- Кнопка сброса -->
-
+            <input class="btn btn-red btn-lg" type="reset" value="Сбросить">
             <a href="/" class="btn btn-violet btn-lg">На главную</a>
-
         </div>
+
+        {% if message %}
+            <div class="mt-4 alert alert-warning" role="alert">{{ message }}</div>
+        {% endif %}
 
     </form>
 </div>
-
 
 {% endblock %}

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from flask_login import LoginManager, login_required, current_user, login_user, \
     logout_user, UserMixin
 from flask_wtf.csrf import CSRFProtect
@@ -14,16 +15,44 @@ from forms.courses import FormAddCourse
 import json
 import datetime
 
+import uuid
 
+from sa_models import db_session
+from sa_models.users import User
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret_key'
+db_session.global_init('database/portal.db')
 
+app.config['SECRET_KEY'] = 'wrbn2i3o4ufbnldq4nwku'
+app.config['UPLOAD_FOLDER'] = 'uploads'
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+def login_forbidden(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if current_user.is_authenticated:
+            return redirect('/')
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
+
+@app.route(f'/{app.config["UPLOAD_FOLDER"]}/<name>')
+def download_file(name):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template("a.html", title="")
+    return render_template("index.html", title="")
 
 
 @app.route('/practice', methods=['GET', 'POST'])
@@ -128,12 +157,16 @@ def courses(id):
 
 
 
-@app.route('/profile', methods=['GET', 'POST'])
-@app.route('/profile/<name>', methods=['GET', 'POST'])
-def profile(name=""):
-    user_group = [{"token": "g4d65g", "group_name": "11 класс it"}, {"token": "р375gy", "group_name": "10 класс mt"}]
+@app.route('/profile', methods=['GET'])
+def profile():
+    user_group = [{"token": "g4d65g", "group_name": "11 класс it"},
+                  {"token": "р375gy", "group_name": "10 класс mt"}]
 
-    return render_template("profile.html", title="Личный кабинет", user={'id': '0', 'name': 'Алиса', 'surname': 'Рыбакова', 'lastname': 'Рыбакова', 'email': 'a1@a.com', 'phone_number': '89154559579', 'password': 'qwerty123', 'class_num': 10 }, user_group=user_group, len=len(user_group))
+    return render_template("profile.html", title="Личный кабинет",
+                           user={'id': '0', 'name': 'Алиса', 'surname': 'Рыбакова',
+                                 'lastname': 'Рыбакова', 'email': 'a1@a.com',
+                                 'phone_number': '89154559579', 'password': 'qwerty123',
+                                 'class_num': 10 }, user_group=user_group, len=len(user_group))
     referer = request.base_url
 
     if referer == "http://127.0.0.1:8080/profile":
@@ -164,6 +197,7 @@ def profile(name=""):
                                  'password': 'qwerty123', 'class_num': 10})
                            #user_group=user_group, len=len(user_group))
 
+
 @app.route('/statistic', methods=['GET', 'POST'])
 def statistic():
     arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15}, 3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100}, 5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
@@ -174,6 +208,7 @@ def statistic():
         arr[i]['pr'] = p
 
     return render_template("statistic.html", arr=arr, d=d)
+
 
 @app.route('/add_course', methods=['GET', 'POST'])
 def add_course():
@@ -232,71 +267,79 @@ def teacher_groups():
 
 
 @app.route('/register', methods=['GET', 'POST'])
+@login_forbidden
 def register():
     form = FormRegisterUser()
-    if form.submit.data:
-        try:
-            with open('users.json', 'r') as json_file:
-                a = json.load(json_file)
-        except ValueError:
-            a = {}
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
 
-        id = str(len(a))
+        exists = db_sess.query(User).where(User.username == form.username.data).first()
+        if exists is not None:
+            db_sess.close()
+            return render_template("register.html", title="Регистрация", form=form,
+                                   message="Аккаунт с таким никнеймом уже зарегистрирован")
 
+        user = User()
+        user.uuid = str(uuid.uuid4())
+        user.email = form.email.data
+        user.name = form.name.data
+        user.surname = form.surname.data
+        user.username = form.username.data
+        user.lastname = form.lastname.data
+        user.class_number = form.class_num.data
+        user.school = form.school.data
+        user.set_password(form.password.data)
+        user.access_level = 'user'
+        user.phone_number = form.phone_number.data
+        db_sess.add(user)
+        db_sess.commit()
 
-        user = {
-            "id": id,
-            "name": form.name.data,
-            "surname": form.surname.data,
-            "lastname": form.lastname.data,
-            "email": form.email.data,
-            "phone_number": form.phone_number.data,
-            "password": form.password.data,
-            "class_num": form.class_num.data,
-        }
+        login_user(user, remember=True)
 
-        a[id] = user
-        with open("users.json", 'w') as json_file:
-            json.dump(a, json_file)
+        db_sess.close()
 
-        return redirect('/login')
+        return redirect('/')
 
     return render_template("register.html", title="Регистрация", form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@login_forbidden
 def login():
     form = FormLoginUser()
-    # if current_user.is_authenticated:
-    #     return render_template('index.html', title="")
-    if form.submit.data:
-        try:
-            with open('users.json', 'r') as json_file:
-                a = json.load(json_file)
-        except ValueError:
-            a = {}
+    if form.validate_on_submit():
+        email_or_username = form.email_or_username.data
+        psw = form.password.data
+        db_sess = db_session.create_session()
 
-        cur_user = form.email.data
-        cur_pas = form.password.data
-        for i in range(len(a)):
-            if a[str(i)]['email'] == cur_user or a[str(i)]['email'] == cur_user:
-                if a[str(i)]['password'] == cur_pas:
-                    return redirect("/profile/" + a[str(i)]['nickname'])
-                else:
-                    return render_template("login.html", title="Авторизация", form=form, message="Неверный пароль")
+        exists = db_sess.query(User).where(User.email == email_or_username).first()
+        exists2 = db_sess.query(User).where(User.username == email_or_username).first()
+        if exists is None and exists2 is None:
+            db_sess.close()
+            return render_template("login.html", title="Авторизация", form=form,
+                                   message="Такого пользователя не существует")
 
-        return render_template("login.html", title="Авторизация", form=form, message="Такого пользователя не существует")
+        if exists is None and exists2 is not None:
+            exists = exists2
 
+        if not exists.check_password(psw):
+            db_sess.close()
+            return render_template("login.html", title="Авторизация", form=form,
+                                   message="Неверный пароль")
+
+        login_user(exists, remember=True)
+        db_sess.close()
+        return redirect("/")
 
     return render_template("login.html", title="Авторизация", form=form)
 
 
-@app.route('/error1', methods=['GET', 'POST'])
-def error1():
-    return render_template("error.html", err="Такого пользователя не существует")
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 if __name__ == "__main__":
-    # with open("tasks.json", 'w') as json_file:
-    # json.dump({}, json_file)
-    app.run(port=8080, host="127.0.0.1")
+    app.run(port=8080, host="127.0.0.1", threaded=True)
