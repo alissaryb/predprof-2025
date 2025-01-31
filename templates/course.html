@@ -1,21 +1,20 @@
 {% extends 'base.html' %}
 {% block main_content %}
-<div class="p-5 mt-5 tablo" style="margin: 5%;">
+<div class="p-5 mt-5 " style="margin: 5%;">
 
-    <h4>{{ course1['cours_name'] }}</h4>
-    <p>{{ course1['description'] }}</p>
+     <h3>{{ course['title'] }}</h3>
+    <div>Предмет: {{ i['subject'] }}</div>
+    <div>Токен: {{ course['token'] }}</div>
 
-    {% if course1['type'] == 'video' %}
-        <div class="video-container mb-3">
-                 <iframe src="{{course1['link']}}"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-            </iframe>
-        </div>
-    {% elif  course1['type'] == 'presentation' %}
-        <a></a>
-    {% endif %}
+    <br>
+    <p>{{ course['description'] }}</p>
+
+    <div>Автор:  {{ course['author'] }}</div>
+    <div>Создан {{ course['made_on_datetime'] }}</div>
+    <br>
+
+
+
 
 
     <div class="col-md-6 col-lg-4 cen">

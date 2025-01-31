@@ -122,10 +122,10 @@ def courses(id):
          "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
          "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
 
-    course1 = courses[int(id)]
-    print(id, course1['id'])
-    publications = [{"uuid": "0", "title": "Кейс 2", "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете", "made_on_datetime": "432872", "files_folder_path": [(), ()], "type": "courses", "author": "Ф К Е"}, {}, {}]
-    return render_template("course.html", title="", id=id, course1=course1)
+    course = courses[int(id)]
+
+    publications = [{"uuid": "0", "title": "Кейс 2", "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете", "made_on_datetime": "432872", "files_folder_path": [("/materiale/KE_task3_video1"), ()], "type": "courses", "author": "Ф К Е"}, {}, {}]
+    return render_template("course.html", title="", id=id, course=course, publications=publications)
 
 
 @app.route('/profile', methods=['GET', 'POST'])

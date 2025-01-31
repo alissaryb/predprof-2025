@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block main_content %}
 
-
 <div class="container cen">
     <div class="row">
         <div class="col">
@@ -32,7 +31,9 @@
 
         <div class="col-md-9">
             {% for i in tasks %}
-                <main class="container mt-5 p-5 tablo task-item" data-difficulty="{{i['level']}}" data-type="{{i['type']}}">
+            <div class="smooth-animation">
+                <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}" data-type="{{i['type']}}">
+
                     <h4> Задание {{i["type"]}} </h4>
                     <h6>id-задания {{i["id"]}}</h6>
 
@@ -53,6 +54,7 @@
                         </div>
                     </div>
                 </main>
+                </div>
             {% endfor %}
         </div>
     </div>
