@@ -2,7 +2,57 @@
 {% block main_content %}
 
     <div class="container py-4 py-xl-5">
-        <a class="btn btn-violet" href="work.html">Создать персональный вариант</a>
+        <a class="btn btn-violet cen col-sm-12 col-md-6" href="work.html">Создать персональный вариант</a>
+
+        <h5>Создать работу</h5>
+        <form action="" method="POST">
+        <div id="items">
+
+        </div>
+        <div class="checkbox-group">
+            <h2>Выберите категории:</h2>
+            <label><input type="checkbox" name="categories" value="Для овощей"> Для овощей</label><br>
+            <label><input type="checkbox" name="categories" value="Очень легкая"> Очень легкая</label><br>
+            <label><input type="checkbox" name="categories" value="Легкая"> Легкая</label><br>
+            <label><input type="checkbox" name="categories" value="Средняя"> Средняя</label><br>
+            <label><input type="checkbox" name="categories" value="Тяжелая"> Тяжелая</label><br>
+            <label><input type="checkbox" name="categories" value="Очень тяжелая"> Очень тяжелая</label><br>
+            <label><input type="checkbox" name="categories" value="Гроб"> Гроб</label><br>
+        </div>
+        <button type="submit">Отправить</button>
+    </form>
+    <script>
+        const itemsContainer = document.getElementById('items');
+        const itemCount = 27;
+
+        for (let i = 0; i < itemCount; i++) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.innerHTML = `
+                <button type="button" onclick="changeValue(${i}, -1)">-</button>
+                <input type="number" name="values[]" id="value-${i}" value="0" min="0" oninput="validateInput(${i})">
+                <button type="button" onclick="changeValue(${i}, 1)">+</button>
+            `;
+            itemsContainer.appendChild(itemDiv);
+        }
+
+        function changeValue(index, delta) {
+            const input = document.getElementById(`value-${index}`);
+            let currentValue = parseInt(input.value) || 0;
+            currentValue += delta;
+            input.value = currentValue < 0 ? 0 : currentValue;
+        }
+
+        function validateInput(index) {
+            const input = document.getElementById(`value-${index}`);
+            let currentValue = parseInt(input.value) || 0;
+            if (currentValue < 0) {
+                input.value = 0;
+            }
+        }
+    </script>
     </div>
+
+
 
 {% endblock %}
