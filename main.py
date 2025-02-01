@@ -147,7 +147,7 @@ def all_courses():
          "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
         {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
          "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "description": "Господи, это такой крутой курс.",
          "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
         {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
          "type": "public",
@@ -234,6 +234,16 @@ def statistic():
 
     return render_template("statistic.html", arr=arr, d=d)
 
+@app.route('/my_grops', methods=['GET', 'POST'])
+def my_grops():
+    return render_template("my_grops.html")
+
+@app.route('/my_courses', methods=['GET', 'POST'])
+def my_courses():
+    student_courses = []
+    teacher_courses = [] #список словарей
+
+    return render_template("my_courses.html", teacher_courses=teacher_courses, student_courses=student_courses)
 
 @app.route('/add_course', methods=['GET', 'POST'])
 def add_course():
@@ -242,8 +252,7 @@ def add_course():
         print(form.type.data)
 
         return redirect("/")
-    return render_template("add_course.html", title="Добавление курса",
-                           form=form)
+    return render_template("add_course.html", title="Добавление курса", form=form)
 
 
 @app.route('/add_task', methods=['GET', 'POST'])

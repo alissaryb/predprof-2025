@@ -7,15 +7,33 @@
         <h1 class="text-center">{{title}}</h1>
         {{ form.hidden_tag() }}
 
-        <div class="form-group mb-2">
-            {{ form.cours_name.label }}<br>
-            {{ form.cours_name(class="form-control") }}<br>
-            {% for error in form.cours_name.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
+         <div class="col-12">
+             <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <div class="form-group mb-2">
+                        {{ form.title.label }}<br>
+                        {{ form.title(class="form-control") }}<br>
+                        {% for error in form.title.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                 <div class="col-md-12 col-lg-6">
+                     <div class="form-group mb-2">
+                        {{ form.subject.label }}<br>
+                        {{ form.subject(class="form-control") }}<br>
+                        {% for error in form.subject.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                 </div>
+             </div>
+         </div>
 
         <div class="form-group mb-2">
             {{ form.description.label }}<br>
@@ -27,15 +45,7 @@
             {% endfor %}
         </div>
 
-        <div class="form-group mb-2">
-            {{ form.subject.label }}<br>
-            {{ form.subject(class="form-control") }}<br>
-            {% for error in form.subject.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
-            </div>
-            {% endfor %}
-        </div>
+
 
 
         <div class="d-grid gap-4 col-7 mx-auto">

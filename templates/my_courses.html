@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
 {% block main_content %}
-<div class="p-5 mt-5 " style="margin: 5%;">
+<div class="container">
     <h1>Мои курсы</h1>
 
-    <h3>Препадаю</h3>
+    <h3>Преподаю</h3>
+    {% if teacher_courses | length == 0 %}
+        <div>У Вас нет таких курсов</div>
+    {% endif %}
+
     {% for i in teacher_courses %}
     <div class="col d-flex">
         <div class="card flex-fill">
@@ -31,6 +35,10 @@
     <br>
 
     <h3>Учучь</h3>
+    {% if student_courses | length == 0 %}
+        <div>У Вас нет таких курсов</div>
+    {% endif %}
+
     {% for i in student_courses %}
     <div class="col d-flex">
         <div class="card flex-fill">
