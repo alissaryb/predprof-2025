@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, TextAreaField, SelectField, BooleanField, FieldList, FormField, RadioField
+from wtforms import StringField, SubmitField, IntegerField, TextAreaField, SelectField, BooleanField, FieldList, FormField, RadioField, FileField
 from wtforms.validators import InputRequired, NumberRange, DataRequired
 
 
@@ -19,5 +19,6 @@ class FormAddPublication(FlaskForm):
     title = StringField('Название публикации', validators=[InputRequired('Обязательное поле')])
     text = TextAreaField('Текст публикации', validators=[InputRequired('Обязательное поле')])
     my_courses = SelectField('Категория', choices=[], validators=[InputRequired('Выберите категорию')])
+    files = FileField('Выберите файлы', validators=[DataRequired()], render_kw={"multiple": True})
 
     submit = SubmitField('Опубликовать')

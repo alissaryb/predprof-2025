@@ -124,16 +124,19 @@ def work():
                                users_answers=users_answers, mark=mark,
                                max_mark=len(tasks))
 
-    return render_template("work.html", title="", tasks=tasks, is_check=False,
-                           form=form, users_answers=users_answers)
+    return render_template("work.html", title="", tasks=tasks, is_check=False, form=form, users_answers=users_answers)
 
 
 @app.route('/add_publication', methods=['GET', 'POST'])
 def add_publication():
     form = FormAddPublication()
-
     my_courses = ["1", "2", "3"]
     form.my_courses.choices = my_courses
+
+    if form.validate_on_submit():
+        files = request.files.getlist(form.files.name)  # Получаем список файлов
+        print(files)
+        return "djnndq"
 
     return render_template("add_publication.html", form=form)
 

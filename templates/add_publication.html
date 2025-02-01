@@ -20,9 +20,8 @@
 
 
 <div class="container py-4 py-xl-5">
-    <h1>Загрузите до 5 файлов</h1>
-    <form action="" method="post" enctype="multipart/form-data">
 
+    <form action="" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
 
         <div class="form-group mb-2">
@@ -44,18 +43,25 @@
             {% endfor %}
         </div>
 
-
-        <div id="file-inputs">
-            <input type="file" name="file" multiple>
+        <div class="form-group mb-2">
+            {{ form.my_courses.label }}<br>
+            {{ form.my_courses(class="form-control") }}<br>
+            {% for error in form.my_courses.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
         </div>
-        <button type="button" onclick="addFileInput()">Добавить файл</button>
-        <br>
+
+        {{ form.files() }}
 
         <div class="d-grid gap-4 col-7 mx-auto">
             {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
         </div>
 
     </form>
+
+
 </div>
 
 {% endblock %}
