@@ -1,24 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import datetime
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
-from flask_login import LoginManager, login_required, current_user, login_user, \
-    logout_user, UserMixin
-from flask_wtf.csrf import CSRFProtect
-
-from requests import get
+from flask import Flask, render_template, request, redirect, send_from_directory
+from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 
 from forms.register import FormRegisterUser, FormLoginUser
 from forms.tasks import FormAddTask, QuizForm
 from forms.courses import FormAddCourse, FormAddPublication
-import json
-import datetime
 
+import json
 import uuid
 
 from sa_models import db_session
 from sa_models.users import User
+from sa_models.courses import Course
+from sa_models.course_to_user import CourseToUser
+
+from py_scripts import funcs_back
+
 
 app = Flask(__name__)
 db_session.global_init('database/portal.db')
@@ -132,50 +133,10 @@ def work():
 def add_publication():
     form = FormAddPublication()
 
-    my_courses = ["1", "2", "3"]
-    form.my_courses.choices = my_courses
+    my_courses_ = ["1", "2", "3"]
+    form.my_courses.choices = my_courses_
 
     return render_template("add_publication.html", form=form)
-
-
-@app.route('/all_courses', methods=['GET', 'POST'])
-def all_courses():
-    courses = [
-        {"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
-        {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс.",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
-        {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
-
-    return render_template("all_courses.html", title="", courses=courses)
-
-
-@app.route('/course/<id>', methods=['GET', 'POST'])
-def courses(id):
-    courses = [{"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
-        {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
-        {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
-
-    course = courses[int(id)]
-
-    publications = [{"uuid": "0", "title": "Кейс 2", "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете", "made_on_datetime": "432872", "files_folder_path": [("/materials/KE_task3_video1.mp4", "video"), ("/materials/prefixes.pptx", "other"), ("/materials/correct_ip.png", "img")], "type": "courses", "author": "Ф К Е"}, {}, {}]
-    return render_template("course.html", title="", id=id, course=course, publications=publications)
 
 
 @app.route('/profile', methods=['GET'])
@@ -238,27 +199,19 @@ def statistic():
 def my_grops():
     return render_template("my_grops.html")
 
-@app.route('/my_courses', methods=['GET', 'POST'])
-def my_courses():
-    student_courses = []
-    teacher_courses = [] #список словарей
 
-    return render_template("my_courses.html", teacher_courses=teacher_courses, student_courses=student_courses)
+@app.route('/teacher_groups', methods=['GET', 'POST'])
+def teacher_groups():
+    courses = [{"id": "0", "num_class": 6, "token": "sh24re"},
+               {"id": "1", "num_class": 10, "token": "dfs3y53"},
+               {"id": "2", "num_class": 10, "token": "fdj836"}]
 
-@app.route('/add_course', methods=['GET', 'POST'])
-def add_course():
-    form = FormAddCourse()
-    if form.submit.data == True:
-        print(form.type.data)
-
-        return redirect("/")
-    return render_template("add_course.html", title="Добавление курса", form=form)
+    return render_template("teacher_groups.html", courses=courses)
 
 
 @app.route('/add_task', methods=['GET', 'POST'])
 def add_task():
     form = FormAddTask()
-    print(form)
     if form.submit.data == True:
         print("SUBMIT")
         try:
@@ -291,13 +244,122 @@ def add_task():
                            form=form)
 
 
-@app.route('/teacher_groups', methods=['GET', 'POST'])
-def teacher_groups():
-    courses = [{"id": "0", "num_class": 6, "token": "sh24re"},
-               {"id": "1", "num_class": 10, "token": "dfs3y53"},
-               {"id": "2", "num_class": 10, "token": "fdj836"}]
+@app.route('/course/<course_uuid>', methods=['GET'])
+def course_by_uuid(course_uuid):
+    db_sess = db_session.create_session()
 
-    return render_template("teacher_groups.html", courses=courses)
+    course = db_sess.query(Course).where(Course.uuid == course_uuid).first()
+    if course is None:
+        return render_template("err.html", title="Курс не найден", err='Курс не найден')
+
+    course_data = {
+        'uuid': course_uuid,
+        'title': course.title,
+        'subject': course.subject,
+        'description': course.description,
+        'token': course.token,
+        'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
+        'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.'
+    }
+
+    all_tags = []
+    publications = []
+    for note in publications:
+        note_data = {
+            'uuid': note.uuid,
+            'title': note.title,
+            'text': note.text,
+            'made_on_datetime': note.made_on_datetime.strftime('%d.%m.%Y'),
+            'tag': note.tag,
+
+        }
+
+    courses = [{"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
+        {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
+        {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+         "type": "public",
+         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
+
+    course = courses[int(id)]
+
+    publications = [{"uuid": "0", "title": "Кейс 2",
+                     "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете",
+                     "made_on_datetime": "432872", "files_folder_path":
+                         [("/materials/KE_task3_video1.mp4", "video"), ("/materials/prefixes.pptx", "other"),
+                          ("/materials/correct_ip.png", "img")], "author": "Ф К Е"}, {}, {}]
+    return render_template("course.html", title="", id=id, course=course, publications=publications)
+
+
+@app.route('/add_course', methods=['GET', 'POST'])
+@login_required
+def add_course():
+    form = FormAddCourse()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+
+        new_course = Course()
+        new_course.title = form.title.data
+        new_course.description = form.description.data
+        new_course.subject = form.subject.data
+        new_course.uuid = str(uuid.uuid4())
+        new_course.token = funcs_back.generate_token()
+
+        db_sess.add(new_course)
+        db_sess.commit()
+
+        db_sess.close()
+
+        return redirect("/")
+
+    return render_template("add_course.html", title="Создание курса", form=form)
+
+
+@app.route('/all_courses', methods=['GET'])
+def all_courses():
+    db_sess = db_session.create_session()
+
+    all_ = db_sess.query(Course).order_by(Course.made_on_datetime).all()
+    registered_courses_uuids = []
+    if current_user.is_authenticated:
+        registered_courses_uuids = (funcs_back.get_courses_teach(current_user.uuid) +
+                                    funcs_back.get_courses_learn(current_user.uuid))
+        for i in range(len(registered_courses_uuids)):
+            registered_courses_uuids[i] = registered_courses_uuids[i]['uuid']
+
+    courses = []
+    for course in all_:
+        d = {
+            'title': course.title,
+            'subject': course.subject,
+            'token': course.token,
+            'description': course.description,
+            'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.',
+            'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
+            'uuid': course.uuid,
+        }
+        courses.append(d)
+
+    db_sess.close()
+
+    return render_template("all_courses.html", title="Каталог курсов", courses=courses,
+                           registered_courses_uuids=registered_courses_uuids)
+
+
+@app.route('/my_courses', methods=['GET'])
+@login_required
+def my_courses():
+    student_courses = funcs_back.get_courses_learn(current_user.uuid)
+    teacher_courses = funcs_back.get_courses_teach(current_user.uuid)
+
+    return render_template("my_courses.html", teacher_courses=teacher_courses,
+                           student_courses=student_courses, title="Мои курсы")
 
 
 @app.route('/register', methods=['GET', 'POST'])

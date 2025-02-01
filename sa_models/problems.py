@@ -13,10 +13,10 @@ class Problem(SqlAlchemyBase):
     answer = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     kim_type_uuid = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("kim_types.uuid"))
-    kim_type = orm.relationship("User")
+    kim_type = orm.relationship("KimType")
 
     difficulty_uuid = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("difficulties.uuid"))
-    difficulty = orm.relationship("User")
+    difficulty = orm.relationship("Difficulty")
 
     def __repr__(self):
         return f'<Problem> {self.uuid} {self.text}'
