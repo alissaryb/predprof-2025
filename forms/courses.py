@@ -9,8 +9,8 @@ SUBJECT = ['Английский', 'Астрономия', 'Биология', '
 
 class FormAddCourse(FlaskForm):
     title = StringField('Введите название курса', validators=[InputRequired('Обязательное поле')])
-    subject = SelectField('Введите предмет изучения', choices=SUBJECT, validators=[DataRequired('Обязательное поле')])
     description = TextAreaField('Введите описание курса', validators=[InputRequired('Обязательное поле')])
+    subject = SelectField('Введите предмет изучения', choices=SUBJECT, validators=[DataRequired('Обязательное поле')])
 
     submit = SubmitField('Добавить')
 
