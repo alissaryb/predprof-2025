@@ -82,20 +82,20 @@
         </ul>
         {% if not current_user.is_authenticated %}
             <div class="text-end d-none d-lg-block py-2">
+                <a href="/login" class="btn btn-green">Вход</a>
+                <a href="/register" class="btn btn-green">Регистрация</a>
+            </div>
+            <div class="text d-lg-none py-2">
                 <a href="/login" class="btn btn-violet">Вход</a>
                 <a href="/register" class="btn btn-violet">Регистрация</a>
             </div>
-{#                <div class="text d-lg-none py-2">#}
-{#                    <a href="/login" class="btn btn-violet">Вход</a>#}
-{#                    <a href="/register" class="btn btn-violet">Регистрация</a>#}
-{#                </div>#}
         {% else %}
             <div class="text-end d-none d-lg-block py-2">
-                <a href="/logout" class="btn btn-violet btn">Выйти</a>
+                <a href="/logout" class="btn btn-red btn">Выйти</a>
             </div>
-{#                <div class="text d-lg-none py-2">#}
-{#                    <a href="/logout" class="btn btn-violet btn">Выйти</a>#}
-{#                </div>#}
+            <div class="text d-lg-none py-2">
+                <a href="/logout" class="btn btn-red btn">Выйти</a>
+            </div>
         {% endif %}
 
     </div>
