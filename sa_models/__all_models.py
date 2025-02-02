@@ -6,3 +6,7 @@ from . import group_to_user
 from . import groups
 from . import publications
 from . import users
+from . import problems
+from . import difficulties
+from . import kim_types
+from . import problems

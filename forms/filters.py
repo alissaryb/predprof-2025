@@ -7,5 +7,4 @@ from wtforms.widgets import CheckboxInput
 import re
 
 class TaskFilter(FlaskForm):
-
-
+    pass

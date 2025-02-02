@@ -3,16 +3,16 @@ from wtforms import StringField, SubmitField, IntegerField, TextAreaField, Selec
 from wtforms.validators import InputRequired, NumberRange, DataRequired
 
 
-SUBJECT = ['Английский', 'Астрономия', 'Биология', 'География', 'Информатика', 'История ', 'Литература', 'Математика',
-           'Обществознание', 'Русский язык', 'Физика', 'Химия']
+SUBJECTS = ['Информатика', 'Математика', 'Русский язык']
 
 
 class FormAddCourse(FlaskForm):
     title = StringField('Введите название курса', validators=[InputRequired('Обязательное поле')])
     description = TextAreaField('Введите описание курса', validators=[InputRequired('Обязательное поле')])
-    subject = SelectField('Введите предмет изучения', choices=SUBJECT, validators=[DataRequired('Обязательное поле')])
+    subject = SelectField('Введите предмет изучения', choices=SUBJECTS,
+                          validators=[DataRequired('Обязательное поле')])
 
-    submit = SubmitField('Добавить')
+    submit = SubmitField('Создать')
 
 
 class FormAddPublication(FlaskForm):
