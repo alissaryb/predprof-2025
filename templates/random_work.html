@@ -7,8 +7,8 @@
         <h5>Создать работу</h5>
         <form action="" method="POST">
         <div id="items">
-
         </div>
+
         <div class="checkbox-group">
             <h2>Выберите категории:</h2>
             <label><input type="checkbox" name="categories" value="Для овощей"> Для овощей</label><br>
@@ -21,6 +21,7 @@
         </div>
         <button type="submit">Отправить</button>
     </form>
+
     <script>
         const itemsContainer = document.getElementById('items');
         const itemCount = 27;
@@ -29,9 +30,13 @@
             const itemDiv = document.createElement('div');
             itemDiv.className = 'item';
             itemDiv.innerHTML = `
-                <button type="button" onclick="changeValue(${i}, -1)">-</button>
-                <input type="number" name="values[]" id="value-${i}" value="0" min="0" oninput="validateInput(${i})">
-                <button type="button" onclick="changeValue(${i}, 1)">+</button>
+                <div style="height: 15px">
+                    <button class="btn-violet" style="height: 15px" type="button" onclick="changeValue(${i}, -1)">-</button>
+                    <input type="number" style="font-size: 10px;" name="values[]" id="value-${i}" value="0" min="0" oninput="validateInput(${i})">
+                    <button class="button" style="height: 15px" type="button" onclick="changeValue(${i}, 1)">+</button>
+                </div>
+                <div class="small-br"></div>
+                <div class="small-br"></div>
             `;
             itemsContainer.appendChild(itemDiv);
         }

@@ -31,27 +31,6 @@
           <div class="bright">{{user['phone_number']}}</div>
       </div>
 
-        {% if 1 %}
-        <div class="tablo">
-            <h6>Группы</h6>
-            <hr>
-
-            <table>
-                <tbody>
-                    {% for i in user_group %}
-                    <tr>
-                       <td style="padding-right: 10px;">
-                          {{i['group_name']}}:
-                       </td>
-                       <td> {{i['token']}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-
-         </div>
-        {% endif %}
   </div>
 
 
