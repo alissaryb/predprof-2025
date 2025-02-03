@@ -247,13 +247,15 @@ def add_task():
                            form=form)
 
 
-@app.route('/course/<course_uuid>', methods=['GET'])
+@app.route('/page_course/<course_uuid>', methods=['GET', 'POST'])
 def course_by_uuid(course_uuid):
     db_sess = db_session.create_session()
 
     course = db_sess.query(Course).where(Course.uuid == course_uuid).first()
+    print(course)
+
     if course is None:
-        return render_template("err.html", title="Курс не найден", err='Курс не найден')
+        return render_template("error.html", title="Курс не найден", err='Курс не найден')
 
     course_data = {
         'uuid': course_uuid,
@@ -262,7 +264,7 @@ def course_by_uuid(course_uuid):
         'description': course.description,
         'token': course.token,
         'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
-        'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.'
+        'author': f'{course.author.surname[0]} {course.author.name[0]}. {course.author.lastname[0]}.'
     }
 
     all_tags = []
@@ -277,27 +279,27 @@ def course_by_uuid(course_uuid):
 
         }
 
-    courses = [{"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
-        {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
-        {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-         "type": "public",
-         "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-         "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
-
-    course = courses[int(id)]
-
-    publications = [{"uuid": "0", "title": "Кейс 2",
-                     "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете",
-                     "made_on_datetime": "432872", "files_folder_path":
-                         [("/materials/KE_task3_video1.mp4", "video"), ("/materials/prefixes.pptx", "other"),
-                          ("/materials/correct_ip.png", "img")], "author": "Ф К Е"}, {}, {}]
-    return render_template("course.html", title="", id=id, course=course, publications=publications)
+    # courses = [{"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+    #      "type": "public",
+    #      "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+    #      "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
+    #     {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+    #      "type": "public",
+    #      "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+    #      "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
+    #     {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
+    #      "type": "public",
+    #      "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
+    #      "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
+    #
+    # course = courses[int(id)]
+    #
+    # publications = [{"uuid": "0", "title": "Кейс 2",
+    #                  "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете",
+    #                  "made_on_datetime": "432872", "files_folder_path":
+    #                      [("/materials/KE_task3_video1.mp4", "video"), ("/materials/prefixes.pptx", "other"),
+    #                       ("/materials/correct_ip.png", "img")], "author": "Ф К Е"}, {}, {}]
+    return render_template("page_course.html", title="", id=id, course=course, publications=publications)
 
 
 @app.route('/add_course', methods=['GET', 'POST'])

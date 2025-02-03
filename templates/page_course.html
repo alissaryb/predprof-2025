@@ -38,12 +38,14 @@
                         Скачать видео
                     </a>
                 {% elif j[1] == 'img' %}
-            <iframe src="{{j[0]}}" frameborder="0"></iframe>
+                    <iframe src="{{j[0]}}" frameborder="0"></iframe>
                     <br>
                     <a href="{{j[0]}}" download class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
                         Скачать фото
                     </a>
                 {% else %}
+
+            <iframe src="{{j[0]}}" frameborder="0"></iframe>
                     <a href="{{j[0]}}" download class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
                         Скачать материал
                     </a>
