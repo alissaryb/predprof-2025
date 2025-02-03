@@ -12,7 +12,6 @@ class Publication(SqlAlchemyBase):
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     text = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     made_on_datetime = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-    files_folder_path = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     tag = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     user_uuid = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"))
