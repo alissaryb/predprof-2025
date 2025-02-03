@@ -194,15 +194,23 @@ def practice():
 
     problems = []
     for problem in all_tasks:
-        d = {
+        data = {
             'level': problem.difficulty,
             'num_type': problem.kim_type.kim_id,
             'text_type': problem.kim_type.title,
             'uuid': problem.uuid,
             'text': problem.text,
-            'ans': problem.answer
+            'ans': problem.answer,
+            'files_folder_path': []
         }
-        problems.append(d)
+        if problem.files_folder_path is not None:
+            for file_ in  os.listdir(problem.files_folder_path):
+                path_ = [f'/{note.files_folder_path}{file_}', 'other']
+                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
+                    file_.endswith('.gif'):
+                    path_[1] = 'img'
+                note_data['files_folder_path'].append(path_)
+        problems.append(data)
 
     return render_template("practice.html", title="", tasks=problems)
 
@@ -220,7 +228,7 @@ def add_task():
         new_uuid = str(uuid.uuid4())
         new_problem.uuid = new_uuid
         new_problem.text = form.task.data
-        new_problem.files_folder_path = ''
+        print(f'"{form.task.data}"')
         new_problem.source = form.source.data
         new_problem.answer = form.ans.data
         new_problem.difficulty = form.level.data
