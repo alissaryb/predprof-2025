@@ -26,8 +26,8 @@
             <hr>
             <div>{{ i['text'] }}</div>
             <br>
-            <div>Автор:  {{ i['author'] }}</div>
-            <div>Создан {{ i['made_on_datetime'] }}</div>
+            <div>Тег #{{ i['tag'] }}</div>
+            <div>Создано {{ i['made_on_datetime'] }}</div>
             <br>
             <h6>Материалы:</h6>
             {% for j in i['files_folder_path'] %}

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import datetime
+import os
 from functools import wraps
 
 from flask import Flask, render_template, request, redirect, send_from_directory
@@ -213,12 +214,11 @@ def add_task():
     return render_template("add_task.html", title="Добавление задания", form=form)
 
 
-@app.route('/page_course/<course_uuid>', methods=['GET', 'POST'])
+@app.route('/page_course/<course_uuid>', methods=['GET'])
 def course_by_uuid(course_uuid):
     db_sess = db_session.create_session()
 
     course = db_sess.query(Course).where(Course.uuid == course_uuid).first()
-    print(course)
 
     if course is None:
         return render_template("error.html", title="Курс не найден", err='Курс не найден')
@@ -242,30 +242,23 @@ def course_by_uuid(course_uuid):
             'text': note.text,
             'made_on_datetime': note.made_on_datetime.strftime('%d.%m.%Y'),
             'tag': note.tag,
-
+            'files_folder_path': []
         }
+        for file_ in  os.listdir(f'publications_materials/{note.uuid}/'):
+            path_ = [f'/publications_materials/{note.uuid}/{file_}', 'other']
+            if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
+                file_.endswith('.gif'):
+                path_[1] = 'img'
+            if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
+                path_[1] = 'video'
+            note_data['files_folder_path'].append(path_)
+        all_tags.append(note_data['tag'])
+        publications.append(note_data)
 
-    # courses = [{"uuid": "0", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-    #      "type": "public",
-    #      "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-    #      "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕlnjnlnlС"},
-    #     {"uuid": "1", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-    #      "type": "public",
-    #      "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-    #      "token": "36b4b99", "made_on_datetime": 2424, "author": "Фёдоров Кирилл Евгеньевич"},
-    #     {"uuid": "2", "title": "Подготовка к ЕГЭ на Пупоне", "subject": "Инфа",
-    #      "type": "public",
-    #      "description": "Господи, это такой крутой курс. Вам он жизнено необходим. Я готов перестать есть сникерсы, ради этого курса",
-    #      "token": "36b4b99", "made_on_datetime": 2424, "author": "ЕmmjnjlnljС"}]
-    #
-    # course = courses[int(id)]
-    #
-    # publications = [{"uuid": "0", "title": "Кейс 2",
-    #                  "text": "Домашка по предпрофу, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете, вы умрете",
-    #                  "made_on_datetime": "432872", "files_folder_path":
-    #                      [("/materials/KE_task3_video1.mp4", "video"), ("/materials/prefixes.pptx", "other"),
-    #                       ("/materials/correct_ip.png", "img")], "author": "Ф К Е"}, {}, {}]
-    return render_template("page_course.html", title="", id=id, course=course, publications=publications)
+    db_sess.close()
+
+    return render_template("page_course.html", title="Страница курса", course=course_data,
+                           publications=publications)
 
 
 @app.route('/add_course', methods=['GET', 'POST'])
