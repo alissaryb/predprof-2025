@@ -57,7 +57,36 @@
             {% endfor %}
         </div>
 
-        {{ form.files() }}
+
+        <style>
+    /* Стили для кнопки загрузки файлов */
+    .custom-file-button {
+        cursor: pointer;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 0.5rem;
+        display: inline-block;
+
+        background-color: #E6E6FA; /* Нежно виолетовый цвет */
+
+
+        color: #000000; /* Цвет текста */
+        text-align: center;
+        transition: background-color 0.3s;
+    }
+
+    .custom-file-button:hover {
+        background-color: #D8BFD8; /* Более темный оттенок при наведении */
+    }
+</style>
+
+<label class="custom-file-button">
+    {{ form.files() }}
+</label>
+<br>
+<br>
+
+
 
         <div class="d-grid gap-4 col-7 mx-auto">
             {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
