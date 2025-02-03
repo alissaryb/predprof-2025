@@ -25,6 +25,13 @@ from sa_models.course_to_user import CourseToUser
 from py_scripts import funcs_back
 
 
+if not os.path.exists('materials/'):
+    os.mkdir('materials/')
+if not os.path.exists('problems_materials/'):
+    os.mkdir('problems_materials/')
+if not os.path.exists('publications_materials/'):
+    os.mkdir('publications_materials/')
+
 app = Flask(__name__)
 db_session.global_init('database/portal.db')
 
@@ -205,11 +212,11 @@ def practice():
         }
         if problem.files_folder_path is not None:
             for file_ in  os.listdir(problem.files_folder_path):
-                path_ = [f'/{note.files_folder_path}{file_}', 'other']
+                path_ = [f'/{problem.files_folder_path}{file_}', 'other']
                 if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
                     file_.endswith('.gif'):
                     path_[1] = 'img'
-                note_data['files_folder_path'].append(path_)
+                data['files_folder_path'].append(path_)
         problems.append(data)
 
     return render_template("practice.html", title="", tasks=problems)

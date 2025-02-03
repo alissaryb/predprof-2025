@@ -28,7 +28,7 @@ arr = [
     ('16. Вычисление значения рекурсивной функции', 16, 1),
     ('17. Обработка целочисленных данных. Проверка делимости', 17, 1),
     ('18. Динамическое программирование в электронных таблицах', 18, 1),
-    ('19-21. Теория игр', 1921, 1),
+    ('19-21. Теория игр', 19, 1),
     ('22. Многопоточные вычисления', 22, 1),
     ('23. Динамическое программирование (количество программ)', 23, 1),
     ('24. Обработка символьных строк', 24, 1),
@@ -47,10 +47,3 @@ for i in arr:
 
 db_sess.commit()
 db_sess.close()
-
-if not os.path.exists('materials/'):
-    os.mkdir('materials/')
-if not os.path.exists('problems_materials/'):
-    os.mkdir('problems_materials/')
-if not os.path.exists('publications_materials/'):
-    os.mkdir('publications_materials/')
