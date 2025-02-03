@@ -85,18 +85,9 @@ def practice():
 
 @app.route('/work', methods=['GET', 'POST'])
 def work():
-    try:
-        with open('tasks.json', 'r') as json_file:
-            a = json.load(json_file)
-    except ValueError:
-        a = {}
 
     users_answers = {}
-    tasks = []
-    for i in range(len(a)):
-        b = a[str(i)]
-        b['id'] = str(i)
-        tasks.append(b)
+    tasks = [{""}, {""}, {""}]
 
     form = QuizForm()
 
