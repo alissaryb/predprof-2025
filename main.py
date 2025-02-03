@@ -6,6 +6,7 @@ from functools import wraps
 
 from flask import Flask, render_template, request, redirect, send_from_directory
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
+from werkzeug.utils import secure_filename
 
 from forms.register import FormRegisterUser, FormLoginUser
 from forms.tasks import FormAddTask, QuizForm
@@ -18,6 +19,8 @@ from sa_models import db_session
 from sa_models.users import User
 from sa_models.courses import Course
 from sa_models.problems import Problem
+from sa_models.kim_types import KimType
+from sa_models.course_to_user import CourseToUser
 
 from py_scripts import funcs_back
 
@@ -60,27 +63,6 @@ def download_file(name):
 @app.route('/random_work', methods=['GET', 'POST'])
 def random_work():
     return render_template("random_work.html")
-
-
-@app.route('/practice', methods=['GET', 'POST'])
-def practice():
-    try:
-        with open('tasks.json', 'r') as json_file:
-            a = json.load(json_file)
-    except ValueError:
-        a = {}
-
-    tasks = []
-    for i in range(len(a)):
-        b = a[str(i)]
-        with open(f'tasks/task{i}.txt', "r", encoding="utf-8") as f:
-            s = f.read()
-            b['text'] = s
-            print(s)
-        tasks.append(b)
-
-    print(tasks)
-    return render_template("practice.html", title="", tasks=tasks)
 
 
 @app.route('/work', methods=['GET', 'POST'])
@@ -204,27 +186,63 @@ def teacher_groups():
     return render_template("teacher_groups.html", courses=courses)
 
 
+@app.route('/practice', methods=['GET'])
+def practice():
+    db_sess = db_session.create_session()
+
+    all_tasks = db_sess.query(Problem).all()
+
+    problems = []
+    for problem in all_tasks:
+        d = {
+            'level': problem.difficulty,
+            'num_type': problem.kim_type.kim_id,
+            'text_type': problem.kim_type.title,
+            'uuid': problem.uuid,
+            'text': problem.text,
+            'ans': problem.answer
+        }
+        problems.append(d)
+
+    return render_template("practice.html", title="", tasks=problems)
+
+
 @app.route('/add_task', methods=['GET', 'POST'])
+@login_required
 def add_task():
     form = FormAddTask()
     if form.validate_on_submit():
-        new_problem = Problem()
-        new_problem.uuid = str(uuid.uuid4())
-        new_problem.text = form.task.data
-        task_ = {
-            "id": id,
-            "type": form.type.data,
-            "source": form.source.data,
-            "task": form.task.data,
-            "ans": form.ans.data,
-            "level": form.level.data
-        }
+        db_sess = db_session.create_session()
 
-        a[id] = task_
-        with open("tasks.json", 'w') as json_file:
-            json.dump(a, json_file)
-        with open(f'tasks/task{id}.txt', 'w') as f:
-            f.write(form.task.data)
+        kimtype = db_sess.query(KimType).where(KimType.title == form.type.data).first()
+
+        new_problem = Problem()
+        new_uuid = str(uuid.uuid4())
+        new_problem.uuid = new_uuid
+        new_problem.text = form.task.data
+        new_problem.files_folder_path = ''
+        new_problem.source = form.source.data
+        new_problem.answer = form.ans.data
+        new_problem.difficulty = form.level.data
+        new_problem.kim_type_uuid = kimtype.uuid
+
+        files = request.files.getlist(form.files.name)
+        if len(files) > 0:
+            for file in files:
+                if file.filename == '':
+                    continue
+
+                pth = f'problems_materials/{new_uuid}/'
+                if not os.path.exists(pth):
+                    os.mkdir(pth)
+                    new_problem.files_folder_path = pth
+
+                filename = secure_filename(file.filename)
+                file.save(pth + filename)
+
+        db_sess.add(new_problem)
+        db_sess.commit()
+        db_sess.close()
 
         return redirect("/")
 
@@ -233,6 +251,7 @@ def add_task():
 
 
 @app.route('/page_course/<course_uuid>', methods=['GET'])
+@login_required
 def course_by_uuid(course_uuid):
     db_sess = db_session.create_session()
 
@@ -240,6 +259,13 @@ def course_by_uuid(course_uuid):
 
     if course is None:
         return render_template("error.html", title="Курс не найден", err='Курс не найден')
+
+    is_registered = db_sess.query(CourseToUser).where(CourseToUser.user_uuid == current_user.uuid,
+                                                      CourseToUser.course_uuid == course_uuid).first()
+
+    if is_registered is None:
+        return render_template("error.html", title="Вы не зарегистрированы на курс",
+                               err='Вы не зарегистрированы на курс')
 
     course_data = {
         'uuid': course_uuid,
@@ -262,14 +288,15 @@ def course_by_uuid(course_uuid):
             'tag': note.tag,
             'files_folder_path': []
         }
-        for file_ in  os.listdir(f'publications_materials/{note.uuid}/'):
-            path_ = [f'/publications_materials/{note.uuid}/{file_}', 'other']
-            if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
-                file_.endswith('.gif'):
-                path_[1] = 'img'
-            if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
-                path_[1] = 'video'
-            note_data['files_folder_path'].append(path_)
+        if note.files_folder_path is not None:
+            for file_ in  os.listdir(note.files_folder_path):
+                path_ = [f'/{note.files_folder_path}{file_}', 'other']
+                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
+                    file_.endswith('.gif'):
+                    path_[1] = 'img'
+                if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
+                    path_[1] = 'video'
+                note_data['files_folder_path'].append(path_)
         all_tags.append(note_data['tag'])
         publications.append(note_data)
 
