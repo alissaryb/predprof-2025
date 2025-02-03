@@ -13,6 +13,7 @@ class Publication(SqlAlchemyBase):
     text = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     made_on_datetime = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     tag = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    files_folder_path = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
     user_uuid = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"))
     author = orm.relationship("User")

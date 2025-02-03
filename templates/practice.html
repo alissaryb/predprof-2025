@@ -55,7 +55,7 @@
     <br>
     <div>
         <label><input type="checkbox" value="Все" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Все</label><br>
-        <label><input type="checkbox" value="Очевидная" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Для овощей</label><br>
+        <label><input type="checkbox" value="Очевидная" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очевидная</label><br>
         <label><input type="checkbox" value="Очень легка" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень легкая</label><br>
         <label><input type="checkbox" value="Легка" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Легкая</label><br>
         <label><input type="checkbox" value="Средняя" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Средняя</label><br>
@@ -83,7 +83,7 @@
                 <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}" data-type="{{i['type']}}">
 
                     <h4> Задание {{i["type"]}} </h4>
-                    <h6>id-задания {{i["id"]}}</h6>
+                    <h6>ID {{i["id"]}}</h6>
 
                     <div class="small-br"></div>
 
@@ -91,13 +91,13 @@
                     <div class="small-br"></div>
 
                     <div>Условие:</div>
-                    <p class="text-task">{{i['text']|safe }} </p>
+                    <p class="text-task">{{ i['text']|safe }} </p>
 
                     <div style="display: flex; align-items: center;">
                         <button class="button btn-answer btn-violet" id="toggleButton-{{i['id']}}" onclick="toggleAnswer('{{i['id']}}')">Показать ответ</button>
                         <div class="answer" id="answer-{{i['id']}}" style="display: none; margin-left: 10px;">
                             <div class="custom-box">
-                                {{i['ans']|safe}}
+                                {{ i['ans']|safe }}
                             </div>
                         </div>
                     </div>
