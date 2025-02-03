@@ -20,7 +20,6 @@ class FormAddTask(FlaskForm):
     ans = StringField('Введите ответ задачи', validators=[InputRequired('Обязательное поле')])
     level = SelectField('Выбирите сложность задачи', choices=LEVEL, validators=[InputRequired('Обязательное поле')])
     files = FileField('Выберите файлы', validators=[DataRequired()], render_kw={"multiple": True})
-
     submit = SubmitField('Добавить')
 
 
