@@ -16,6 +16,7 @@ import json
 import uuid
 
 from sa_models import db_session
+from sa_models.publications import Publication
 from sa_models.users import User
 from sa_models.courses import Course
 from sa_models.problems import Problem
@@ -109,20 +110,6 @@ def work():
     return render_template("work.html", title="", tasks=tasks, is_check=False, form=form, users_answers=users_answers)
 
 
-@app.route('/add_publication', methods=['GET', 'POST'])
-def add_publication():
-    form = FormAddPublication()
-    my_courses = ["1", "2", "3"]
-    form.my_courses.choices = my_courses
-
-    if form.validate_on_submit():
-        files = request.files.getlist(form.files.name)  # Получаем список файлов
-        print(files)
-        return "djnndq"
-
-    return render_template("add_publication.html", form=form)
-
-
 @app.route('/profile', methods=['GET'])
 def profile():
     user_group = [{"token": "g4d65g", "group_name": "11 класс it"},
@@ -193,6 +180,44 @@ def teacher_groups():
     return render_template("teacher_groups.html", courses=courses)
 
 
+@app.route('/course/<course_uuid>/add_publication', methods=['GET', 'POST'])
+@login_required
+def add_publication(course_uuid):
+    form = FormAddPublication()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+
+        new_uuid = str(uuid.uuid4())
+        new_publication = Publication()
+        new_publication.uuid = new_uuid
+        new_publication.title = form.title.data
+        new_publication.text = form.text.data
+        new_publication.tag = form.my_courses.data
+        new_publication.user_uuid = current_user.uuid
+
+        files = request.files.getlist(form.files.name)
+        if len(files) > 0:
+            for file in files:
+                if file.filename == '':
+                    continue
+
+                pth = f'publications_materials/{new_uuid}/'
+                if not os.path.exists(pth):
+                    os.mkdir(pth)
+                    new_publication.files_folder_path = pth
+
+                filename = secure_filename(file.filename)
+                file.save(pth + filename)
+
+        db_sess.add(new_publication)
+        db_sess.commit()
+        db_sess.close()
+
+        return redirect(f'/page_course/{course_uuid}')
+
+    return render_template("add_publication.html", form=form)
+
+
 @app.route('/practice', methods=['GET'])
 def practice():
     db_sess = db_session.create_session()
@@ -235,7 +260,6 @@ def add_task():
         new_uuid = str(uuid.uuid4())
         new_problem.uuid = new_uuid
         new_problem.text = form.task.data
-        print(f'"{form.task.data}"')
         new_problem.source = form.source.data
         new_problem.answer = form.ans.data
         new_problem.difficulty = form.level.data
@@ -273,12 +297,14 @@ def course_by_uuid(course_uuid):
     course = db_sess.query(Course).where(Course.uuid == course_uuid).first()
 
     if course is None:
+        db_sess.close()
         return render_template("error.html", title="Курс не найден", err='Курс не найден')
 
     is_registered = db_sess.query(CourseToUser).where(CourseToUser.user_uuid == current_user.uuid,
                                                       CourseToUser.course_uuid == course_uuid).first()
 
     if is_registered is None:
+        db_sess.close()
         return render_template("error.html", title="Вы не зарегистрированы на курс",
                                err='Вы не зарегистрированы на курс')
 
@@ -289,7 +315,8 @@ def course_by_uuid(course_uuid):
         'description': course.description,
         'token': course.token,
         'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
-        'author': f'{course.author.surname[0]} {course.author.name[0]}. {course.author.lastname[0]}.'
+        'author': f'{course.author.surname[0]} {course.author.name[0]}. {course.author.lastname[0]}.',
+        'author_uuid': course.author.uuid
     }
 
     all_tags = []
@@ -328,11 +355,12 @@ def add_course():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
 
+        new_uuid = str(uuid.uuid4())
         new_course = Course()
         new_course.title = form.title.data
         new_course.description = form.description.data
         new_course.subject = form.subject.data
-        new_course.uuid = str(uuid.uuid4())
+        new_course.uuid = new_uuid
         new_course.token = funcs_back.generate_token()
         new_course.user_uuid = current_user.uuid
 
@@ -341,7 +369,7 @@ def add_course():
 
         db_sess.close()
 
-        return redirect("/")
+        return redirect(f"/page_course/{new_uuid}")
 
     return render_template("add_course.html", title="Создание курса", form=form)
 
