@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, TextAreaField, SelectField, BooleanField, FieldList, FormField, RadioField, FileField
-from wtforms.validators import InputRequired, NumberRange, DataRequired
+from wtforms import StringField, SubmitField, TextAreaField, SelectField, FileField
+from wtforms.validators import InputRequired, DataRequired
 
 
 SUBJECTS = ['Информатика', 'Математика', 'Русский язык']

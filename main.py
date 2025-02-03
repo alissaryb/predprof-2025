@@ -17,7 +17,7 @@ import uuid
 from sa_models import db_session
 from sa_models.users import User
 from sa_models.courses import Course
-from sa_models.course_to_user import CourseToUser
+from sa_models.problems import Problem
 
 from py_scripts import funcs_back
 
@@ -216,18 +216,10 @@ def teacher_groups():
 @app.route('/add_task', methods=['GET', 'POST'])
 def add_task():
     form = FormAddTask()
-    if form.submit.data == True:
-        print("SUBMIT")
-        try:
-            with open('tasks.json', 'r') as json_file:
-                a = json.load(json_file)
-        except ValueError:
-            a = {}
-
-        print(a)
-
-        id = len(a)
-
+    if form.validate_on_submit():
+        new_problem = Problem()
+        new_problem.uuid = str(uuid.uuid4())
+        new_problem.text = form.task.data
         task_ = {
             "id": id,
             "type": form.type.data,
@@ -244,6 +236,7 @@ def add_task():
             f.write(form.task.data)
 
         return redirect("/")
+
     return render_template("add_task.html", title="Добавление задания",
                            form=form)
 
