@@ -84,18 +84,9 @@ def practice():
 
 @app.route('/work', methods=['GET', 'POST'])
 def work():
-    try:
-        with open('tasks.json', 'r') as json_file:
-            a = json.load(json_file)
-    except ValueError:
-        a = {}
 
     users_answers = {}
-    tasks = []
-    for i in range(len(a)):
-        b = a[str(i)]
-        b['id'] = str(i)
-        tasks.append(b)
+    tasks = [{""}, {""}, {""}]
 
     form = QuizForm()
 
@@ -217,34 +208,9 @@ def add_task():
     form = FormAddTask()
     if form.submit.data == True:
         print("SUBMIT")
-        try:
-            with open('tasks.json', 'r') as json_file:
-                a = json.load(json_file)
-        except ValueError:
-            a = {}
-
-        print(a)
-
-        id = len(a)
-
-        task_ = {
-            "id": id,
-            "type": form.type.data,
-            "source": form.source.data,
-            "task": form.task.data,
-            "ans": form.ans.data,
-            "level": form.level.data
-        }
-
-        a[id] = task_
-        with open("tasks.json", 'w') as json_file:
-            json.dump(a, json_file)
-        with open(f'tasks/task{id}.txt', 'w') as f:
-            f.write(form.task.data)
 
         return redirect("/")
-    return render_template("add_task.html", title="Добавление задания",
-                           form=form)
+    return render_template("add_task.html", title="Добавление задания", form=form)
 
 
 @app.route('/page_course/<course_uuid>', methods=['GET', 'POST'])
@@ -315,6 +281,7 @@ def add_course():
         new_course.subject = form.subject.data
         new_course.uuid = str(uuid.uuid4())
         new_course.token = funcs_back.generate_token()
+        new_course.user_uuid = current_user.uuid
 
         db_sess.add(new_course)
         db_sess.commit()
