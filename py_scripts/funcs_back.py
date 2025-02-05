@@ -11,6 +11,7 @@ import string
 import random
 
 from sa_models.kim_types import KimType
+from sa_models.problems import Problem
 from sa_models.publications import Publication
 from sa_models.users import User
 from sa_models.course_to_publication import CourseToPublication
@@ -125,10 +126,38 @@ def add_publication_database(form, user_uuid, files) -> None:
     db_sess.close()
 
 
+# TODO: сделать сортировку для 1921
 def get_kim_dict():
     db_sess = db_session.create_session()
     all_kim = db_sess.query(KimType).order_by(KimType.kim_id).all()
     res = dict()
     for el in all_kim:
         res[el.kim_id] = (el.title, el.uuid)
+    return res
+
+
+def task_render(task: Problem):
+    res = {
+        "uuid": task.uuid,
+        "text": task.text if task.text is not None else "Нет описания",
+        "files_folder_path": task.files_folder_path,
+        "source": task.source if task.source is not None else "Источник не указан",
+        "answer": task.answer,
+        "difficulty": task.difficulty
+    }
+    return res
+
+
+def get_tasks(data) -> list[dict]:
+    db_sess = db_session.create_session()
+    res = list()
+    for key, val in data.items():
+        tmp = list()
+        tasks = db_sess.query(Problem).filter(Problem.kim_type_uuid == key).limit(val).all()
+        for el in tasks:
+            tmp.append(task_render(el))
+        if tmp:
+            title = db_sess.query(KimType.title).filter(KimType.uuid == key).first()[0]
+            res.append({"key": (title, key), "value": tmp.copy()})
+    db_sess.close()
     return res

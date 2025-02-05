@@ -73,6 +73,7 @@
             {% for i in tasks %}
             <div class="smooth-animation">
                 <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}" data-type="{{i['num_type']}}">
+                    <h4> Задание {{i['text_type']}}</h4>
 
                     <h4> Тип {{ i["text_type"] }} </h4>
                     <h6>ID {{i["uuid"]}}</h6>
