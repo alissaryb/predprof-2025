@@ -74,6 +74,7 @@ def download_file_problem(material_uuid, filename):
 
 
 @app.route('/random_work', methods=['GET', 'POST'])
+@login_required
 def random_work():
     data = get_kim_dict()
     session.pop("tasks", None)
@@ -82,6 +83,7 @@ def random_work():
 
 
 @app.route('/work', methods=['GET', 'POST'])
+@login_required
 def work():
     if 'submit_answers' not in request.form and "results" in session:
         session["results"].clear()
@@ -145,32 +147,33 @@ def profile():
     user_data = get_user_data(current_user)
     return render_template("profile.html", title="Личный кабинет", user=user_data)
 
-@app.route('/statistic', methods=['GET', 'POST'])
-def statistic():
-    arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15},
-           3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100},
-           5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
-    d = [i for i in range(1, len(arr) + 1)]
 
-    for i in d:
-        p = arr[i]['correct'] / arr[i]['all'] * 100
-        arr[i]['pr'] = p
-
-    return render_template("statistic.html", arr=arr, d=d)
-
-
-@app.route('/my_grops', methods=['GET', 'POST'])
-def my_grops():
-    return render_template("my_grops.html")
-
-
-@app.route('/teacher_groups', methods=['GET', 'POST'])
-def teacher_groups():
-    courses = [{"id": "0", "num_class": 6, "token": "sh24re"},
-               {"id": "1", "num_class": 10, "token": "dfs3y53"},
-               {"id": "2", "num_class": 10, "token": "fdj836"}]
-
-    return render_template("teacher_groups.html", courses=courses)
+# @app.route('/statistic', methods=['GET', 'POST'])
+# def statistic():
+#     arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15},
+#            3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100},
+#            5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
+#     d = [i for i in range(1, len(arr) + 1)]
+#
+#     for i in d:
+#         p = arr[i]['correct'] / arr[i]['all'] * 100
+#         arr[i]['pr'] = p
+#
+#     return render_template("statistic.html", arr=arr, d=d)
+#
+#
+# @app.route('/my_grops', methods=['GET', 'POST'])
+# def my_grops():
+#     return render_template("my_grops.html")
+#
+#
+# @app.route('/teacher_groups', methods=['GET', 'POST'])
+# def teacher_groups():
+#     courses = [{"id": "0", "num_class": 6, "token": "sh24re"},
+#                {"id": "1", "num_class": 10, "token": "dfs3y53"},
+#                {"id": "2", "num_class": 10, "token": "fdj836"}]
+#
+#     return render_template("teacher_groups.html", courses=courses)
 
 
 @app.route('/add_publication', methods=['GET', 'POST'])
