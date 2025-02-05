@@ -1,7 +1,8 @@
+from optparse import Option
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, TextAreaField, SelectField, BooleanField, FileField, FieldList, FormField
-from wtforms.validators import InputRequired, NumberRange, DataRequired
-
+from wtforms.validators import InputRequired, NumberRange, DataRequired, Optional
 
 LEVEL = ['Очевидная', 'Очень легкая', 'Легкая', 'Средняя', 'Тяжелая', 'Очень тяжелая', 'Гроб']
 TYPE = ["1. Анализ информационных моделей", "2. Таблицы истинности логических выражений", "3. Поиск и сортировка в базах данных",
@@ -19,7 +20,7 @@ class FormAddTask(FlaskForm):
     task = TextAreaField('Введите условие задачи', validators=[InputRequired('Обязательное поле')])
     ans = StringField('Введите ответ задачи', validators=[InputRequired('Обязательное поле')])
     level = SelectField('Выбирите сложность задачи', choices=LEVEL, validators=[InputRequired('Обязательное поле')])
-    files = FileField('Выберите файлы', validators=[DataRequired()], render_kw={"multiple": True})
+    files = FileField('Выберите файлы', validators=[Optional()], render_kw={"multiple": True})
     submit = SubmitField('Добавить')
 
 

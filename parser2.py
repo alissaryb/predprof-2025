@@ -1,8 +1,5 @@
-import os.path
-
 from sa_models import db_session
 from sa_models.kim_types import KimType
-
 import uuid
 
 
