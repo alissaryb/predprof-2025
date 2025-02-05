@@ -43,9 +43,23 @@
             {% endfor %}
         </div>
 
-        <div class="form-group mb-2">
+        <!--        <div class="form-group mb-2">-->
+        <!--            {{ form.my_courses.label }}<br>-->
+        <!--            {{ form.my_courses(class="form-control") }}<br>-->
+        <!--            {% for error in form.my_courses.errors %}-->
+        <!--            <div class="alert alert-danger" role="alert">-->
+        <!--                {{ error }}-->
+        <!--            </div>-->
+        <!--            {% endfor %}-->
+        <!--        </div>-->
+        <div class="form-group mb-3">
             {{ form.my_courses.label }}<br>
-            {{ form.my_courses(class="form-control") }}<br>
+            {% for subfield in form.my_courses %}
+            <tr class="row">
+                <td scope="col">{{ subfield }}</td>
+                <td scope="col">{{ subfield.label }}</td>
+            </tr>
+            {% endfor %}
             {% for error in form.my_courses.errors %}
             <div class="alert alert-danger" role="alert">
                 {{ error }}
