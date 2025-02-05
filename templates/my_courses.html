@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block main_content %}
     <div class="container">
-        <h1>Мои курсы</h1>
+        <h1 class="text_title_violet">Мои курсы</h1>
 
-        <h3>Преподаю</h3>
+        <h3 class="text_title_violet">Преподаю</h3>
         {% if teacher_courses | length == 0 %}
             <div>У Вас нет таких курсов</div>
         {% endif %}
@@ -15,10 +15,7 @@
                         <h4>{{ i['title'] }}</h4>
                         <div>Предмет: {{ i['subject'] }}</div>
                         <div>Токен: {{ i['token'] }}</div>
-
                         <br>
-                        <p>{{ i['description'] }}</p>
-
                         <div>Автор: {{ i['author'] }}</div>
                         <div>Создан {{ i['made_on_datetime'] }}</div>
                         <br>
@@ -34,7 +31,7 @@
 
         <br>
 
-        <h3>Учусь</h3>
+        <h3 class="text_title_violet">Учусь</h3>
         {% if student_courses | length == 0 %}
             <div>У Вас нет таких курсов</div>
         {% endif %}
@@ -46,16 +43,12 @@
                         <h4>{{ i['title'] }}</h4>
                         <div>Предмет: {{ i['subject'] }}</div>
                         <div>Токен: {{ i['token'] }}</div>
-
                         <br>
-                        <p>{{ i['description'] }}</p>
-
                         <div>Автор: {{ i['author'] }}</div>
                         <div>Создан {{ i['made_on_datetime'] }}</div>
                         <br>
-
                         <div class="mt-auto">
-                            <a href="/page_course/{{ i['uuid'] }}" class="btn btn-violet">Перейти</a>
+                            <a href="/page_course/{{i['uuid']}}" class="btn btn-violet">Перейти</a>
                         </div>
                     </div>
                 </div>

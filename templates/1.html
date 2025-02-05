@@ -1,12 +1,105 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моя Презентация</title>
-</head>
-<body>
-    <h1>Презентация PDF</h1>
-    <iframe src="../courses/pres1.pdf" width="100%" height="600px"></iframe>
-</body>
-</html>
+
+{% extends 'base.html' %}
+{% block main_content %}
+
+    <div class="container py-4 py-xl-5">
+        <h5 class="text-center">Создать работу</h5>
+        <form method="POST" action="/work">
+            {% for i in range(21) %}
+            <div class="row mb-3 align-items-center">
+                <div class="col-2">
+                    <span class="badge bg-primary">Поле {{ i+1 }}</span>
+                </div>
+                <div class="col-8">
+                    <div class="input-group">
+                        <button type="button" class="btn btn-danger minus-btn" onclick="decrement({{ i }})">-</button>
+                        <input type="number"
+                               class="form-control text-center"
+                               name="number_{{ i }}"
+                               id="input_{{ i }}"
+                               value="0"
+                               min="0"
+                               required>
+                        <button type="button" class="btn btn-success plus-btn" onclick="increment({{ i }})">+</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-violet btn-lg">Создать персональный вариант</button>
+            </div>
+        </form>
+        <script>
+        function decrement(index) {
+            const input = document.getElementById(`input_${index}`);
+            let value = parseInt(input.value) || 0;
+            if (value > 0) {
+                value--;
+                input.value = value;
+            }
+        }
+
+        function increment(index) {
+            const input = document.getElementById(`input_${index}`);
+            let value = parseInt(input.value) || 0;
+            value++;
+            input.value = value;
+        }
+    </script>
+<!--        <form action="" method="POST">-->
+<!--        <div id="items">-->
+<!--        </div>-->
+
+<!--        <div class="checkbox-group">-->
+<!--            <h2>Выберите категории:</h2>-->
+<!--            <label><input type="checkbox" name="categories" value="Для овощей"> Для овощей</label><br>-->
+<!--            <label><input type="checkbox" name="categories" value="Очень легкая"> Очень легкая</label><br>-->
+<!--            <label><input type="checkbox" name="categories" value="Легкая"> Легкая</label><br>-->
+<!--            <label><input type="checkbox" name="categories" value="Средняя"> Средняя</label><br>-->
+<!--            <label><input type="checkbox" name="categories" value="Тяжелая"> Тяжелая</label><br>-->
+<!--            <label><input type="checkbox" name="categories" value="Очень тяжелая"> Очень тяжелая</label><br>-->
+<!--            <label><input type="checkbox" name="categories" value="Гроб"> Гроб</label><br>-->
+<!--        </div>-->
+<!--        <button type="submit">Отправить</button>-->
+<!--    </form>-->
+
+<!--    <script>-->
+<!--        const itemsContainer = document.getElementById('items');-->
+<!--        const itemCount = 27;-->
+
+<!--        for (let i = 0; i < itemCount; i++) {-->
+<!--            const itemDiv = document.createElement('div');-->
+<!--            itemDiv.className = 'item';-->
+<!--            itemDiv.innerHTML = `-->
+<!--                <div style="height: 15px">-->
+<!--                    <button class="btn-violet" style="height: 15px" type="button" onclick="changeValue(${i}, -1)">-</button>-->
+<!--                    <input type="number" style="font-size: 10px;" name="values[]" id="value-${i}" value="0" min="0" oninput="validateInput(${i})">-->
+<!--                    <button class="button" style="height: 15px" type="button" onclick="changeValue(${i}, 1)">+</button>-->
+<!--                </div>-->
+<!--                <div class="small-br"></div>-->
+<!--                <div class="small-br"></div>-->
+<!--            `;-->
+<!--            itemsContainer.appendChild(itemDiv);-->
+<!--        }-->
+
+<!--        function changeValue(index, delta) {-->
+<!--            const input = document.getElementById(`value-${index}`);-->
+<!--            let currentValue = parseInt(input.value) || 0;-->
+<!--            currentValue += delta;-->
+<!--            input.value = currentValue < 0 ? 0 : currentValue;-->
+<!--        }-->
+
+<!--        function validateInput(index) {-->
+<!--            const input = document.getElementById(`value-${index}`);-->
+<!--            let currentValue = parseInt(input.value) || 0;-->
+<!--            if (currentValue < 0) {-->
+<!--                input.value = 0;-->
+<!--            }-->
+<!--        }-->
+<!--    </script>-->
+    </div>
+
+
+
+{% endblock %}

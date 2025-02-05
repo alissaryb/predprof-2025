@@ -71,7 +71,8 @@ def download_file(name):
 
 @app.route('/random_work', methods=['GET', 'POST'])
 def random_work():
-    return render_template("random_work.html")
+    kimtypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 27]
+    return render_template("random_work.html", kimtypes=kimtypes)
 
 
 @app.route('/work', methods=['GET', 'POST'])
@@ -179,10 +180,13 @@ def practice():
             'num_type': problem.kim_type.kim_id,
             'text_type': problem.kim_type.title,
             'uuid': problem.uuid,
-            'text': problem.text,
+            'text': problem.text.replace('\n', '<br>'),
             'ans': problem.answer,
             'files_folder_path': []
         }
+        if data['num_type'] == 1921:
+            data['num_type'] = 19
+
         if problem.files_folder_path is not None:
             for file_ in  os.listdir(problem.files_folder_path):
                 path_ = [f'/{problem.files_folder_path}{file_}', 'other']
@@ -199,6 +203,8 @@ def practice():
 @login_required
 def add_task():
     form = FormAddTask()
+
+
     if form.validate_on_submit():
         db_sess = db_session.create_session()
 
@@ -357,6 +363,7 @@ def all_courses():
 
     db_sess.close()
 
+    print(registered_courses_uuids, courses)
     return render_template("all_courses.html", title="Каталог курсов", courses=courses,
                            courses_data_by_uuid=courses_data_by_uuid)
 
@@ -367,6 +374,7 @@ def my_courses():
     student_courses = funcs_back.get_courses_learn(current_user.uuid)
     teacher_courses = funcs_back.get_courses_teach(current_user.uuid)
 
+    print(teacher_courses)
     return render_template("my_courses.html", teacher_courses=teacher_courses,
                            student_courses=student_courses, title="Мои курсы")
 
