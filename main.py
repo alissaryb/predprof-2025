@@ -209,6 +209,9 @@ def practice():
                 data['files_folder_path'].append(path_)
         problems.append(data)
 
+    for i in range(len(problems)):
+        problems[i]['id'] = i
+
     return render_template("practice.html", title="", tasks=problems)
 
 
