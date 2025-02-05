@@ -4,7 +4,7 @@ import datetime
 import os
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, send_from_directory
+from flask import Flask, render_template, request, redirect, send_from_directory, session, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
 
@@ -15,7 +15,7 @@ from forms.courses import FormAddCourse, FormAddPublication
 import json
 import uuid
 
-from py_scripts.funcs_back import get_user_data, add_publication_database, get_kim_dict
+from py_scripts.funcs_back import get_user_data, add_publication_database, get_kim_dict, get_tasks
 from sa_models import db_session
 from sa_models.users import User
 from sa_models.courses import Course
@@ -23,7 +23,6 @@ from sa_models.problems import Problem
 from sa_models.kim_types import KimType
 from sa_models.course_to_user import CourseToUser
 from py_scripts import funcs_back
-
 
 if not os.path.exists('materials/'):
     os.mkdir('materials/')
@@ -72,50 +71,65 @@ def download_file(name):
 @app.route('/random_work', methods=['GET', 'POST'])
 def random_work():
     data = get_kim_dict()
+    session.pop("tasks", None)
+    session.pop("results", None)
     return render_template("random_work.html", data=data)
 
 
 @app.route('/work', methods=['GET', 'POST'])
 def work():
+    if 'submit_answers' not in request.form and "results" in session:
+        session["results"].clear()
     if request.method == 'POST':
-        form_data = dict()
-        for key, val in request.form.to_dict().items():
-            form_data[key.split("_")[1]] = int(val)
-        print(form_data)
+        if 'tasks' not in session:
+            form_data = dict()
+            for key, val in request.form.to_dict().items():
+                form_data[key.split("_")[1]] = int(val)
+            tasks = get_tasks(form_data)
+            session['tasks'] = tasks
+
+        if 'submit_answers' in request.form:
+            correct_count = 0
+            all_count = 0
+            total_score = 0
+            all_score = 0
+            results = list()
+            db_sess = db_session.create_session()
+
+            for el in session['tasks']:
+                kim_title = el["key"][0]
+                kim_uuid = el["key"][1]
+                points = db_sess.query(KimType).where(kim_uuid == KimType.uuid).first().points
+                results.append({
+                    "key": (kim_title, kim_uuid),
+                    "value": list()})
+                for task in el["value"]:
+                    user_answer = request.form.get(f"answer_{kim_uuid}_{task['uuid']}", "").strip()
+                    is_correct = (user_answer.lower() == task['answer'].lower())
+
+                    if is_correct:
+                        correct_count += 1
+                        total_score += points
+                    all_count += 1
+                    all_score += points
+                    results[-1]["value"].append(
+                        {**task, 'user_answer': user_answer, 'is_correct': is_correct})
+
+                    session['results'] = results
+                    session['correct_count'] = correct_count
+                    session['total_score'] = total_score
+                    session['all_count'] = all_count
+                    session['all_score'] = all_score
 
 
-    users_answers = {}
-    tasks = [{""}, {""}, {""}]
+    return render_template('work2.html',
+                           tasks=session.get('results') if session.get("results") else session.get("tasks"),
+                           results=bool(session.get("results")),
+                           correct_count=session.get('correct_count'),
+                           total_score=session.get('total_score'),
+                           all_score=session.get("all_score"),
+                           all_count=session.get("all_count"))
 
-    form = QuizForm()
-
-    answers = []
-    if form.submit.data:
-        mark = 0
-        for i in range(len(tasks)):
-            key = f'user_answer_{tasks[i]["id"]}'
-            users_answers[tasks[i]['id']] = request.form.get(key)
-            print(tasks[i]['ans'])
-            if users_answers[tasks[i]['id']] == tasks[i]['ans']:
-                mark += 1
-            print()
-
-        try:
-            with open('answers_users.json', 'r') as json_file:
-                cur_ans_user = json.load(json_file)
-        except ValueError:
-            cur_ans_user = {}
-
-        cur_ans_user[str(len(cur_ans_user))] = users_answers
-        with open("answers_users.json", 'w') as json_file:
-            json.dump(cur_ans_user, json_file)
-
-        return render_template("work.html", title="", tasks=tasks,
-                               is_check=True, form=form,
-                               users_answers=users_answers, mark=mark,
-                               max_mark=len(tasks))
-
-    return render_template("work.html", title="", tasks=tasks, is_check=False, form=form, users_answers=users_answers)
 
 @login_required
 @app.route('/profile', methods=['GET'])
@@ -125,13 +139,6 @@ def profile():
                   {"token": "р375gy", "group_name": "10 класс mt"}]
     user_data = get_user_data(current_user)
     return render_template("profile.html", title="Личный кабинет", user=user_data)
-    # return render_template("profile.html", title="Личный кабинет",
-    #                        user={'id': '0', 'name': 'Алиса', 'surname': 'Рыбакова',
-    #                              'lastname': 'Рыбакова', 'email': 'a1@a.com',
-    #                              'phone_number': '89154559579', 'password': 'qwerty123',
-    #                              'class_num': 10 }, user_group=user_group, len=len(user_group))
-
-
 
 @app.route('/statistic', methods=['GET', 'POST'])
 def statistic():
@@ -145,6 +152,7 @@ def statistic():
         arr[i]['pr'] = p
 
     return render_template("statistic.html", arr=arr, d=d)
+
 
 @app.route('/my_grops', methods=['GET', 'POST'])
 def my_grops():
@@ -192,10 +200,11 @@ def practice():
         }
 
         if problem.files_folder_path is not None:
-            for file_ in  os.listdir(problem.files_folder_path):
+            for file_ in os.listdir(problem.files_folder_path):
                 path_ = [f'/{problem.files_folder_path}{file_}', 'other']
-                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
-                    file_.endswith('.gif'):
+                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
+                        '.webp') or \
+                        file_.endswith('.gif'):
                     path_[1] = 'img'
                 data['files_folder_path'].append(path_)
         problems.append(data)
@@ -241,8 +250,7 @@ def add_task():
 
         return redirect("/")
 
-    return render_template("add_task.html", title="Добавление задания",
-                           form=form)
+    return render_template("add_task.html", title="Добавление задания", form=form)
 
 
 @app.route('/page_course/<course_uuid>', methods=['GET'])
@@ -292,10 +300,11 @@ def course_by_uuid(course_uuid):
             'files_folder_path': []
         }
         if note.files_folder_path is not None:
-            for file_ in  os.listdir(note.files_folder_path):
+            for file_ in os.listdir(note.files_folder_path):
                 path_ = [f'/{note.files_folder_path}{file_}', 'other']
-                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
-                    file_.endswith('.gif'):
+                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
+                        '.webp') or \
+                        file_.endswith('.gif'):
                     path_[1] = 'img'
                 if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
                     path_[1] = 'video'
@@ -455,4 +464,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(port=8080, host="127.0.0.1", threaded=True)
+    app.run(port=80, host="127.0.0.1", threaded=True)

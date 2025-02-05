@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+
+<div class="container mt-5">
+    {% if results %}
+    <div class="alert alert-success">
+        <h4>Результаты:</h4>
+        <p>Правильных ответов: {{ correct_count }}/{{all_count}}</p>
+        <p>Всего баллов: {{ total_score }}/{{all_score}}</p>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="tasks_dict" value="{{ request.form.tasks }}">
+
+        {% if tasks %}
+        {% for kim in tasks %}
+
+        <div class="card mb-4">
+            <div class="card-header bg-violet text-white">
+                <h3>{{ kim['key'][0] }}</h3>
+            </div>
+            <div class="card-body">
+                {% for task in kim['value'] %}
+                <div class="mb-3 p-3 {% if results %}
+                                    {% if task.is_correct %}my-is-valid{% else %}my-is-invalid{% endif %}
+                                    text-white rounded{% endif %}">
+
+                    <p>Источник: {{ task.source}}</p>
+                    <b><i>Сложность: {{ task.difficulty }}</i></b>
+                    <p>{{ task.text }}</p>
+
+
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control {% if results %}
+                                                   {% if task.is_correct %}is-valid{% else %}is-invalid{% endif %}
+                                               {% endif %}"
+                               name="answer_{{ kim['key'][1] }}_{{ task.uuid }}"
+                               value="{% if results %}{{ task.user_answer }}{% endif %}"
+                               {% if results %}readonly{% endif %}>
+
+                    </div>
+
+                    {% if results and not task.is_correct %}
+                    <div class="mt-2">
+                        <span class="badge bg-info">Правильный ответ: {{ task.answer }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% endfor %}
+
+        {% if not results %}
+        <div class="d-grid gap-2">
+            <button type="submit"
+                    class="btn btn-violet btn-lg"
+                    name="submit_answers">
+                Проверить все ответы
+            </button>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+            Задания не загружены. Отправьте задания через POST-запрос.
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}

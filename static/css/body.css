@@ -6,3 +6,10 @@ body {
     padding-top: 70px;
 }
 
+.my-is-valid {
+    background: rgb(154, 199, 137);
+}
+
+.my-is-invalid {
+    background: rgb(203, 135, 135);
+}
