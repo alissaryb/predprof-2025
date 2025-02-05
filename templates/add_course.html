@@ -37,7 +37,7 @@
 
         <div class="form-group mb-2">
             {{ form.description.label }}<br>
-            {{ form.description(class="form-control") }}<br>
+            {{ form.description(class="form-control", rows="8") }}<br>
             {% for error in form.description.errors %}
             <div class="alert alert-danger" role="alert">
                 {{ error }}

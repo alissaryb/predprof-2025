@@ -18,6 +18,11 @@ button {
   background: rgb(178, 167, 227);
     color: black;
 }
+
+.bg-violet{
+  background: rgb(178, 167, 227);
+    color: black;
+}
 .btn-green {
   background: rgb(154, 199, 137);
     color: black;

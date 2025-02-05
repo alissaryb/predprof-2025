@@ -2,96 +2,95 @@
 {% block main_content %}
 
 
-<div class="container py-4 py-xl-5">
-    <form action="" method="post">
-        <h1 class="text-center text_title_violet">{{title}}</h1>
-        {{ form.hidden_tag() }}
+    <div class="container py-4 py-xl-5">
+        <form action="" method="post" enctype="multipart/form-data">
+            <h1 class="text-center text_title_violet">{{title}}</h1>
+            {{ form.hidden_tag() }}
 
-        <div class="form-group mb-2">
-            {{ form.type.label }}<br>
-            {{ form.type(class="form-control") }}<br>
-            {% for error in form.type.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
+            <div class="form-group mb-2">
+                {{ form.type.label }}<br>
+                {{ form.type(class="form-control") }}<br>
+                {% for error in form.type.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
 
-<!--        <div class="form-group mb-2">-->
-<!--            {{ form.source.label }}<br>-->
-<!--            {{ form.source(class="form-control") }}<br>-->
-<!--            {% for error in form.source.errors %}-->
-<!--            <div class="alert alert-danger" role="alert">-->
-<!--                {{ error }}-->
-<!--            </div>-->
-<!--            {% endfor %}-->
-<!--        </div>-->
-
-        <div class="form-group mb-2">
-            {{ form.task.label }}<br>
-            {{ form.task(class="form-control") }}<br>
-            {% for error in form.task.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
+            <div class="form-group mb-2">
+                {{ form.source.label }}<br>
+                {{ form.source(class="form-control") }}<br>
+                {% for error in form.source.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
 
-        <div class="form-group mb-2">
-            {{ form.ans.label }}<br>
-            {{ form.ans(class="form-control") }}<br>
-            {% for error in form.ans.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
+            <div class="form-group mb-2">
+                {{ form.task.label }}<br>
+                {{ form.task(class="form-control", rows="8") }}<br>
+                {% for error in form.task.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
 
-        <div class="form-group mb-2">
-            {{ form.level.label }}<br>
-            {{ form.level(class="form-control") }}<br>
-            {% for error in form.level.errors %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
+            <div class="form-group mb-2">
+                {{ form.ans.label }}<br>
+                {{ form.ans(class="form-control") }}<br>
+                {% for error in form.ans.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
+
+            <div class="form-group mb-2">
+                {{ form.level.label }}<br>
+                {{ form.level(class="form-control") }}<br>
+                {% for error in form.level.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
 
 
-        <style>
-    /* Стили для кнопки загрузки файлов */
-    .custom-file-button {
-        cursor: pointer;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 0.5rem;
-        display: inline-block;
+            <style>
+                /* Стили для кнопки загрузки файлов */
+                .custom-file-button {
+                    cursor: pointer;
+                    padding: 10px 15px;
+                    border: none;
+                    border-radius: 0.5rem;
+                    display: inline-block;
 
-        background-color: #E6E6FA; /* Нежно виолетовый цвет */
-
-
-        color: #000000; /* Цвет текста */
-        text-align: center;
-        transition: background-color 0.3s;
-    }
-
-    .custom-file-button:hover {
-        background-color: #D8BFD8; /* Более темный оттенок при наведении */
-    }
-</style>
-
-<label class="custom-file-button">
-    {{ form.files() }}
-</label>
-<br>
-<br>
+                    background-color: #E6E6FA; /* Нежно виолетовый цвет */
 
 
+                    color: #000000; /* Цвет текста */
+                    text-align: center;
+                    transition: background-color 0.3s;
+                }
 
-        <div class="d-grid gap-4 col-7 mx-auto">
-            {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
-        </div>
+                .custom-file-button:hover {
+                    background-color: #D8BFD8; /* Более темный оттенок при наведении */
+                }
+            </style>
 
-    </form>
-</div>
+            <label class="custom-file-button">
+                {{ form.files() }}
+            </label>
+            <br>
+            <br>
+
+
+            <div class="d-grid gap-4 col-7 mx-auto">
+                {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
+            </div>
+
+        </form>
+    </div>
 {% endblock %}

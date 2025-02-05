@@ -35,8 +35,18 @@
         </div>
         <div class="form-group mb-2">
             {{ form.text.label }}<br>
-            {{ form.text(class="form-control") }}<br>
+            {{ form.text(class="form-control", rows="8") }}<br>
             {% for error in form.text.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-2">
+            {{ form.tag.label }}<br>
+            {{ form.tag(class="form-control") }}<br>
+            {% for error in form.tag.errors %}
             <div class="alert alert-danger" role="alert">
                 {{ error }}
             </div>

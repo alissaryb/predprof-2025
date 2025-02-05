@@ -3,42 +3,45 @@
 
 <div class="container">
 <form action="" method="post">
-    {% for i in tasks %}
+    {% for key, val in tasks.items() %}
+    {% for el in val %}
     <main class="container mt-5 p-5 tablo">
         <h4>
-            Задание {{i["type"]}}
+            Задание {{key}}
         </h4>
 
         <div class="small-br"></div>
 
-        <b><i>Сложность: {{i["level"]}}</i></b>
+        <b><i>Сложность: {{el["difficulty"]}}</i></b>
         <div class="small-br"></div>
+        <p>Источник: {{el["source"]}}</p>
 
 
         <div>Условие:</div>
-        <p>{{i['task']}}</p>
+        <p>{{el['text']}}</p>
 
 
         {% if is_check %}
-            {% if users_answers[i['id']] == i['ans'] %}
-                <div class="correct-ans">{{users_answers[i['id']]}}</div>
-            {% elif users_answers[i['id']] == '' %}
+            {% if users_answers[el['uuid']] == el['answer'] %}
+                <div class="correct-ans">{{users_answers[el['uuid']]}}</div>
+            {% elif users_answers[el['uuid']] == '' %}
                 <div class="not-exist">Пропущенное</div>
             {% else %}
-                <div class="incorrect-ans">{{users_answers[i['id']]}}</div>
+                <div class="incorrect-ans">{{users_answers[el['uuid']]}}</div>
 
-                <div>{{i['ans']}}</div>
+                <div>{{el['ans']}}</div>
             {% endif %}
         {% else %}
              <div class="form-group">
-                <label for="answer_{{i['id']}}">Ответ:</label>
-                <input type="text" name="user_answer_{{i['id']}}" id="answer_{{i['id']}}">
+                <label for="answer_{{el['uuid']}}">Ответ:</label>
+                <input type="text" name="user_answer_{{el['uuid']}}" id="answer_{{el['uuid']}}">
             </div>
          {% endif %}
 
 
     </main>
 
+    {% endfor %}
     {% endfor %}
 
     <br>
