@@ -10,6 +10,7 @@ from sa_models.course_to_user import CourseToUser
 import string
 import random
 
+from sa_models.kim_types import KimType
 from sa_models.publications import Publication
 from sa_models.users import User
 from sa_models.course_to_publication import CourseToPublication
@@ -122,3 +123,12 @@ def add_publication_database(form, user_uuid, files) -> None:
 
     db_sess.commit()
     db_sess.close()
+
+
+def get_kim_dict():
+    db_sess = db_session.create_session()
+    all_kim = db_sess.query(KimType).order_by(KimType.kim_id).all()
+    res = dict()
+    for el in all_kim:
+        res[el.kim_id] = (el.title, el.uuid)
+    return res

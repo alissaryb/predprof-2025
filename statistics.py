@@ -19,7 +19,9 @@ def plot_line_graph():
     plt1.ylim(0, 100)
     plt1.xlim(1, len(data)-1)
     plt1.grid()
-    plt1.savefig('static/media/chart.png', bbox_inches='tight')
+    plt1.show()
+
+    #plt1.savefig('static/media/chart.png', bbox_inches='tight')
     plt1.close()
 
     return plt1
@@ -70,6 +72,6 @@ def index():
 if __name__ == '__main__':
     plt = plot_line_graph()
     plt.show()
-    plt.savefig('static/media/chart.png')
+    #plt.savefig('static/media/chart.png')
     plt.close()
-    app.run(debug=True)
+

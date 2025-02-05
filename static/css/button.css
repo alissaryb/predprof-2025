@@ -9,8 +9,13 @@ button {
   width: 150px;
 }
 
+.btn-blue{
+  background: rgb(133, 171, 210);
+    color: black;
+}
+
 .btn-violet{
-  background: rgb(156, 144, 210);
+  background: rgb(178, 167, 227);
     color: black;
 }
 .btn-green {
@@ -32,4 +37,3 @@ button {
     width: 10px;
     height: 10px;
 }
-
