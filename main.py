@@ -15,14 +15,13 @@ from forms.courses import FormAddCourse, FormAddPublication
 import json
 import uuid
 
+from py_scripts.funcs_back import get_user_data, add_publication_database
 from sa_models import db_session
-from sa_models.publications import Publication
 from sa_models.users import User
 from sa_models.courses import Course
 from sa_models.problems import Problem
 from sa_models.kim_types import KimType
 from sa_models.course_to_user import CourseToUser
-
 from py_scripts import funcs_back
 
 
@@ -32,6 +31,8 @@ if not os.path.exists('problems_materials/'):
     os.mkdir('problems_materials/')
 if not os.path.exists('publications_materials/'):
     os.mkdir('publications_materials/')
+if not os.path.exists('database/'):
+    os.mkdir('database/')
 
 app = Flask(__name__)
 db_session.global_init('database/portal.db')
@@ -109,48 +110,20 @@ def work():
 
     return render_template("work.html", title="", tasks=tasks, is_check=False, form=form, users_answers=users_answers)
 
-
+@login_required
 @app.route('/profile', methods=['GET'])
 def profile():
+    # TODO: спроси Алису про user_group
     user_group = [{"token": "g4d65g", "group_name": "11 класс it"},
                   {"token": "р375gy", "group_name": "10 класс mt"}]
+    user_data = get_user_data(current_user)
+    return render_template("profile.html", title="Личный кабинет", user=user_data)
+    # return render_template("profile.html", title="Личный кабинет",
+    #                        user={'id': '0', 'name': 'Алиса', 'surname': 'Рыбакова',
+    #                              'lastname': 'Рыбакова', 'email': 'a1@a.com',
+    #                              'phone_number': '89154559579', 'password': 'qwerty123',
+    #                              'class_num': 10 }, user_group=user_group, len=len(user_group))
 
-    return render_template("profile.html", title="Личный кабинет",
-                           user={'id': '0', 'name': 'Алиса', 'surname': 'Рыбакова',
-                                 'lastname': 'Рыбакова', 'email': 'a1@a.com',
-                                 'phone_number': '89154559579', 'password': 'qwerty123',
-                                 'class_num': 10 }, user_group=user_group, len=len(user_group))
-    referer = request.base_url
-
-    if referer == "http://127.0.0.1:8080/profile":
-        return redirect('/error1')
-
-    if name == "":
-        return redirect('/error1')
-
-    try:
-        with open('users.json', 'r') as json_file:
-            a = json.load(json_file)
-    except ValueError:
-        a = {}
-
-    for i in range(len(a)):
-        if a[str(i)]['nickname'] == name:
-            user = a[str(i)]
-            print(user)
-
-            user_group = []
-            return render_template("profile.html", title="Личный кабинет",
-                                   user=user, user_group=user_group,
-                                   len=len(user_group))
-
-    return render_template("profile.html", title="Личный кабинет",
-                           user={'id': '0', 'name': 'Алиса',
-                                 'surname': 'Рыбакова', 'lastname': 'Рыбакова',
-                                 'email': 'a1@a.com',
-                                 'phone_number': '89154559579',
-                                 'password': 'qwerty123', 'class_num': 10})
-    # user_group=user_group, len=len(user_group))
 
 
 @app.route('/statistic', methods=['GET', 'POST'])
@@ -183,35 +156,10 @@ def teacher_groups():
 @app.route('/course/<course_uuid>/add_publication', methods=['GET', 'POST'])
 @login_required
 def add_publication(course_uuid):
-    form = FormAddPublication()
+    form = FormAddPublication(current_user.uuid)
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-
-        new_uuid = str(uuid.uuid4())
-        new_publication = Publication()
-        new_publication.uuid = new_uuid
-        new_publication.title = form.title.data
-        new_publication.text = form.text.data
-        new_publication.tag = form.my_courses.data
-        new_publication.user_uuid = current_user.uuid
-
         files = request.files.getlist(form.files.name)
-        if len(files) > 0:
-            for file in files:
-                if file.filename == '':
-                    continue
-
-                pth = f'publications_materials/{new_uuid}/'
-                if not os.path.exists(pth):
-                    os.mkdir(pth)
-                    new_publication.files_folder_path = pth
-
-                filename = secure_filename(file.filename)
-                file.save(pth + filename)
-
-        db_sess.add(new_publication)
-        db_sess.commit()
-        db_sess.close()
+        add_publication_database(form, current_user.uuid, files,  course_uuid)
 
         return redirect(f'/page_course/{course_uuid}')
 
@@ -302,8 +250,9 @@ def course_by_uuid(course_uuid):
 
     is_registered = db_sess.query(CourseToUser).where(CourseToUser.user_uuid == current_user.uuid,
                                                       CourseToUser.course_uuid == course_uuid).first()
-
-    if is_registered is None:
+    is_author = (course.author.id == current_user.id)
+    # TODO: как передавать-то дальше
+    if is_registered is None and not is_author:
         db_sess.close()
         return render_template("error.html", title="Вы не зарегистрированы на курс",
                                err='Вы не зарегистрированы на курс')
@@ -320,7 +269,8 @@ def course_by_uuid(course_uuid):
     }
 
     all_tags = []
-    publications = []
+    publications = course.publications
+    print(publications)
     for note in publications:
         note_data = {
             'uuid': note.uuid,

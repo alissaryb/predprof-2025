@@ -1,9 +1,17 @@
+import os
+import uuid
+
+from werkzeug.utils import secure_filename
+
 from sa_models import db_session
 from sa_models.courses import Course
 from sa_models.course_to_user import CourseToUser
 
 import string
 import random
+
+from sa_models.publications import Publication
+from sa_models.users import User
 
 
 def get_courses_learn(user_uuid):
@@ -59,3 +67,51 @@ def get_courses_teach(user_uuid):
 def generate_token():
     s = string.ascii_letters + string.digits
     return ''.join(random.choice(s) for _ in range(6))
+
+
+def get_user_data(user: User) -> dict[str, str]:
+    user_data = {
+        "surname": user.surname,
+        "name": user.name,
+        "lastname": user.lastname,
+        "class_num": user.class_number,
+        "email": user.email,
+        "phone_number": user.phone_number
+    }
+    return user_data
+
+
+def get_title_courses_by_user_uuid(user_uuid: int) -> list[str]:
+    db_sess = db_session.create_session()
+    courses = [el[0] for el in db_sess.query(Course.title).where(user_uuid == Course.user_uuid).all()]
+    return courses
+
+
+def add_publication_database(form, user_uuid, files) -> None:
+    db_sess = db_session.create_session()
+
+    new_uuid = str(uuid.uuid4())
+    new_publication = Publication(
+        uuid=new_uuid,
+        title=form.title.data,
+        text=form.text.data,
+        tag=form.my_courses.data,
+        user_uuid=user_uuid)
+
+    if len(files) > 0:
+        for file in files:
+            if file.filename == '':
+                continue
+
+            pth = f'publications_materials/{new_uuid}/'
+            if not os.path.exists(pth):
+                os.mkdir(pth)
+                new_publication.files_folder_path = pth
+
+            filename = secure_filename(file.filename)
+            file.save(pth + filename)
+
+    db_sess.add(new_publication)
+
+    db_sess.commit()
+    db_sess.close()
