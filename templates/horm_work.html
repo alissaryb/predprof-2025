@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+<div class="container">
+<form action="" method="post">
+    {% for i in tasks %}
+    <main class="container mt-5 p-5 tablo">
+        <h4>
+            Задание {{i["type"]}}
+        </h4>
+
+        <div class="small-br"></div>
+
+        <b><i>Сложность: {{i["level"]}}</i></b>
+        <div class="small-br"></div>
+
+
+        <div>Условие:</div>
+        <p>{{i['task']}}</p>
+
+
+        {% if is_check %}
+            {% if users_answers[i['id']] == i['ans'] %}
+                <div class="correct-ans">{{users_answers[i['id']]}}</div>
+            {% elif users_answers[i['id']] == '' %}
+                <div class="not-exist">Пропущенное</div>
+            {% else %}
+                <div class="incorrect-ans">{{users_answers[i['id']]}}</div>
+
+                <div>{{i['ans']}}</div>
+            {% endif %}
+        {% else %}
+             <div class="form-group">
+                <label for="answer_{{i['id']}}">Ответ:</label>
+                <input type="text" name="user_answer_{{i['id']}}" id="answer_{{i['id']}}">
+            </div>
+         {% endif %}
+
+
+    </main>
+
+    {% endfor %}
+
+    <br>
+
+    {% if is_check %}
+    <p>Набрано баллов {{mark}}/{{max_mark}}</p>
+    {% endif %}
+
+    <div class="d-grid gap-4 col-7 mx-auto">
+        {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
+    </div>
+</form>
+</div>
+{% endblock %}
