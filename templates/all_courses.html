@@ -18,9 +18,12 @@
                 <div>Автор:  {{ i['author'] }}</div>
                 <div>Создан {{ i['made_on_datetime'] }}</div>
                 <br>
-
                 <div class="mt-auto">
-                    <a href="/page_course/{{i['uuid']}}" class="btn btn-violet">Перейти</a>
+                    {% if courses_data_by_uuid['uuid'] %}
+                        <a href="/page_course/{{i['uuid']}}" class="btn btn-violet">Перейти</a>
+                    {% else %}
+                        <a href="/page_course/{{i['uuid']}}" class="btn btn-green">Зарегистрироваться</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
