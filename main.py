@@ -15,7 +15,7 @@ from forms.courses import FormAddCourse, FormAddPublication
 import json
 import uuid
 
-from py_scripts.funcs_back import get_user_data, add_publication_database
+from py_scripts.funcs_back import get_user_data, add_publication_database, get_kim_dict
 from sa_models import db_session
 from sa_models.users import User
 from sa_models.courses import Course
@@ -71,11 +71,18 @@ def download_file(name):
 
 @app.route('/random_work', methods=['GET', 'POST'])
 def random_work():
-    return render_template("random_work.html")
+    data = get_kim_dict()
+    return render_template("random_work.html", data=data)
 
 
 @app.route('/work', methods=['GET', 'POST'])
 def work():
+    if request.method == 'POST':
+        form_data = dict()
+        for key, val in request.form.to_dict().items():
+            form_data[key.split("_")[1]] = int(val)
+        print(form_data)
+
 
     users_answers = {}
     tasks = [{""}, {""}, {""}]
