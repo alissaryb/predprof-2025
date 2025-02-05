@@ -15,7 +15,7 @@ from forms.courses import FormAddCourse, FormAddPublication
 import json
 import uuid
 
-from py_scripts.funcs_back import get_user_data, add_publication_database
+from py_scripts.funcs_back import get_user_data, add_publication_database, get_kim_dict
 from sa_models import db_session
 from sa_models.users import User
 from sa_models.courses import Course
@@ -71,12 +71,18 @@ def download_file(name):
 
 @app.route('/random_work', methods=['GET', 'POST'])
 def random_work():
-    kimtypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 27]
-    return render_template("random_work.html", kimtypes=kimtypes)
+    data = get_kim_dict()
+    return render_template("random_work.html", data=data)
 
 
 @app.route('/work', methods=['GET', 'POST'])
 def work():
+    if request.method == 'POST':
+        form_data = dict()
+        for key, val in request.form.to_dict().items():
+            form_data[key.split("_")[1]] = int(val)
+        print(form_data)
+
 
     users_answers = {}
     tasks = [{""}, {""}, {""}]
@@ -203,8 +209,6 @@ def practice():
 @login_required
 def add_task():
     form = FormAddTask()
-
-
     if form.validate_on_submit():
         db_sess = db_session.create_session()
 
@@ -363,7 +367,6 @@ def all_courses():
 
     db_sess.close()
 
-    print(registered_courses_uuids, courses)
     return render_template("all_courses.html", title="Каталог курсов", courses=courses,
                            courses_data_by_uuid=courses_data_by_uuid)
 
@@ -374,7 +377,6 @@ def my_courses():
     student_courses = funcs_back.get_courses_learn(current_user.uuid)
     teacher_courses = funcs_back.get_courses_teach(current_user.uuid)
 
-    print(teacher_courses)
     return render_template("my_courses.html", teacher_courses=teacher_courses,
                            student_courses=student_courses, title="Мои курсы")
 
