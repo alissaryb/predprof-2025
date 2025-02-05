@@ -153,13 +153,13 @@ def teacher_groups():
     return render_template("teacher_groups.html", courses=courses)
 
 
-@app.route('/course/<course_uuid>/add_publication', methods=['GET', 'POST'])
+@app.route('/add_publication', methods=['GET', 'POST'])
 @login_required
 def add_publication(course_uuid):
     form = FormAddPublication(current_user.uuid)
     if form.validate_on_submit():
         files = request.files.getlist(form.files.name)
-        add_publication_database(form, current_user.uuid, files,  course_uuid)
+        add_publication_database(form, current_user.uuid, files)
 
         return redirect(f'/page_course/{course_uuid}')
 
@@ -250,12 +250,16 @@ def course_by_uuid(course_uuid):
 
     is_registered = db_sess.query(CourseToUser).where(CourseToUser.user_uuid == current_user.uuid,
                                                       CourseToUser.course_uuid == course_uuid).first()
-    is_author = (course.author.id == current_user.id)
-    # TODO: как передавать-то дальше
+
+    is_author = course.author.uuid == current_user.uuid
     if is_registered is None and not is_author:
+        new_relation = CourseToUser()
+        new_relation.user_uuid = current_user.uuid
+        new_relation.course_uuid = course_uuid
+        db_sess.add(new_relation)
+        db_sess.commit()
         db_sess.close()
-        return render_template("error.html", title="Вы не зарегистрированы на курс",
-                               err='Вы не зарегистрированы на курс')
+        return redirect(f'/page_course/{course_uuid}')
 
     course_data = {
         'uuid': course_uuid,
@@ -270,7 +274,6 @@ def course_by_uuid(course_uuid):
 
     all_tags = []
     publications = course.publications
-    print(publications)
     for note in publications:
         note_data = {
             'uuid': note.uuid,
@@ -329,12 +332,15 @@ def all_courses():
     db_sess = db_session.create_session()
 
     all_ = db_sess.query(Course).order_by(Course.made_on_datetime).all()
-    registered_courses_uuids = []
+    courses_data_by_uuid = {}
+    for course in all_:
+        courses_data_by_uuid[course.uuid] = False
+
     if current_user.is_authenticated:
         registered_courses_uuids = (funcs_back.get_courses_teach(current_user.uuid) +
                                     funcs_back.get_courses_learn(current_user.uuid))
-        for i in range(len(registered_courses_uuids)):
-            registered_courses_uuids[i] = registered_courses_uuids[i]['uuid']
+        for course in registered_courses_uuids:
+            courses_data_by_uuid[course['uuid']] = True
 
     courses = []
     for course in all_:
@@ -352,7 +358,7 @@ def all_courses():
     db_sess.close()
 
     return render_template("all_courses.html", title="Каталог курсов", courses=courses,
-                           registered_courses_uuids=registered_courses_uuids)
+                           courses_data_by_uuid=courses_data_by_uuid)
 
 
 @app.route('/my_courses', methods=['GET'])

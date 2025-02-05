@@ -19,7 +19,8 @@ class FormAddCourse(FlaskForm):
 
 class FormAddPublication(FlaskForm):
     title = StringField('Название публикации', validators=[InputRequired('Обязательное поле')])
-    text = TextAreaField('Текст публикации', validators=[])
+    text = TextAreaField('Текст публикации', validators=[InputRequired('Обязательное поле')])
+    tag = StringField('Напишите ключевые слова через запятую', validators=[InputRequired('Обязательное поле')])
     my_courses = SelectField('Категория', choices=[current_user.courses if current_user else "Нет курсов"],
                              validators=[InputRequired('Выберите категорию')])
     files = FileField('Выберите файлы', validators=[Optional()], render_kw={"multiple": True})

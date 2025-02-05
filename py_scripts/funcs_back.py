@@ -12,6 +12,7 @@ import random
 
 from sa_models.publications import Publication
 from sa_models.users import User
+from sa_models.course_to_publication import CourseToPublication
 
 
 def get_courses_learn(user_uuid):
@@ -95,7 +96,7 @@ def add_publication_database(form, user_uuid, files) -> None:
         uuid=new_uuid,
         title=form.title.data,
         text=form.text.data,
-        tag=form.my_courses.data,
+        tag=form.tag.data,
         user_uuid=user_uuid)
 
     if len(files) > 0:
@@ -112,6 +113,12 @@ def add_publication_database(form, user_uuid, files) -> None:
             file.save(pth + filename)
 
     db_sess.add(new_publication)
+
+    for course_uuid in form.my_courses.data:
+        new_relation = CourseToPublication()
+        new_relation.course_uuid = course_uuid
+        new_relation.publication_uuid = new_uuid
+        db_sess.add(new_relation)
 
     db_sess.commit()
     db_sess.close()
