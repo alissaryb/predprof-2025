@@ -480,4 +480,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(port=80, host="127.0.0.1", threaded=True)
+    app.run(port=8081, host="127.0.0.1", threaded=True)
