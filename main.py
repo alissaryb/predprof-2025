@@ -190,8 +190,6 @@ def practice():
             'ans': problem.answer,
             'files_folder_path': []
         }
-        if data['num_type'] == 1921:
-            data['num_type'] = 19
 
         if problem.files_folder_path is not None:
             for file_ in  os.listdir(problem.files_folder_path):
