@@ -64,9 +64,14 @@ def index():
     return render_template("index.html", title="")
 
 
-@app.route('/materials/<name>')
-def download_file(name):
-    return send_from_directory('materials', name)
+@app.route('/publications_materials/<material_uuid>/<filename>', methods=['GET'])
+def download_file_publication(material_uuid, filename):
+    return send_from_directory(f'publications_materials/{material_uuid}', filename)
+
+
+@app.route('/problems_materials/<material_uuid>/<filename>', methods=['GET'])
+def download_file_problem(material_uuid, filename):
+    return send_from_directory(f'problems_materials/{material_uuid}', filename)
 
 
 @app.route('/random_work', methods=['GET', 'POST'])
@@ -155,13 +160,13 @@ def teacher_groups():
 
 @app.route('/add_publication', methods=['GET', 'POST'])
 @login_required
-def add_publication(course_uuid):
+def add_publication():
     form = FormAddPublication(current_user.uuid)
     if form.validate_on_submit():
-        files = request.files.getlist(form.files.name)
+        files = request.files.getlist("files")
         add_publication_database(form, current_user.uuid, files)
 
-        return redirect(f'/page_course/{course_uuid}')
+        return redirect("/")
 
     return render_template("add_publication.html", form=form)
 
@@ -178,6 +183,7 @@ def practice():
             'level': problem.difficulty,
             'num_type': problem.kim_type.kim_id,
             'text_type': problem.kim_type.title,
+            'source': problem.source,
             'uuid': problem.uuid,
             'text': problem.text,
             'ans': problem.answer,
@@ -189,6 +195,8 @@ def practice():
                 if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith('.webp') or \
                     file_.endswith('.gif'):
                     path_[1] = 'img'
+                if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
+                    path_[1] = 'video'
                 data['files_folder_path'].append(path_)
         problems.append(data)
 
@@ -213,7 +221,7 @@ def add_task():
         new_problem.difficulty = form.level.data
         new_problem.kim_type_uuid = kimtype.uuid
 
-        files = request.files.getlist(form.files.name)
+        files = request.files.getlist("files")
         if len(files) > 0:
             for file in files:
                 if file.filename == '':
@@ -267,19 +275,23 @@ def course_by_uuid(course_uuid):
         'subject': course.subject,
         'description': course.description,
         'token': course.token,
-        'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
-        'author': f'{course.author.surname[0]} {course.author.name[0]}. {course.author.lastname[0]}.',
+        'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в '
+                            f'{course.made_on_datetime.strftime('%H:%M')}',
+        'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.',
         'author_uuid': course.author.uuid
     }
 
     all_tags = []
-    publications = course.publications
-    for note in publications:
+    publications = []
+    course_publications = course.publications
+    for note_ in course_publications:
+        note = note_.publication
         note_data = {
             'uuid': note.uuid,
             'title': note.title,
             'text': note.text,
-            'made_on_datetime': note.made_on_datetime.strftime('%d.%m.%Y'),
+            'made_on_datetime': f'{note.made_on_datetime.strftime('%d.%m.%Y')} в '
+                                f'{note.made_on_datetime.strftime('%H:%M')}',
             'tag': note.tag,
             'files_folder_path': []
         }
@@ -350,7 +362,8 @@ def all_courses():
             'token': course.token,
             'description': course.description,
             'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.',
-            'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
+            'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в '
+                                f'{course.made_on_datetime.strftime('%H:%M')}',
             'uuid': course.uuid,
         }
         courses.append(d)
@@ -386,11 +399,11 @@ def register():
 
         user = User()
         user.uuid = str(uuid.uuid4())
-        user.email = form.email.data
-        user.name = form.name.data
-        user.surname = form.surname.data
+        user.email = form.email.data.lower()
+        user.name = form.name.data.lower().capitalize()
+        user.surname = form.surname.data.lower().capitalize()
         user.username = form.username.data
-        user.lastname = form.lastname.data
+        user.lastname = form.lastname.data.lower().capitalize()
         user.class_number = form.class_num.data
         user.school = form.school.data
         user.set_password(form.password.data)
@@ -417,7 +430,7 @@ def login():
         psw = form.password.data
         db_sess = db_session.create_session()
 
-        exists = db_sess.query(User).where(User.email == email_or_username).first()
+        exists = db_sess.query(User).where(User.email == email_or_username.lower()).first()
         exists2 = db_sess.query(User).where(User.username == email_or_username).first()
         if exists is None and exists2 is None:
             db_sess.close()

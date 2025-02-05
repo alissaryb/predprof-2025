@@ -19,7 +19,7 @@ def get_courses_learn(user_uuid):
     db_sess = db_session.create_session()
 
     all_ = db_sess.query(CourseToUser).where(CourseToUser.user_uuid == user_uuid).all()
-    all_ = sorted(all_, key=lambda x: x.course.made_on_datetime)
+    all_ = sorted(all_, key=lambda x: x.course.made_on_datetime, reverse=True)
     courses = []
 
     for course_to_user in all_:
@@ -45,7 +45,7 @@ def get_courses_learn(user_uuid):
 def get_courses_teach(user_uuid):
     db_sess = db_session.create_session()
 
-    all_ = db_sess.query(Course).where(Course.user_uuid == user_uuid).order_by(Course.made_on_datetime).all()
+    all_ = db_sess.query(Course).where(Course.user_uuid == user_uuid).order_by(Course.made_on_datetime.desc()).all()
     courses = []
 
     for course in all_:

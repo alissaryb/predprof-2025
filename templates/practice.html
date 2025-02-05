@@ -80,27 +80,56 @@
         <div class="col-md-9">
             {% for i in tasks %}
             <div class="smooth-animation">
-                <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}" data-type="{{i['type']}}">
+                <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}" data-type="{{i['num_type']}}">
 
-                    <h4> Задание {{i["type"]}} </h4>
-                    <h6>ID {{i["id"]}}</h6>
+                    <h4> Тип {{ i["text_type"] }} </h4>
+                    <h6>ID {{i["uuid"]}}</h6>
 
                     <div class="small-br"></div>
 
                     <b><i>Сложность: {{i["level"]}}</i></b>
+                    <div class="small-br"></div>
+                    <b><i>Источник: {{i["source"]}}</i></b>
                     <div class="small-br"></div>
 
                     <div>Условие:</div>
                     <p class="text-task">{{ i['text']|safe }} </p>
 
                     <div style="display: flex; align-items: center;">
-                        <button class="button btn-answer btn-violet" id="toggleButton-{{i['id']}}" onclick="toggleAnswer('{{i['id']}}')">Показать ответ</button>
-                        <div class="answer" id="answer-{{i['id']}}" style="display: none; margin-left: 10px;">
+                        <button class="button btn-answer btn-violet" id="toggleButton-{{i['uuid']}}" onclick="toggleAnswer('{{i['uuid']}}')">Показать ответ</button>
+                        <div class="answer" id="answer-{{i['uuid']}}" style="display: none; margin-left: 10px;">
                             <div class="custom-box">
                                 {{ i['ans']|safe }}
                             </div>
                         </div>
                     </div>
+                    <br>
+                    {% if i['files_folder_path']|length != 0 %}
+                        <div>Файлы:</div>
+                    {% endif %}
+                    {% for j in i['files_folder_path'] %}
+                        {% if j[1] == 'video' %}
+                            <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px;">
+                                {% set tmp_type_video = j[0].split('.')|last %}
+                                <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
+                            </video>
+                            <br>
+                            <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
+                                Скачать видео
+                            </a>
+                        {% elif j[1] == 'img' %}
+                            <img src="{{j[0]}}" class="bi me-2" style="object-fit: contain; max-width: 60%; max-height: 300px;">
+                            <br>
+                            <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                                Скачать фото
+                            </a>
+                        {% else %}
+                            <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                                Скачать материал
+                            </a>
+                        {% endif %}
+                        <br>
+                    {% endfor %}
                 </main>
                 </div>
             {% endfor %}
