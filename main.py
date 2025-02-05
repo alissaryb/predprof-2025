@@ -58,6 +58,11 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.errorhandler(401)
+def e401(code):
+    return redirect('/login')
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template("index.html", title="")
