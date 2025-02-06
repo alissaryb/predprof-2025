@@ -302,8 +302,7 @@ def course_by_uuid(course_uuid):
         'subject': course.subject,
         'description': course.description,
         'token': course.token,
-        'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в '
-                            f'{course.made_on_datetime.strftime('%H:%M')}',
+        'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{course.made_on_datetime.strftime('%H:%M')}',
         'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.',
         'author_uuid': course.author.uuid
     }

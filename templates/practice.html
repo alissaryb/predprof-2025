@@ -39,13 +39,13 @@
 <div class="container cen">
     <div class="row">
         <div class="col">
-            <div class="filter-container tablo mt-5" style="position: sticky; top: 2rem; overflow-y: auto;">
+            <div class="filter-container tablo mt-5" style="position: sticky; top: 7rem; overflow-y: auto;">
                 <label>Фильтр по сложности:</label>
                 <br>
                 <div>
                     <label><input type="checkbox" value="Очевидная" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очевидная</label><br>
-                    <label><input type="checkbox" value="Очень легка" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень легкая</label><br>
-                    <label><input type="checkbox" value="Легка" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Легкая</label><br>
+                    <label><input type="checkbox" value="Очень легкая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень легкая</label><br>
+                    <label><input type="checkbox" value="Легкая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Легкая</label><br>
                     <label><input type="checkbox" value="Средняя" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Средняя</label><br>
                     <label><input type="checkbox" value="Тяжелая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Тяжелая</label><br>
                     <label><input type="checkbox" value="Очень тяжелая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень тяжелая</label><br>
@@ -73,8 +73,6 @@
             {% for i in tasks %}
             <div class="smooth-animation">
                 <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}" data-type="{{i['num_type']}}">
-                    <h4> Задание {{i['text_type']}}</h4>
-
                     <h4> Тип {{ i["text_type"] }} </h4>
                     <h6>ID {{i["uuid"]}}</h6>
 
@@ -100,26 +98,25 @@
                     {% endif %}
                     {% for j in i['files_folder_path'] %}
                         {% if j[1] == 'video' %}
-                            <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px;">
+                            <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
                                 {% set tmp_type_video = j[0].split('.')|last %}
                                 <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
                             </video>
                             <br>
                             <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
-                                Скачать видео
+                                Открыть видео
                             </a>
                         {% elif j[1] == 'img' %}
-                            <img src="{{j[0]}}" class="bi me-2" style="object-fit: contain; max-width: 60%; max-height: 300px;">
+                            <img src="{{j[0]}}" class="bi me-2" style="object-fit: contain; max-width: 60%; max-height: 300px; margin-bottom: 10px;">
                             <br>
                             <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
-                                Скачать фото
+                                Открыть фото
                             </a>
                         {% else %}
                             <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
                                 Скачать материал
                             </a>
                         {% endif %}
-                        <br>
                     {% endfor %}
                 </main>
             </div>

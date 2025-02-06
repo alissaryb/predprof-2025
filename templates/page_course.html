@@ -15,7 +15,7 @@
     <div>Создан {{ course['made_on_datetime'] }}</div>
     <br>
 
-    <div class="col-md-6 col-lg-4">
+    <div class="col-md-4 col-lg-2">
         <a href="/add_publication" class="btn btn-violet cen">Добавить публикацию</a>
     </div>
 
@@ -34,19 +34,19 @@
             {% endif %}
             {% for j in i['files_folder_path'] %}
                 {% if j[1] == 'video' %}
-                    <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px;">
+                    <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
                         {% set tmp_type_video = j[0].split('.')|last %}
                         <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
                     </video>
                     <br>
                     <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
-                        Скачать видео
+                        Открыть видео
                     </a>
                 {% elif j[1] == 'img' %}
-                    <img src="{{j[0]}}" class="bi me-2" style="object-fit: contain; max-width: 60%;  max-height: 300px;">
+                    <img src="{{j[0]}}" class="bi me-2" style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
                     <br>
                     <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
-                        Скачать фото
+                        Открыть фото
                     </a>
                 {% else %}
                     <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
