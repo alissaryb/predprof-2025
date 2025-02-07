@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block main_content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     th, td {
     border: 1px solid #e5e5e5; /* Граница ячеек */
@@ -39,14 +41,16 @@ color: black;
 </style>
 <div class="container ">
 
-    <div class="center">
-        <table class="table" >
+
+        <table style="width: 100%;">
             <thead>
                 <tr>
                     <th>Тип задания</th>
-                    <th>Правильно решенных</th>
+                    <th>Правильно решенные</th>
                     <th>Всего решенных</th>
-                    <th>Процент</th>
+                    <th>Процент выполнения</th>
+                    <th>Последние 10 правильно решенные</th>
+                    <th>Процент выполнения последних 10</th>
                 </tr>
             </thead>
             <tbody>
@@ -70,18 +74,62 @@ color: black;
             </tbody>
         </table>
 
-        </div>
-
-
-
-
 
 
 
 
     <br>
-<img class="cen" src="{{ url_for('static', filename='media/chart.jpg') }}" width="80%">
 
+
+    <div class="tablo">
+        <canvas id="myChart" width="200"></canvas>
+    </div>
+
+    <script>
+
+        const values = {{ values | tojson }};
+
+        const labels = values.map((_, index) => index + 1);
+
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'Баллы',
+                data: values,
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            }]
+        };
+
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Баллы'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Номер работы'
+                        }
+                    }
+                }
+            }
+        };
+
+        const myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+    </script>
 </div>
 
 {% endblock %}

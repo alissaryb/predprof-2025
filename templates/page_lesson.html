@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+
+<div class="p-5 mt-5 " style="margin: 5%;">
+
+    <h3>{{ lesson['title'] }}</h3>
+    <p>{{ lesson['description'] }}</p>
+    <br>
+
+    <div class="tablo">
+        {{ lesson['text']|safe }}
+    </div>
+
+    <br>
+    {% if lesson['files_folder_path']|length != 0 %}
+        <h5>Материалы:</h5>
+    {% endif %}
+
+    {% for j in range(files|length) %}
+        {% if files[j][1] == 'video' %}
+            <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
+                {% set tmp_type_video = files[j][0].split('.')|last %}
+                <source src="{{ files[j][0] }}" type="video/{{ tmp_type_video }}">
+            </video>
+            <br>
+            <a href="{{ files[j][0] }}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
+                Открыть видео
+            </a>
+        {% elif files[j][1] == 'img' %}
+            <img src="{{ files[j][0] }}" class="bi me-2" style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
+            <br>
+            <a href="{{ files[j][0] }}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                Открыть фото
+            </a>
+        {% else %}
+            <a href="{{ files[j][0] }}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                Скачать материал
+            </a>
+        {% endif %}
+        <br>
+    {% endfor %}
+
+
+
+    <div class="col-md-6 col-lg-4 cen">
+        <a href="/page_course/{{ lesson['course_uuid'] }}" class="btn btn-violet cen">Вернуться к курсу</a>
+    </div>
+
+</div>
+
+{% endblock %}

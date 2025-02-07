@@ -19,7 +19,7 @@ class Course(SqlAlchemyBase):
     author = orm.relationship("User")
 
     users = orm.relationship("CourseToUser", back_populates="course", uselist=True)
-    publications = orm.relationship("CourseToPublication", back_populates="course", uselist=True)
+    lessons = orm.relationship("CourseToLesson", back_populates="course", uselist=True)
     groups = orm.relationship("CourseToGroup", back_populates="course", uselist=True)
 
     def __repr__(self):

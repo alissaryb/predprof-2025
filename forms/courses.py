@@ -3,6 +3,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, SelectField, FileField, widgets
 from wtforms.fields.choices import SelectMultipleField
 from wtforms.validators import InputRequired, DataRequired, Optional, StopValidation
+from flask_wtf.file import FileAllowed, FileRequired
+
 
 from py_scripts.funcs_back import get_title_courses_by_user_uuid, get_courses_teach
 
@@ -34,15 +36,17 @@ class MultiCheckboxAtLeastOne():
             raise StopValidation(self.message)
 
 
-class FormAddPublication(FlaskForm):
-    title = StringField('Название публикации', validators=[InputRequired('Обязательное поле')])
+class FormAddLesson(FlaskForm):
+    title = StringField('Тема', validators=[InputRequired('Обязательное поле')])
+    description = StringField('Напишите краткое описание урока', validators=[InputRequired('Обязательное поле')])
     tag = StringField('Напишите ключевые слова через запятую', validators=[InputRequired('Обязательное поле')])
-    text = TextAreaField('Текст публикации', validators=[])
-    my_courses = MultiCheckboxField("На какие курсы опубликовать публикацию?", validators=[MultiCheckboxAtLeastOne()])
-    files = FileField('Выберите файлы', validators=[Optional()], render_kw={"multiple": True})
+    lesson_file = FileField('Прикрепите файл с конспектом формата MarkdownV2',
+                            validators=[FileRequired('Обязательное поле'), FileAllowed(['md'])])
+    files = FileField('Прикрепите материалы у уроку', validators=[Optional()], render_kw={"multiple": True})
+    my_courses = MultiCheckboxField("На какие курсы опубликовать урок?", validators=[MultiCheckboxAtLeastOne()])
 
     submit = SubmitField('Опубликовать')
 
     def __init__(self, user_uuid, *args, **kwargs):
-        super(FormAddPublication, self).__init__(*args, **kwargs)
+        super(FormAddLesson, self).__init__(*args, **kwargs)
         self.my_courses.choices = [(values.get("uuid"), values.get("title")) for values in get_courses_teach(user_uuid)]
