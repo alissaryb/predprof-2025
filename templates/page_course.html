@@ -15,55 +15,28 @@
     <div>Создан {{ course['made_on_datetime'] }}</div>
     <br>
 
-    <div class="col-md-4 col-lg-2">
-        <a href="/add_publication" class="btn btn-violet cen">Добавить публикацию</a>
-    </div>
+    {% if current_user.uuid == course['author_uuid'] %}
+        <div class="col-md-4 col-lg-2">
+            <a href="/add_lesson" class="btn btn-violet cen">Добавить урок</a>
+        </div>
+    {% endif %}
 
-
-    {% for i in publications %}
+    {% for i in lessons %}
         <div class="tablo">
             <h5>{{ i['title'] }}</h5>
             <hr>
-            <div>{{ i['text'] }}</div>
+            <div>{{ i['description'] }}</div>
             <br>
-            <div>Тег #{{ i['tag'] }}</div>
+            <div>Теги: {{ i['tag'] }}</div>
             <div>Создано {{ i['made_on_datetime'] }}</div>
             <br>
-            {% if i['files_folder_path']|length != 0 %}
-                <h6>Материалы:</h6>
-            {% endif %}
-            {% for j in i['files_folder_path'] %}
-                {% if j[1] == 'video' %}
-                    <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
-                        {% set tmp_type_video = j[0].split('.')|last %}
-                        <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
-                    </video>
-                    <br>
-                    <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
-                        Открыть видео
-                    </a>
-                {% elif j[1] == 'img' %}
-                    <img src="{{j[0]}}" class="bi me-2" style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
-                    <br>
-                    <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
-                        Открыть фото
-                    </a>
-                {% else %}
-                    <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
-                        Скачать материал
-                    </a>
-                {% endif %}
-                <br>
-            {% endfor %}
+            <div><a href="/page_course/{{ course['uuid'] }}/page_lesson/{{ i['uuid'] }}">Перейти к уроку</a></div>
         </div>
     {% endfor %}
 
     <div class="col-md-6 col-lg-4 cen">
         <a href="/all_courses" class="btn btn-violet cen">Вернуться ко всем курсам</a>
     </div>
-
-
-
 </div>
 
 {% endblock %}

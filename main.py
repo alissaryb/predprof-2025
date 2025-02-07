@@ -10,13 +10,16 @@ from werkzeug.utils import secure_filename
 
 from forms.register import FormRegisterUser, FormLoginUser
 from forms.tasks import FormAddTask, QuizForm
-from forms.courses import FormAddCourse, FormAddPublication
+from forms.courses import FormAddCourse, FormAddLesson
 
 import json
 import uuid
+import markdown2
 
-from py_scripts.funcs_back import get_user_data, add_publication_database, get_kim_dict, get_tasks
+from py_scripts.funcs_back import get_user_data, add_lesson_database, get_kim_dict, get_tasks
 from sa_models import db_session
+from sa_models.course_to_lesson import CourseToLesson
+from sa_models.lessons import Lesson
 from sa_models.users import User
 from sa_models.courses import Course
 from sa_models.problems import Problem
@@ -28,8 +31,8 @@ if not os.path.exists('materials/'):
     os.mkdir('materials/')
 if not os.path.exists('problems_materials/'):
     os.mkdir('problems_materials/')
-if not os.path.exists('publications_materials/'):
-    os.mkdir('publications_materials/')
+if not os.path.exists('lessons_materials/'):
+    os.mkdir('lessons_materials/')
 if not os.path.exists('database/'):
     os.mkdir('database/')
 
@@ -68,9 +71,9 @@ def index():
     return render_template("index.html", title="")
 
 
-@app.route('/publications_materials/<material_uuid>/<filename>', methods=['GET'])
-def download_file_publication(material_uuid, filename):
-    return send_from_directory(f'publications_materials/{material_uuid}', filename)
+@app.route('/lessons_materials/<material_uuid>/<filename>', methods=['GET'])
+def download_file_lesson(material_uuid, filename):
+    return send_from_directory(f'lessons_materials/{material_uuid}', filename)
 
 
 @app.route('/problems_materials/<material_uuid>/<filename>', methods=['GET'])
@@ -201,17 +204,70 @@ def statistic():
 #     return render_template("teacher_groups.html", courses=courses)
 
 
-@app.route('/add_publication', methods=['GET', 'POST'])
+@app.route(f'/page_course/<course_uuid>/page_lesson/<lesson_uuid>', methods=['GET'])
 @login_required
-def add_publication():
-    form = FormAddPublication(current_user.uuid)
+def lesson_page(course_uuid, lesson_uuid):
+    db_sess = db_session.create_session()
+
+    exists = db_sess.query(CourseToLesson).where(CourseToLesson.course_uuid == course_uuid,
+                                                 CourseToLesson.lesson_uuid == lesson_uuid).first()
+
+    if exists is None:
+        db_sess.close()
+        return render_template("error.html", title="Курс или урок не найдены",
+                               err='Курс или урок не найдены')
+
+    course_uuid = exists.course_uuid
+    is_author = exists.course.author.uuid == current_user.uuid
+    is_registered = db_sess.query(CourseToUser).where(CourseToUser.user_uuid == current_user.uuid,
+                                                      CourseToUser.course_uuid == course_uuid).first()
+
+    if not is_author and is_registered is None:
+        db_sess.close()
+        return render_template("error.html", title="Вы не зарегистрированы на курс",
+                               err='Вы не зарегистрированы на курс')
+
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', "language-prefix"])
+
+    lesson = exists.lesson
+    lesson_data = {
+        'course_uuid': course_uuid,
+        'lesson_uuid': lesson_uuid,
+        'title': lesson.title,
+        'description': lesson.description,
+        'text': markdowner.convert(lesson.text),
+        'author': f'{lesson.author.surname} {lesson.author.name[0]}. {lesson.author.lastname[0]}.',
+        'made_on_datetime': f'{lesson.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{lesson.made_on_datetime.strftime('%H:%M')}',
+        'files_folder_path': []
+    }
+
+    if lesson.files_folder_path is not None:
+        for file_ in os.listdir(lesson.files_folder_path):
+            path_ = [f'/{lesson.files_folder_path}{file_}', 'other']
+            if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
+                    '.webp') or \
+                    file_.endswith('.gif'):
+                path_[1] = 'img'
+            if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
+                path_[1] = 'video'
+            lesson_data['files_folder_path'].append(path_)
+
+    return render_template("page_lesson.html", lesson=lesson_data)
+
+
+@app.route('/add_lesson', methods=['GET', 'POST'])
+@login_required
+def add_lesson():
+    form = FormAddLesson(current_user.uuid)
     if form.validate_on_submit():
         files = request.files.getlist("files")
-        add_publication_database(form, current_user.uuid, files)
+        lesson_text = request.files.get("lesson_file").stream.read().decode("utf8")
+        add_lesson_database(form, current_user.uuid, files, lesson_text)
 
-        return redirect("/")
+        return redirect("/my_courses")
 
-    return render_template("add_publication.html", form=form)
+    return render_template("add_publication.html", form=form,
+                           title="Создание урока")
 
 
 @app.route('/practice', methods=['GET'])
@@ -227,7 +283,7 @@ def practice():
             'num_type': problem.kim_type.kim_id,
             'text_type': problem.kim_type.title,
             'source': problem.source,
-            'uuid': problem.uuid,
+            'uuid': problem.id,
             'text': problem.text.replace('\n', '<br>'),
             'ans': problem.answer,
             'files_folder_path': []
@@ -328,36 +384,35 @@ def course_by_uuid(course_uuid):
     }
 
     all_tags = []
-    publications = []
-    course_publications = course.publications
-    for note_ in course_publications:
-        note = note_.publication
+    lessons = []
+    course_lessons = course.lessons
+    for note_ in course_lessons:
+        note = note_.lesson
         note_data = {
             'uuid': note.uuid,
             'title': note.title,
-            'text': note.text,
+            'description': note.description,
             'made_on_datetime': f'{note.made_on_datetime.strftime('%d.%m.%Y')} в '
                                 f'{note.made_on_datetime.strftime('%H:%M')}',
-            'tag': note.tag,
-            'files_folder_path': []
+            'tag': ', '.join([i.strip().lower() for i in note.tag.split(',')])
         }
-        if note.files_folder_path is not None:
-            for file_ in os.listdir(note.files_folder_path):
-                path_ = [f'/{note.files_folder_path}{file_}', 'other']
-                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
-                        '.webp') or \
-                        file_.endswith('.gif'):
-                    path_[1] = 'img'
-                if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
-                    path_[1] = 'video'
-                note_data['files_folder_path'].append(path_)
+        # if note.files_folder_path is not None:
+        #     for file_ in os.listdir(note.files_folder_path):
+        #         path_ = [f'/{note.files_folder_path}{file_}', 'other']
+        #         if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
+        #                 '.webp') or \
+        #                 file_.endswith('.gif'):
+        #             path_[1] = 'img'
+        #         if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
+        #             path_[1] = 'video'
+        #         note_data['files_folder_path'].append(path_)
         all_tags.append(note_data['tag'])
-        publications.append(note_data)
+        lessons.append(note_data)
 
     db_sess.close()
 
     return render_template("page_course.html", title="Страница курса", course=course_data,
-                           publications=publications)
+                           lessons=lessons)
 
 
 @app.route('/add_course', methods=['GET', 'POST'])
@@ -412,6 +467,7 @@ def all_courses():
             'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в '
                                 f'{course.made_on_datetime.strftime('%H:%M')}',
             'uuid': course.uuid,
+            'author_uuid': course.author.uuid
         }
         courses.append(d)
 
@@ -459,11 +515,9 @@ def register():
         db_sess.add(user)
         db_sess.commit()
 
-        login_user(user, remember=True)
-
         db_sess.close()
 
-        return redirect('/')
+        return redirect('/login')
 
     return render_template("register.html", title="Регистрация", form=form)
 

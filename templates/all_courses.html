@@ -10,7 +10,7 @@
             <div class="card-body d-flex flex-column p-4">
                 <h4>{{ i['title'] }}</h4>
                 <div>Предмет: {{ i['subject'] }}</div>
-                <div>Токен: {{ i['token'] }}</div>
+{#                <div>Токен: {{ i['token'] }}</div>#}
 
                 <br>
                 <p>{{ i['description'] }}</p>
@@ -19,7 +19,7 @@
                 <div>Создан {{ i['made_on_datetime'] }}</div>
                 <br>
                 <div class="mt-auto">
-                    {% if courses_data_by_uuid['uuid'] %}
+                    {% if courses_data_by_uuid['uuid'] or i['author_uuid'] == current_user.uuid %}
                         <a href="/page_course/{{i['uuid']}}" class="btn btn-violet">Перейти</a>
                     {% else %}
                         <a href="/page_course/{{i['uuid']}}" class="btn btn-green">Зарегистрироваться</a>

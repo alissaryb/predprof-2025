@@ -12,9 +12,9 @@ import random
 
 from sa_models.kim_types import KimType
 from sa_models.problems import Problem
-from sa_models.publications import Publication
+from sa_models.lessons import Lesson
 from sa_models.users import User
-from sa_models.course_to_publication import CourseToPublication
+from sa_models.course_to_lesson import CourseToLesson
 
 
 def get_courses_learn(user_uuid):
@@ -90,36 +90,38 @@ def get_title_courses_by_user_uuid(user_uuid: int) -> list[str]:
     return courses
 
 
-def add_publication_database(form, user_uuid, files) -> None:
+def add_lesson_database(form, user_uuid, files, lesson_text) -> None:
     db_sess = db_session.create_session()
 
     new_uuid = str(uuid.uuid4())
-    new_publication = Publication(
+    new_lesson = Lesson(
         uuid=new_uuid,
         title=form.title.data,
-        text=form.text.data,
+        description=form.description.data,
+        text=lesson_text,
         tag=form.tag.data,
-        user_uuid=user_uuid)
+        user_uuid=user_uuid
+    )
 
     if len(files) > 0:
         for file in files:
             if file.filename == '':
                 continue
 
-            pth = f'publications_materials/{new_uuid}/'
+            pth = f'lessons_materials/{new_uuid}/'
             if not os.path.exists(pth):
                 os.mkdir(pth)
-                new_publication.files_folder_path = pth
+                new_lesson.files_folder_path = pth
 
             filename = secure_filename(file.filename)
             file.save(pth + filename)
 
-    db_sess.add(new_publication)
+    db_sess.add(new_lesson)
 
     for course_uuid in form.my_courses.data:
-        new_relation = CourseToPublication()
+        new_relation = CourseToLesson()
         new_relation.course_uuid = course_uuid
-        new_relation.publication_uuid = new_uuid
+        new_relation.lesson_uuid = new_uuid
         db_sess.add(new_relation)
 
     db_sess.commit()

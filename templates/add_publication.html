@@ -1,27 +1,10 @@
 {% extends 'base.html' %}
 {% block main_content %}
 
-<script>
-    let fileCount = 1;
-    function addFileInput() {
-        if (fileCount < 5) {
-            const fileInputs = document.getElementById('file-inputs');
-            const newInput = document.createElement('input');
-            newInput.type = 'file';
-            newInput.name = 'file';
-            fileInputs.appendChild(newInput);
-            fileCount++;
-        }
-        else {
-            alert('Максимальное количество файлов - 5');
-        }
-    }
-</script>
-
-
 <div class="container py-4 py-xl-5">
 
     <form action="" method="post" enctype="multipart/form-data">
+    <h1 class="text-center text_title_violet">{{title}}</h1>
         {{ form.hidden_tag() }}
 
         <div class="form-group mb-2">
@@ -34,15 +17,31 @@
             {% endfor %}
         </div>
         <div class="form-group mb-2">
-            {{ form.text.label }}<br>
-            {{ form.text(class="form-control", rows="8") }}<br>
-            {% for error in form.text.errors %}
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control", rows="3") }}<br>
+            {% for error in form.description.errors %}
             <div class="alert alert-danger" role="alert">
                 {{ error }}
             </div>
             {% endfor %}
         </div>
 
+        <div class="form-group mb-2">
+            {{ form.lesson_file.label }}<br>
+            {{ form.lesson_file(class="form-control", style="width: 30%") }}<br>
+            {% for error in form.lesson_file.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
+{#        <div>#}
+{#            <label class="custom-file-button">#}
+{#                {{ form.lesson_file.label }}<br>#}
+{#                {{ form.lesson_file() }}#}
+{#            </label>#}
+{#        </div>#}
         <div class="form-group mb-2">
             {{ form.tag.label }}<br>
             {{ form.tag(class="form-control") }}<br>
@@ -53,15 +52,6 @@
             {% endfor %}
         </div>
 
-        <!--        <div class="form-group mb-2">-->
-        <!--            {{ form.my_courses.label }}<br>-->
-        <!--            {{ form.my_courses(class="form-control") }}<br>-->
-        <!--            {% for error in form.my_courses.errors %}-->
-        <!--            <div class="alert alert-danger" role="alert">-->
-        <!--                {{ error }}-->
-        <!--            </div>-->
-        <!--            {% endfor %}-->
-        <!--        </div>-->
         <div class="form-group mb-3">
             {{ form.my_courses.label }}<br>
             {% for subfield in form.my_courses %}
@@ -77,7 +67,22 @@
             {% endfor %}
         </div>
 
-        {{ form.files() }}
+        <div class="form-group mb-2">
+            {{ form.files.label }}<br>
+            {{ form.files(class="form-control", style="width: 30%") }}<br>
+            {% for error in form.files.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
+{#        <div>#}
+{#            <label class="custom-file-button">#}
+{#                {{ form.files.label }}<br>#}
+{#                {{ form.files() }}#}
+{#            </label>#}
+{#        </div>#}
 
         <div class="d-grid gap-4 col-7 mx-auto">
             {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}

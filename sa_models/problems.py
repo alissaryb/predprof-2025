@@ -6,7 +6,8 @@ from .db_session import SqlAlchemyBase
 
 class Problem(SqlAlchemyBase):
     __tablename__ = 'problems'
-    uuid = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    uuid = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     text = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     files_folder_path = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     source = sqlalchemy.Column(sqlalchemy.String, nullable=True)
