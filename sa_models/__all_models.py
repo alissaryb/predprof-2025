@@ -9,3 +9,6 @@ from . import users
 from . import problems
 from . import kim_types
 from . import problems
+from . import problem_to_test
+from . import test_variant
+from . import test_results

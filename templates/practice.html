@@ -43,14 +43,22 @@
                 <label>Фильтр по сложности:</label>
                 <br>
                 <div>
-                    <label><input type="checkbox" value="Очевидная" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очевидная</label><br>
-                    <label><input type="checkbox" value="Очень легкая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень легкая</label><br>
-                    <label><input type="checkbox" value="Легкая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Легкая</label><br>
-                    <label><input type="checkbox" value="Средняя" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Средняя</label><br>
-                    <label><input type="checkbox" value="Тяжелая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Тяжелая</label><br>
-                    <label><input type="checkbox" value="Очень тяжелая" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Очень тяжелая</label><br>
-                    <label><input type="checkbox" value="Гроб" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Гроб</label><br>
-                    <label><input type="checkbox" value="Все" onchange="filterTasks(this)"><span class="custom-checkbox"></span>Все</label>
+                    <label><input type="checkbox" value="Очевидная" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Очевидная</label><br>
+                    <label><input type="checkbox" value="Очень легкая" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Очень легкая</label><br>
+                    <label><input type="checkbox" value="Легкая" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Легкая</label><br>
+                    <label><input type="checkbox" value="Средняя" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Средняя</label><br>
+                    <label><input type="checkbox" value="Тяжелая" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Тяжелая</label><br>
+                    <label><input type="checkbox" value="Очень тяжелая" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Очень тяжелая</label><br>
+                    <label><input type="checkbox" value="Гроб" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Гроб</label><br>
+                    <label><input type="checkbox" value="Все" onchange="filterTasks(this)"><span
+                            class="custom-checkbox"></span>Все</label>
                 </div>
 
                 <br>
@@ -59,70 +67,145 @@
                 <select id="typeFilter" onchange="filterTasks()">
                     <option value="">Все</option>
                     {% for type in range(1, 19) %}
-                        <option value="{{ type }}">{{ type }}</option>
+                    <option value="{{ type }}">{{ type }}</option>
                     {% endfor %}
                     <option value="19-21">19-21</option>
                     {% for type in range(22, 28) %}
-                        <option value="{{ type }}">{{ type }}</option>
+                    <option value="{{ type }}">{{ type }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
 
         <div class="col-md-9">
-            {% for i in tasks %}
-            <div class="smooth-animation">
-                <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}" data-type="{{i['num_type']}}">
-                    <h4> Тип {{ i["text_type"] }} </h4>
-                    <h6>ID {{i["uuid"]}}</h6>
+            <form method="post" action="/make_variant">
+                {% for i in tasks %}
+                <div class="smooth-animation">
+                    <main class="container mt-5 p-5 tablo task-item " data-difficulty="{{i['level']}}"
+                          data-type="{{i['num_type']}}">
+                        <h4> Тип {{ i["text_type"] }} </h4>
+                        <h6>ID {{i["uuid"]}}</h6>
 
-                    <div class="small-br"></div>
-                    <b><i>Сложность: {{i['level']}}</i></b>
-                    <div class="small-br"></div>
-                    <b><i>Источник: {{i["source"]}}</i></b>
-                    <div class="small-br"></div>
+                        <div class="small-br"></div>
+                        <b><i>Сложность: {{i['level']}}</i></b>
+                        <div class="small-br"></div>
+                        <b><i>Источник: {{i["source"]}}</i></b>
+                        <div class="small-br"></div>
 
-                    <div>Условие:</div>
-                    <p class="text-task">{{ i['text']|safe }} </p>
-                    <div style="display: flex; align-items: center;">
-                        <button class="button btn-answer btn-violet" id="toggleButton-{{i['uuid']}}" onclick="toggleAnswer('{{i['uuid']}}')">Показать ответ</button>
-                        <div class="answer" id="answer-{{i['uuid']}}" style="display: none; margin-left: 10px;">
-                            <div class="custom-box">
-                                {{ i['ans']|safe }}
+                        <div>Условие:</div>
+                        <p class="text-task">{{ i['text']|safe }} </p>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" style="display: block;" name="test_tasks"
+                                   value="{{ i['uuid'] }}"
+                                   id="flexCheckDefault_{{ i['uuid'] }}">
+                            <label class="form-check-label" for="flexCheckDefault_{{ i['uuid'] }}">
+                                Добавить в вариант
+                            </label>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <button class="button btn-answer btn-violet" id="toggleButton-{{i['uuid']}}"
+                                    onclick="toggleAnswer('{{i['uuid']}}')">Показать ответ
+                            </button>
+                            <div class="answer" id="answer-{{i['uuid']}}" style="display: none; margin-left: 10px;">
+                                <div class="custom-box">
+                                    {{ i['ans']|safe }}
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        {% if i['files_folder_path']|length != 0 %}
+                        <div>Файлы:</div>
+                        {% endif %}
+                        {% for j in i['files_folder_path'] %}
+                        {% if j[1] == 'video' %}
+                        <video controls
+                               style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
+                            {% set tmp_type_video = j[0].split('.')|last %}
+                            <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
+                        </video>
+                        <br>
+                        <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
+                            Открыть видео
+                        </a>
+                        {% elif j[1] == 'img' %}
+                        <img src="{{j[0]}}" class="bi me-2"
+                             style="object-fit: contain; max-width: 60%; max-height: 300px; margin-bottom: 10px;">
+                        <br>
+                        <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                            Открыть фото
+                        </a>
+                        {% else %}
+                        <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                            Скачать материал
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                    </main>
+                </div>
+                {% endfor %}
+                <div class="row justify-content-center">
+                    <div class="col-md-auto" style="position: fixed; bottom: 0px;">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#dateModal"
+                                style="color: white; background-color:#688ECA; min-height:4vh; min-width: 49vw">Создать
+                            вариант
+                        </button>
+                    </div>
+
+                </div>
+
+
+                <div class="modal fade" id="dateModal" tabindex="-1" aria-labelledby="dateModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="dateModalLabel">Введите данные</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Название варианта</label>
+                                    <input type="text" class="form-control" id="title" name="title" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="startDate" class="form-label">Дата начала</label>
+                                    <input type="date" class="form-control" id="startDate" name="start_date">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="endDate" class="form-label">Дата конца</label>
+                                    <input type="date" class="form-control" id="endDate" name="end_date">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="duration" class="form-label">Продолжительность (минуты)</label>
+                                    <input type="number" class="form-control" id="duration" name="duration" min="0">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Выберите вариант обратной связи:</label><br>
+                                    {% for key, val in feedback.items() %}
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="option" id="option{{key}}"
+                                               value="{{key}}" checked>
+                                        <label class="form-check-label" for="option{{key}}">{{val}}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">Перейти</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <br>
-                    {% if i['files_folder_path']|length != 0 %}
-                        <div>Файлы:</div>
-                    {% endif %}
-                    {% for j in i['files_folder_path'] %}
-                        {% if j[1] == 'video' %}
-                            <video controls style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
-                                {% set tmp_type_video = j[0].split('.')|last %}
-                                <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
-                            </video>
-                            <br>
-                            <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
-                                Открыть видео
-                            </a>
-                        {% elif j[1] == 'img' %}
-                            <img src="{{j[0]}}" class="bi me-2" style="object-fit: contain; max-width: 60%; max-height: 300px; margin-bottom: 10px;">
-                            <br>
-                            <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
-                                Открыть фото
-                            </a>
-                        {% else %}
-                            <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
-                                Скачать материал
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                </main>
-            </div>
-            {% endfor %}
+                </div>
+            </form>
         </div>
     </div>
+
 
     <br>
 

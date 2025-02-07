@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+
+<div class="container mt-5">
+    {% if feedback <= 3 and result %}
+    <div class="alert alert-success">
+        <h4>Результаты:</h4>
+        <p>Правильных ответов: {{ correct_count }}/{{all_count}}</p>
+        <p>Всего баллов: {{ total_score }}/{{all_score}}</p>
+    </div>
+    {% elif feedback == 4 and result%}
+    <div class="alert alert-success">
+        <h4>Результаты отправлены преподавателю на проверку</h4>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="tasks_dict" value="{{ request.form.tasks }}">
+
+        {% if tasks and (feedback <= 2 or not result)%}
+        {% for task in tasks %}
+
+        <div class="card mb-4">
+            <div class="card-header bg-violet text-white">
+                <h3>{{ task['key'][0] }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 p-3 {% if result %}
+                                    {% if task['value'].is_correct %}my-is-valid{% else %}my-is-invalid{% endif %}
+                                    text-white rounded{% endif %}">
+
+                    <p>Источник: {{ task['value'].source}}</p>
+                    <b><i>Сложность: {{ task['value'].difficulty }}</i></b>
+                    <p>{{ task['value'].text }}</p>
+
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Запишите ответ</span>
+                        <input type="text"
+                               class="form-control {% if result %}
+                                                   {% if task['value'].is_correct %}is-valid{% else %}is-invalid{% endif %}
+                                               {% endif %}"
+                               name="answer_{{ task['key'][1] }}_{{ task['value'].uuid }}"
+                               value="{% if result %}{{ task['value'].user_answer }}{% endif %}"
+                               {% if result %}readonly{% endif %}
+                               aria-describedby="inputGroup-sizing-default">
+
+                    </div>
+
+                    {% if feedback == 1 and result and not task['value'].is_correct %}
+                    <div class="mt-2">
+                        <span class="badge bg-info">Правильный ответ: {{ task['value'].answer }}</span>
+                    </div>
+                    {% endif %}
+                    {% if task['value']['files_folder_path']|length != 0 %}
+                        <div>Файлы:</div>
+                        {% endif %}
+                        {% for j in task['value']['files_folder_path'] %}
+                        {% if j[1] == 'video' %}
+                        <video controls
+                               style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
+                            {% set tmp_type_video = j[0].split('.')|last %}
+                            <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
+                        </video>
+                        <br>
+                        <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
+                            Открыть видео
+                        </a>
+                        {% elif j[1] == 'img' %}
+                        <img src="{{j[0]}}" class="bi me-2"
+                             style="object-fit: contain; max-width: 60%; max-height: 300px; margin-bottom: 10px;">
+                        <br>
+                        <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                            Открыть фото
+                        </a>
+                        {% else %}
+                        <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                            Скачать материал
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not result %}
+        <div class="d-grid gap-2">
+            <button type="submit"
+                    class="btn btn-violet btn-lg"
+                    name="submit_answers">
+                Проверить все ответы
+            </button>
+        </div>
+        {% endif %}
+        {% elif not result %}
+        <div class="alert alert-info">
+            Задания не выбраны. Пересоздайте вариант
+        </div>
+        <a href="/practice">Вернуться к заданиям</a>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}

@@ -18,17 +18,21 @@ import uuid
 import markdown2
 
 from py_scripts.funcs_back import get_user_data, add_lesson_database, get_kim_dict, get_tasks
+from py_scripts.funcs_back import get_user_data,  get_kim_dict, get_tasks, make_variant_to_db, \
+    tasks_by_test_uuid, get_variants_by_user_uuid
 from sa_models import db_session
 from sa_models.course_to_lesson import CourseToLesson
 from sa_models.group_to_user import GroupToUser
 from sa_models.groups import Group
 from sa_models.lessons import Lesson
+from sa_models.test_results import Test_result
 from sa_models.users import User
 from sa_models.courses import Course
 from sa_models.problems import Problem
 from sa_models.kim_types import KimType
 from sa_models.course_to_user import CourseToUser
-from py_scripts import funcs_back
+from py_scripts import funcs_back, consts
+
 
 
 if not os.path.exists('problems_materials/'):
@@ -89,7 +93,6 @@ def random_work():
     data = get_kim_dict()
     session.pop("tasks", None)
     session.pop("results", None)
-    print(data)
     return render_template("random_work.html", data=data)
 
 
@@ -105,7 +108,6 @@ def work():
                 form_data[key.split("_")[1]] = int(val)
             tasks = get_tasks(form_data)
             session['tasks'] = tasks
-
         if 'submit_answers' in request.form:
             correct_count = 0
             all_count = 0
@@ -170,9 +172,6 @@ def work():
 @login_required
 @app.route('/profile', methods=['GET'])
 def profile():
-    # TODO: спроси Алису про user_group
-    user_group = [{"token": "g4d65g", "group_name": "11 класс it"},
-                  {"token": "р375gy", "group_name": "10 класс mt"}]
     user_data = get_user_data(current_user)
     return render_template("profile.html", title="Личный кабинет", user=user_data)
 
@@ -188,6 +187,7 @@ def statistic():
         p = arr[i]['correct'] / arr[i]['all'] * 100
         arr[i]['pr'] = p
     print(arr)
+
     values = [10, 70, 34, 52, 25, 88]
     return render_template("statistic.html", arr=arr, d=d, values=values)
 
@@ -347,7 +347,8 @@ def lesson_page(course_uuid, lesson_uuid):
                 path_[1] = 'video'
             lesson_data['files_folder_path'].append(path_)
 
-    return render_template("page_lesson.html", lesson=lesson_data)
+    files = lesson_data['files_folder_path']
+    return render_template("page_lesson.html", lesson=lesson_data, files=files)
 
 
 @app.route('/add_lesson', methods=['GET', 'POST'])
@@ -366,6 +367,7 @@ def add_lesson():
 
 
 @app.route('/practice', methods=['GET'])
+@login_required
 def practice():
     db_sess = db_session.create_session()
 
@@ -396,10 +398,66 @@ def practice():
                 data['files_folder_path'].append(path_)
         problems.append(data)
 
-    for i in range(len(problems)):
-        problems[i]['id'] = i
+    feedback = {1: 'Полная', 2: 'Частичная', 3: 'Только баллы', 4: 'Отсутствие обратной связи'}
 
-    return render_template("practice.html", title="", tasks=problems)
+    return render_template("practice.html", title="", tasks=problems, feedback=feedback)
+
+
+@login_required
+@app.route('/make_variant', methods=['POST'])
+def make_variant():
+    selected = request.form.getlist('test_tasks')
+    if not selected and request.form.get("button"):
+        selected = request.form.get("button").split(";")
+    test_uuid = make_variant_to_db(selected, current_user.uuid, request.form.get('title'))
+    return redirect(url_for('test_page', test_uuid=test_uuid, feedback=request.form.get('option')))
+
+@login_required
+@app.route('/test/<test_uuid>', methods=['GET', 'POST'])
+def test_page(test_uuid):
+    feedback = int(request.args.get('feedback', 0))
+    tasks = tasks_by_test_uuid(test_uuid)
+    kwargs = dict()
+    kwargs['result'] = 0
+    kwargs['feedback'] = feedback
+    if request.method == 'POST':
+        kwargs['correct_count'] = kwargs['total_score'] = kwargs['all_count'] = kwargs['all_score'] = 0
+        db_sess = db_session.create_session()
+
+        for ind, task in enumerate(tasks):
+            kim_uuid = task["key"][1]
+            points = db_sess.query(KimType).where(kim_uuid == KimType.uuid).first().points
+
+            user_answer = request.form.get(f"answer_{kim_uuid}_{task['value']['uuid']}", "").strip()
+            is_correct = (user_answer.lower() == task['value']['answer'].lower())
+
+            if is_correct:
+                kwargs['correct_count'] += 1
+                kwargs['total_score'] += points
+            kwargs['all_count'] += 1
+            kwargs['all_score'] += points
+            tasks[ind]['value']['user_answer'] = user_answer
+            tasks[ind]['value']['is_correct'] = is_correct
+        kwargs['result'] = 1
+
+
+        test_result = Test_result(
+            test_variant_uuid=test_uuid,
+            user_uuid=current_user.uuid,
+            res_scores=kwargs['total_score'],
+            max_scores=kwargs['all_score']
+        )
+        db_sess.add(test_result)
+        db_sess.commit()
+        db_sess.close()
+    return render_template('work3.html', title='Вариант', tasks=tasks, **kwargs)
+
+@app.route('/my_variants')
+@login_required
+def my_variants():
+    variants = get_variants_by_user_uuid(current_user.uuid)
+    return render_template("my_variants.html", variants=variants)
+
 
 
 @app.route('/add_task', methods=['GET', 'POST'])
@@ -648,4 +706,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(port=8081, host="127.0.0.1", threaded=True)
+    app.run(port=consts.PORT, host=consts.HOST, threaded=True)
