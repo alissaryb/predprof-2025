@@ -3,6 +3,7 @@ import uuid
 
 from werkzeug.utils import secure_filename
 
+from py_scripts import consts
 from sa_models import db_session
 from sa_models.courses import Course
 from sa_models.course_to_user import CourseToUser
@@ -11,8 +12,10 @@ import string
 import random
 
 from sa_models.kim_types import KimType
+from sa_models.problem_to_test import ProblemToTest
 from sa_models.problems import Problem
 from sa_models.publications import Publication
+from sa_models.test_variant import Test_variant
 from sa_models.users import User
 from sa_models.course_to_publication import CourseToPublication
 
@@ -140,11 +143,21 @@ def task_render(task: Problem):
     res = {
         "uuid": task.uuid,
         "text": task.text if task.text is not None else "Нет описания",
-        "files_folder_path": task.files_folder_path,
         "source": task.source if task.source is not None else "Источник не указан",
         "answer": task.answer,
-        "difficulty": task.difficulty
+        "difficulty": task.difficulty,
+        'files_folder_path': []
     }
+    if task.files_folder_path is not None:
+        for file_ in os.listdir(task.files_folder_path):
+            path_ = [f'/{task.files_folder_path}{file_}', 'other']
+            if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
+                    '.webp') or \
+                    file_.endswith('.gif'):
+                path_[1] = 'img'
+            if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
+                path_[1] = 'video'
+            res['files_folder_path'].append(path_)
     return res
 
 
@@ -161,3 +174,61 @@ def get_tasks(data) -> list[dict]:
             res.append({"key": (title, key), "value": tmp.copy()})
     db_sess.close()
     return res
+
+def make_variant_to_db(data: list[str], user_id: uuid, title: string) -> uuid:
+    db_sess = db_session.create_session()
+    new_uuid = str(uuid.uuid4())
+    variant = Test_variant(
+        uuid=new_uuid,
+        user_uuid=user_id,
+        title=title
+    )
+    db_sess.add(variant)
+    db_sess.commit()
+
+
+    for el in data:
+        id_task = int(el)
+        uuid_task = db_sess.query(Problem).where(id_task == Problem.id).first().uuid
+
+        problem_to_test = ProblemToTest(
+            problem_uuid=uuid_task,
+            test_variant_uuid=new_uuid
+        )
+        db_sess.add(problem_to_test)
+    db_sess.commit()
+    db_sess.close()
+
+    return new_uuid
+
+def tasks_by_test_uuid(test_uuid: uuid) -> list[dict]:
+    db_sess = db_session.create_session()
+    test = db_sess.query(Test_variant).filter(test_uuid == Test_variant.uuid).first()
+    res = list()
+    for task in test.tasks:
+        task_uuid = task.problem_uuid
+        problem = db_sess.query(Problem).where(Problem.uuid == task_uuid).first()
+        tmp = dict()
+        tmp['key'] = (problem.kim_type.title, problem.kim_type_uuid)
+        tmp['value'] = task_render(problem)
+        res.append(tmp)
+    return res
+
+def render_variant(variant: Test_variant):
+    res = {
+        "id": variant.id,
+        "uuid": variant.uuid,
+        "title": variant.title,
+        "url": f"http://{consts.HOST}:{consts.PORT}/test/{variant.uuid}"
+    }
+    return res
+
+def get_variants_by_user_uuid(user_uuid: uuid):
+    db_sess = db_session.create_session()
+    variants = db_sess.query(Test_variant).where(Test_variant.user_uuid == user_uuid).all()
+    res = list()
+    for el in variants:
+        res.append(render_variant(el))
+    db_sess.close()
+    return res
+
