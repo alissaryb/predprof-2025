@@ -186,13 +186,14 @@ def statistic():
         p = arr[i]['correct'] / arr[i]['all'] * 100
         arr[i]['pr'] = p
     print(arr)
+
     values = [10, 70, 34, 52, 25, 88]
     return render_template("statistic.html", arr=arr, d=d, values=values)
 #
 #
 # @app.route('/my_grops', methods=['GET', 'POST'])
 # def my_grops():
-#     return render_template("my_grops.html")
+#     return render_template("my_groups.html")
 #
 #
 # @app.route('/teacher_groups', methods=['GET', 'POST'])
@@ -252,7 +253,8 @@ def lesson_page(course_uuid, lesson_uuid):
                 path_[1] = 'video'
             lesson_data['files_folder_path'].append(path_)
 
-    return render_template("page_lesson.html", lesson=lesson_data)
+    files = lesson_data['files_folder_path']
+    return render_template("page_lesson.html", lesson=lesson_data, files=files)
 
 
 @app.route('/add_lesson', methods=['GET', 'POST'])

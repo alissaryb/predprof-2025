@@ -6,11 +6,7 @@
         <form method="POST" action="/work">
             {% for kim_id, val in data.items() %}
             <div class="row mb-3 align-items-center">
-                <div class="col-md-12 col-lg-6">
-                    <div>{{val[0] }}</div>
-                </div>
-
-                <div class="col-md-12 col-lg-6">
+                <div class="col-md-4 col-lg-2">
                     <div class="input-group">
                         <button type="button" class="btn btn-danger minus-btn" onclick="decrement({{ kim_id }})">-</button>
                         <input type="number"
@@ -22,6 +18,10 @@
                                required>
                         <button type="button" class="btn btn-success plus-btn" onclick="increment({{ kim_id }})">+</button>
                     </div>
+                </div>
+
+                <div class="col" style="flex-grow: 1">
+                    <div>{{val[0] }}</div>
                 </div>
 
             </div>
