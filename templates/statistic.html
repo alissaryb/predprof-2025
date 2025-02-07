@@ -71,17 +71,56 @@ color: black;
         </table>
 
         </div>
-
-
-
-
-
-
-
-
     <br>
-<img class="cen" src="{{ url_for('static', filename='media/chart.jpg') }}" width="80%">
 
+
+
+    <canvas id="myChart" width="200"></canvas>
+    <script>
+        // Передаем значения из Python в JavaScript
+        const values = {{ values | tojson }};  // Преобразуем список в JSON
+
+        const labels = values.map((_, index) => index + 1);
+
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'Баллы',
+                data: values,
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            }]
+        };
+
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Баллы'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Номер работы'
+                        }
+                    }
+                }
+            }
+        };
+
+        const myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+    </script>
 </div>
 
 {% endblock %}

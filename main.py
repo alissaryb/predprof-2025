@@ -84,6 +84,7 @@ def random_work():
     data = get_kim_dict()
     session.pop("tasks", None)
     session.pop("results", None)
+    print(data)
     return render_template("random_work.html", data=data)
 
 
@@ -133,6 +134,24 @@ def work():
                     session['all_count'] = all_count
                     session['all_score'] = all_score
 
+    tasks = session.get('results') if session.get("results") else session.get("tasks")
+    results = bool(session.get("results"))
+    correct_count = session.get('correct_count')
+    total_score = session.get('total_score')
+    all_score = session.get("all_score")
+    all_count = session.get("all_count")
+    print(tasks)
+    for i in range(len(tasks)):
+        print(tasks[i])
+        print()
+
+
+
+    print(results)
+    print(correct_count)
+    print(total_score)
+    print(all_score)
+    print(all_count)
 
     return render_template('work2.html',
                            tasks=session.get('results') if session.get("results") else session.get("tasks"),
@@ -153,18 +172,19 @@ def profile():
     return render_template("profile.html", title="Личный кабинет", user=user_data)
 
 
-# @app.route('/statistic', methods=['GET', 'POST'])
-# def statistic():
-#     arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15},
-#            3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100},
-#            5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
-#     d = [i for i in range(1, len(arr) + 1)]
-#
-#     for i in d:
-#         p = arr[i]['correct'] / arr[i]['all'] * 100
-#         arr[i]['pr'] = p
-#
-#     return render_template("statistic.html", arr=arr, d=d)
+@app.route('/statistic', methods=['GET', 'POST'])
+def statistic():
+    arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15},
+           3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100},
+           5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
+    d = [i for i in range(1, len(arr) + 1)]
+
+    for i in d:
+        p = arr[i]['correct'] / arr[i]['all'] * 100
+        arr[i]['pr'] = p
+    print(arr)
+    values = [10, 70, 34, 52, 25, 88]
+    return render_template("statistic.html", arr=arr, d=d, values=values)
 #
 #
 # @app.route('/my_grops', methods=['GET', 'POST'])
