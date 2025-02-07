@@ -652,10 +652,10 @@ def register():
         user.surname = form.surname.data.lower().capitalize()
         user.username = form.username.data
         user.lastname = form.lastname.data.lower().capitalize()
-        user.class_number = form.class_num.data
+        user.class_number = form.class_num.data if form.class_num.data != 'Учитель' else None
         user.school = form.school.data
         user.set_password(form.password.data)
-        user.access_level = 'user'
+        user.access_level = 'user' if form.class_num.data != 'Учитель' else 'teacher'
         user.phone_number = form.phone_number.data
         db_sess.add(user)
         db_sess.commit()
