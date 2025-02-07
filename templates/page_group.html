@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block main_content %}
+    <h4>{{ group['title'] }}</h4>
+    <div>Описание: {{ group['description'] }}</div>
+    <div>Автор: {{ group['author'] }}</div>
+    <div>Создан {{ group['made_on_datetime'] }}</div>
+
+    <div class="tablo">
+        <div>Участники группы</div>
+        <hr>
+
+        {% for i in members_group %}
+            <div> {{ i['name'] }} </div>
+        {% endfor %}
+    </div>
+{% endblock %}
