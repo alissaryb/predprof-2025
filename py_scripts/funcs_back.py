@@ -10,6 +10,8 @@ from sa_models.course_to_user import CourseToUser
 import string
 import random
 
+from sa_models.group_to_user import GroupToUser
+from sa_models.groups import Group
 from sa_models.kim_types import KimType
 from sa_models.problems import Problem
 from sa_models.lessons import Lesson
@@ -33,7 +35,7 @@ def get_courses_learn(user_uuid):
             'subject': course.subject,
             'token': course.token,
             'description': course.description,
-            'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
+            'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{course.made_on_datetime.strftime('%H:%M')}',
             'uuid': course.uuid,
             'author': f'{user.surname} {user.name[0]}. {user.lastname[0]}.'
         }
@@ -56,7 +58,7 @@ def get_courses_teach(user_uuid):
             'subject': course.subject,
             'token': course.token,
             'description': course.description,
-            'made_on_datetime': course.made_on_datetime.strftime('%d.%m.%Y'),
+            'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{course.made_on_datetime.strftime('%H:%M')}',
             'uuid': course.uuid,
             'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.'
         }
@@ -163,3 +165,49 @@ def get_tasks(data) -> list[dict]:
             res.append({"key": (title, key), "value": tmp.copy()})
     db_sess.close()
     return res
+
+
+def get_groups_learn(user_uuid):
+    db_sess = db_session.create_session()
+
+    all_ = db_sess.query(GroupToUser).where(GroupToUser.user_uuid == user_uuid).all()
+    all_ = sorted(all_, key=lambda x: x.group.made_on_datetime, reverse=True)
+    groups = []
+
+    for group_to_user in all_:
+        group = group_to_user.group
+        user = group_to_user.user
+
+        d = {
+            'title': group.title,
+            'description': group.description,
+            'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
+            'uuid': group.uuid,
+            'author': f'{user.surname} {user.name[0]}. {user.lastname[0]}.'
+        }
+        groups.append(d)
+
+    db_sess.close()
+
+    return groups
+
+
+def get_groups_teach(user_uuid):
+    db_sess = db_session.create_session()
+
+    all_ = db_sess.query(Group).where(Group.user_uuid == user_uuid).order_by(Group.made_on_datetime.desc()).all()
+    groups = []
+
+    for group in all_:
+        d = {
+            'title': group.title,
+            'description': group.description,
+            'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
+            'uuid': group.uuid,
+            'author': f'{group.author.surname} {group.author.name[0]}. {group.author.lastname[0]}.'
+        }
+        groups.append(d)
+
+    db_sess.close()
+
+    return groups

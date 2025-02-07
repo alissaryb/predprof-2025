@@ -1,16 +1,40 @@
 {% extends 'base.html' %}
 {% block main_content %}
+
     <h4>{{ group['title'] }}</h4>
+    <h5>Ссылка-приглашение в группу:
+        <button onclick="navigator.clipboard.writeText(window.location.hostname +
+                ':' + window.location.port + '{{ group['link'] }}')"
+                class="btn btn-violet">Скопировать ссылку</button>
+    </h5>
     <div>Описание: {{ group['description'] }}</div>
     <div>Автор: {{ group['author'] }}</div>
     <div>Создан {{ group['made_on_datetime'] }}</div>
 
     <div class="tablo">
-        <div>Участники группы</div>
-        <hr>
-
-        {% for i in members_group %}
-            <div> {{ i['name'] }} </div>
-        {% endfor %}
+        <h6>Участники группы</h6>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">UUID</th>
+                <th scope="col">Email</th>
+                <th scope="col">Username</th>
+                <th scope="col">ФИО</th>
+                <th scope="col">Школа</th>
+                <th scope="col">Класс</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in group['members_group'] %}
+                <tr>
+                    <td>{{ i['uuid'] }}</td>
+                    <td>{{ i['email'] }}</td>
+                    <td>{{ i['username'] }}</td>
+                    <td>{{ i['fio'] }}</td>
+                    <td>{{ i['school'] }}</td>
+                    <td>{{ i['class_num'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
     </div>
 {% endblock %}

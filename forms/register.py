@@ -20,6 +20,11 @@ def passwords_match(form, field):
         raise ValidationError("Пароли не совпадают")
 
 
+def correct_choice(form, field):
+    if field.data == 'Не выбрано':
+        raise ValidationError("Выберите корректный класс")
+
+
 def email_match(form, field):
     try:
         email_validator.validate_email(field.data, check_deliverability=True)
@@ -35,7 +40,8 @@ class FormRegisterUser(FlaskForm):
     surname = StringField('Введите фамилию', validators=[DataRequired('Обязательное поле')])
     name = StringField('Введите имя', validators=[DataRequired('Обязательное поле')])
     lastname = StringField('Введите отчество', validators=[DataRequired('Обязательное поле')])
-    class_num = SelectField('Выберите класс', choices=['Не выбрано', 'Учитель'] + classes)
+    class_num = SelectField('Выберите класс', choices=['Не выбрано', 'Учитель'] + classes,
+                            validators=[correct_choice])
     school = StringField('Напишите название вашей школы')
     phone_number = StringField('Введите номер телефона',
                                validators=[InputRequired('Обязательное поле'),

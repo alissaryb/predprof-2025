@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, redirect, send_from_directory
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
 
+from forms.groups import FormAddGroups
 from forms.register import FormRegisterUser, FormLoginUser
 from forms.tasks import FormAddTask, QuizForm
 from forms.courses import FormAddCourse, FormAddLesson
@@ -19,6 +20,8 @@ import markdown2
 from py_scripts.funcs_back import get_user_data, add_lesson_database, get_kim_dict, get_tasks
 from sa_models import db_session
 from sa_models.course_to_lesson import CourseToLesson
+from sa_models.group_to_user import GroupToUser
+from sa_models.groups import Group
 from sa_models.lessons import Lesson
 from sa_models.users import User
 from sa_models.courses import Course
@@ -27,8 +30,7 @@ from sa_models.kim_types import KimType
 from sa_models.course_to_user import CourseToUser
 from py_scripts import funcs_back
 
-if not os.path.exists('materials/'):
-    os.mkdir('materials/')
+
 if not os.path.exists('problems_materials/'):
     os.mkdir('problems_materials/')
 if not os.path.exists('lessons_materials/'):
@@ -188,20 +190,113 @@ def statistic():
     print(arr)
     values = [10, 70, 34, 52, 25, 88]
     return render_template("statistic.html", arr=arr, d=d, values=values)
-#
-#
-# @app.route('/my_grops', methods=['GET', 'POST'])
-# def my_grops():
-#     return render_template("my_grops.html")
-#
-#
-# @app.route('/teacher_groups', methods=['GET', 'POST'])
-# def teacher_groups():
-#     courses = [{"id": "0", "num_class": 6, "token": "sh24re"},
-#                {"id": "1", "num_class": 10, "token": "dfs3y53"},
-#                {"id": "2", "num_class": 10, "token": "fdj836"}]
-#
-#     return render_template("teacher_groups.html", courses=courses)
+
+
+@app.route('/group/<group_uuid>/invite', methods=['GET'])
+@login_required
+def group_invite(group_uuid):
+    db_sess = db_session.create_session()
+
+    group = db_sess.query(Group).where(Group.uuid == group_uuid).first()
+
+    if group is None:
+        db_sess.close()
+        return render_template("error.html", title="Группа не найдена", err='Курс не найдена')
+
+    is_registered = db_sess.query(GroupToUser).where(GroupToUser.user_uuid == current_user.uuid,
+                                                      GroupToUser.group_uuid == group_uuid).first()
+    is_author = group.author.uuid == current_user.uuid
+
+    if is_author or is_registered:
+        db_sess.close()
+        return redirect(f'page_group/{group_uuid}')
+
+    new_relation = GroupToUser(user_uuid=current_user.uuid, group_uuid=group_uuid)
+    db_sess.add(new_relation)
+    db_sess.commit()
+    db_sess.close()
+    return redirect(f'/page_group/{group_uuid}')
+
+
+@app.route('/add_group', methods=['GET', 'POST'])
+@login_required
+def add_group():
+    form = FormAddGroups()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+
+        new_uuid = str(uuid.uuid4())
+        new_group = Group()
+        new_group.title = form.title.data
+        new_group.description = form.description.data
+        new_group.uuid = new_uuid
+        new_group.token = funcs_back.generate_token()
+        new_group.user_uuid = current_user.uuid
+
+        db_sess.add(new_group)
+        db_sess.commit()
+
+        db_sess.close()
+
+        return redirect(f"/page_group/{new_uuid}")
+
+    return render_template("add_group.html", title="Создание группы", form=form)
+
+
+@app.route('/my_groups', methods=['GET'])
+@login_required
+def my_groups():
+    student_groups = funcs_back.get_groups_learn(current_user.uuid)
+    teacher_groups = funcs_back.get_groups_teach(current_user.uuid)
+
+    return render_template("my_groups.html", teacher_groups=teacher_groups,
+                           student_groups=student_groups, title="Мои группы")
+
+
+@app.route('/page_group/<group_uuid>', methods=['GET'])
+@login_required
+def group_by_uuid(group_uuid):
+    db_sess = db_session.create_session()
+
+    group = db_sess.query(Group).where(Group.uuid == group_uuid).first()
+
+    if group is None:
+        db_sess.close()
+        return render_template("error.html", title="Группа не найдена", err='Группа не найдена')
+
+    is_registered = db_sess.query(GroupToUser).where(GroupToUser.group_uuid == group_uuid,
+                                                      GroupToUser.user_uuid == current_user.uuid).first()
+
+    is_author = group.author.uuid == current_user.uuid
+    if is_registered is None and not is_author:
+        db_sess.close()
+        return render_template("error.html", title="Группа не найдена", err='Группа не найдена')
+
+    group_data = {
+        'title': group.title,
+        'link': f'/group/{group_uuid}/invite',
+        'description': group.description,
+        'author': f'{group.author.surname} {group.author.name[0]}. {group.author.lastname[0]}.',
+        'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
+        'members_group': []
+    }
+
+    for relation in group.users:
+        member = relation.user
+        d = {
+            'uuid': member.uuid,
+            'email': member.email,
+            'username': member.username,
+            'fio': f'{member.surname} {member.name} {member.lastname}',
+            'school': member.school,
+            'class_num': member.class_number
+        }
+        group_data['members_group'].append(d)
+
+    db_sess.close()
+    print(group_data)
+
+    return render_template("page_group.html", title="Страница группы", group=group_data)
 
 
 @app.route(f'/page_course/<course_uuid>/page_lesson/<lesson_uuid>', methods=['GET'])
@@ -394,21 +489,13 @@ def course_by_uuid(course_uuid):
             'description': note.description,
             'made_on_datetime': f'{note.made_on_datetime.strftime('%d.%m.%Y')} в '
                                 f'{note.made_on_datetime.strftime('%H:%M')}',
-            'tag': ', '.join([i.strip().lower() for i in note.tag.split(',')])
+            'tag': ', '.join([i.strip().lower() for i in note.tag.split(',')]),
+            'SORT_KEY': note.made_on_datetime
         }
-        # if note.files_folder_path is not None:
-        #     for file_ in os.listdir(note.files_folder_path):
-        #         path_ = [f'/{note.files_folder_path}{file_}', 'other']
-        #         if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
-        #                 '.webp') or \
-        #                 file_.endswith('.gif'):
-        #             path_[1] = 'img'
-        #         if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
-        #             path_[1] = 'video'
-        #         note_data['files_folder_path'].append(path_)
         all_tags.append(note_data['tag'])
         lessons.append(note_data)
 
+    lessons = sorted(lessons, key=lambda x: x['SORT_KEY'], reverse=True)
     db_sess.close()
 
     return render_template("page_course.html", title="Страница курса", course=course_data,
