@@ -80,12 +80,15 @@
                 }
             </style>
 
-            <label class="custom-file-button">
-                {{ form.files() }}
-            </label>
-            <br>
-            <br>
-
+            <div class="form-group mb-2">
+                {{ form.files.label }}<br>
+                {{ form.files(class="form-control", style="width: 30%") }}<br>
+                {% for error in form.files.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endfor %}
+            </div>
 
             <div class="d-grid gap-4 col-7 mx-auto">
                 {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
