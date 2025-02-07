@@ -17,7 +17,7 @@ import uuid
 import markdown2
 
 from py_scripts.funcs_back import get_user_data, add_lesson_database, get_kim_dict, get_tasks
-from py_scripts.funcs_back import get_user_data, add_publication_database, get_kim_dict, get_tasks, make_variant_to_db, \
+from py_scripts.funcs_back import get_user_data,  get_kim_dict, get_tasks, make_variant_to_db, \
     tasks_by_test_uuid, get_variants_by_user_uuid
 from sa_models import db_session
 from sa_models.course_to_lesson import CourseToLesson

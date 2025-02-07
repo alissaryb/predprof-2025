@@ -14,7 +14,6 @@ import random
 from sa_models.kim_types import KimType
 from sa_models.problem_to_test import ProblemToTest
 from sa_models.problems import Problem
-from sa_models.publications import Publication
 from sa_models.test_variant import Test_variant
 from sa_models.lessons import Lesson
 from sa_models.users import User
