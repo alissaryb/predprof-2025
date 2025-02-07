@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block main_content %}
+
+
+<div class="container py-4 py-xl-5">
+    <form action="" method="post">
+        <h1 class="text-center text_title_violet">{{title}}</h1>
+        {{ form.hidden_tag() }}
+
+        <div class="form-group mb-2">
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}<br>
+            {% for error in form.title.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mb-2">
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control", rows="8") }}<br>
+            {% for error in form.description.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-grid gap-4 col-7 mx-auto">
+            {{ form.submit(type="submit", class="btn btn-violet btn-lg") }}
+        </div>
+
+    </form>
+</div>
+{% endblock %}
