@@ -21,4 +21,4 @@ class Group(SqlAlchemyBase):
     users = orm.relationship("GroupToUser", back_populates="group", uselist=True)
 
     def __repr__(self):
-        return f'<Course> {self.uuid} {self.title}'
+        return f'<Group> {self.uuid} {self.title}'
