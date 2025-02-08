@@ -17,6 +17,12 @@ header
     padding: 15px 15px 15px 15px;
 }
 
+.highlight {
+    background-color: #f7f5fa;
+    display: inline-block;
+}
+
+
 .stroke-panel {
     border: 1px solid rgb(117, 93, 162);
     border-radius: 0.5rem;

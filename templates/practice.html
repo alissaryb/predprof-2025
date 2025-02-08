@@ -69,29 +69,31 @@
                             <br>
                             <div>Файлы:</div>
                         {% endif %}
-                        {% for j in i['files_folder_path'] %}
-                            {% if j[1] == 'video' %}
+                        {% for j in range(i['files_folder_path'] | length ) %}
+                            {% if i['files_folder_path'][j][1] == 'video' %}
                                 <video controls
                                        style="object-fit: contain; max-width: 60%;  max-height: 300px; margin-bottom: 10px;">
-                                    {% set tmp_type_video = j[0].split('.')|last %}
-                                    <source src="{{j[0]}}" type="video/{{ tmp_type_video }}">
+                                    {% set tmp_type_video = i['files_folder_path'][j][0].split('.')|last %}
+                                    <source src="{{i['files_folder_path'][j][0]}}" type="video/{{ tmp_type_video }}">
                                 </video>
                                 <br>
-                                <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
+                                <a href="{{i['files_folder_path'][j][0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
                                     Открыть видео
                                 </a>
-                            {% elif j[1] == 'img' %}
-                                <img src="{{j[0]}}" class="bi me-2"
+                            {% elif i['files_folder_path'][j][1] == 'img' %}
+                                <img src="{{i['files_folder_path'][j][0]}}" class="bi me-2"
                                      style="object-fit: contain; max-width: 60%; max-height: 300px; margin-bottom: 10px;">
                                 <br>
-                                <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                                <a href="{{i['files_folder_path'][j][0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
                                     Открыть фото
                                 </a>
                             {% else %}
-                                <a href="{{j[0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
-                                    Скачать материал
+                                <a href="{{i['files_folder_path'][j][0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                                    Скачать файл {{j+1}}
                                 </a>
+
                             {% endif %}
+                            <br>
                         {% endfor %}
                     </main>
                 </div>

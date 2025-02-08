@@ -1,40 +1,83 @@
 {% extends 'base.html' %}
 {% block main_content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    <h4>{{ group['title'] }}</h4>
-    <h5>Ссылка-приглашение в группу:
-        <button onclick="navigator.clipboard.writeText(window.location.hostname +
-                ':' + window.location.port + '{{ group['link'] }}')"
-                class="btn btn-violet">Скопировать ссылку</button>
-    </h5>
-    <div>Описание: {{ group['description'] }}</div>
+<style>
+    .link-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    #copyNotification {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background-color: rgb(125, 171, 108);
+        color: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgb(111, 98, 122);
+    }
+    .table {
+        width: auto; /* Устанавливаем ширину на auto */
+        margin: 0 auto; /* Центрирование таблицы, если нужно */
+    }
+</style>
+
+<div class="p-5 mt-5" style="margin: 5%;">
+    <h3>{{ group['title'] }}</h3>
+
+    <div>Ссылка-приглашение в группу:
+        <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyLink(navigator.clipboard.writeText(window.location.hostname + ':' + window.location.port + '{{ group['link'] }}'))" title="Копировать ссылку">
+            <i class="bi bi-clipboard"></i>
+        </button>
+    </div>
+    <p>Описание: {{ group['description'] }}</p>
     <div>Автор: {{ group['author'] }}</div>
     <div>Создан {{ group['made_on_datetime'] }}</div>
 
-    <div class="tablo">
+    <div class="tablo highlight">
         <h6>Участники группы</h6>
         <table class="table">
             <thead>
-            <tr>
-                <th scope="col">UUID</th>
-                <th scope="col">Email</th>
-                <th scope="col">Username</th>
-                <th scope="col">ФИО</th>
-                <th scope="col">Школа</th>
-                <th scope="col">Класс</th>
+            <tr style="border-bottom: 1px solid #dcdcdc;">
+                <th scope="col" style="background-color: #f7f5fa;">ФИО</th>
+                <th scope="col" style="background-color: #f7f5fa;">Класс</th>
             </tr>
             </thead>
             <tbody>
             {% for i in group['members_group'] %}
-                <tr>
-                    <td>{{ i['uuid'] }}</td>
-                    <td>{{ i['email'] }}</td>
-                    <td>{{ i['username'] }}</td>
-                    <td>{{ i['fio'] }}</td>
-                    <td>{{ i['school'] }}</td>
-                    <td>{{ i['class_num'] }}</td>
+                <tr style="border-bottom: 1px solid #dcdcdc;">
+                    <td style="background-color: #f7f5fa;">{{ i['fio'] }}</td>
+                    <td style="background-color: #f7f5fa;">{{ i['class_num'] }}</td>
                 </tr>
             {% endfor %}
+            </tbody>
         </table>
     </div>
+
+    <div id="copyNotification">
+        <i class="bi bi-check-circle"></i> Ссылка скопирована!
+    </div>
+</div>
+
+<!-- Скрипт для копирования ссылки -->
+<script>
+    function copyLink(url) {
+        navigator.clipboard.writeText(url)
+            .then(() => {
+                const notification = document.getElementById('copyNotification');
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 2000); // Скрываем уведомление через 2 секунды
+            })
+            .catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать ссылку. Скопируйте её вручную.');
+            });
+    }
+</script>
+
 {% endblock %}

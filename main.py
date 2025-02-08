@@ -396,11 +396,14 @@ def practice():
                 if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
                     path_[1] = 'video'
                 data['files_folder_path'].append(path_)
+            data['files_folder_path'] = sorted(data['files_folder_path'], key=lambda x: (x[1] != 'other', x))
         problems.append(data)
 
-    feedback = {1: 'Полная', 2: 'Частичная', 3: 'Только баллы', 4: 'Отсутствие обратной связи'}
+    for i in problems:
+        print(i)
+        print()
 
-    return render_template("practice.html", title="", tasks=problems, feedback=feedback)
+    return render_template("practice.html", title="", tasks=problems)
 
 
 @app.route('/add_work', methods=['GET'])
@@ -518,6 +521,7 @@ def add_task():
         files = request.files.getlist("files")
         if len(files) > 0:
             for file in files:
+                print(file)
                 if file.filename == '':
                     continue
 
