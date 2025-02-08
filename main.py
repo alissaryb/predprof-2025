@@ -436,6 +436,7 @@ def add_work():
                 if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
                     path_[1] = 'video'
                 data['files_folder_path'].append(path_)
+            data['files_folder_path'] = sorted(data['files_folder_path'], key=lambda x: (x[1] != 'other', x))
         problems.append(data)
 
     feedback = {1: 'Полная', 2: 'Частичная', 3: 'Только баллы', 4: 'Отсутствие обратной связи'}
