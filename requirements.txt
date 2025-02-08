@@ -8,3 +8,5 @@ flask-wtf
 aiosmtplib~=3.0.2
 email-validator
 sqlalchemy-serializer
+markdown2
+authlib

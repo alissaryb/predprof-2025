@@ -7,6 +7,7 @@ from functools import wraps
 from flask import Flask, render_template, request, redirect, send_from_directory, session, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
+from authlib.integrations.flask_client import OAuth
 
 from forms.groups import FormAddGroups
 from forms.register import FormRegisterUser, FormLoginUser
@@ -47,6 +48,20 @@ db_session.global_init('database/portal.db')
 
 app.config['SECRET_KEY'] = 'wrbn2i3o4ufbnldq4nwku'
 app.config['UPLOAD_FOLDER'] = 'uploads'
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id='417695286666-s04voncdt0hjlnll2lcr2nhrl5ir7tlu.apps.googleusercontent.com',
+    client_secret='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',
+    authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
+    authorize_params=None,
+    access_token_url='https://oauth2.googleapis.com/token',
+    access_token_params=None,
+    refresh_token_url=None,
+    redirect_uri='http://127.0.0.1:8080/auth/google/callback',
+    client_kwargs={'scope': 'openid profile email'},
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -708,6 +723,19 @@ def register():
 
     return render_template("register.html", title="Регистрация", form=form)
 
+@app.route('/auth/google')
+def google_login():
+    nonce = "NENASOSALAPODARILY"
+    session['nonce'] = "NENASOSALAPODARILY"
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri, nonce=nonce)
+
+@app.route('/auth/google/callback')
+def google_callback():
+    token = google.authorize_access_token()
+    user_info = google.parse_id_token(token, nonce=session.get('nonce'))
+    print(user_info)
+    return redirect('/')
 
 @app.route('/login', methods=['GET', 'POST'])
 @login_forbidden
