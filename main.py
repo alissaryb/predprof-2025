@@ -403,6 +403,43 @@ def practice():
     return render_template("practice.html", title="", tasks=problems, feedback=feedback)
 
 
+@app.route('/add_work', methods=['GET'])
+@login_required
+def add_work():
+    db_sess = db_session.create_session()
+
+    all_tasks = db_sess.query(Problem).all()
+
+    problems = []
+    for problem in all_tasks:
+        data = {
+            'level': problem.difficulty,
+            'num_type': problem.kim_type.kim_id,
+            'text_type': problem.kim_type.title,
+            'source': problem.source,
+            'uuid': problem.id,
+            'text': problem.text.replace('\n', '<br>'),
+            'ans': problem.answer,
+            'files_folder_path': []
+        }
+
+        if problem.files_folder_path is not None:
+            for file_ in os.listdir(problem.files_folder_path):
+                path_ = [f'/{problem.files_folder_path}{file_}', 'other']
+                if file_.endswith('.png') or file_.endswith('.jpeg') or file_.endswith('.jpg') or file_.endswith(
+                        '.webp') or \
+                        file_.endswith('.gif'):
+                    path_[1] = 'img'
+                if file_.endswith('.mp4') or file_.endswith('.mov') or file_.endswith('.wmv') or file_.endswith('.mkv'):
+                    path_[1] = 'video'
+                data['files_folder_path'].append(path_)
+        problems.append(data)
+
+    feedback = {1: 'Полная', 2: 'Частичная', 3: 'Только баллы', 4: 'Отсутствие обратной связи'}
+
+    return render_template("add_work.html", title="", tasks=problems, feedback=feedback)
+
+
 @login_required
 @app.route('/make_variant', methods=['POST'])
 def make_variant():

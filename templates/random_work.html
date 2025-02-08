@@ -5,14 +5,11 @@
         <h5 class="text-center text_title_violet">Создать работу</h5>
         <form method="POST" action="/work">
             {% for kim_id, val in data.items() %}
-            <div class="row mb-3 align-items-center">
-                <div class="col-md-12 col-lg-6">
-                    <div>{{ val[0] }}</div>
-                </div>
+            <div class="row mb-3 align-items-center justify-content-center"> <!-- Добавлено justify-content-center -->
 
                 <div class="col-md-4 col-lg-2">
                     <div class="input-group">
-                        <button type="button" class="btn btn-danger minus-btn" onclick="decrement({{ kim_id }})">-</button>
+                        <button type="button" class="btn btn-red minus-btn" onclick="decrement({{ kim_id }})">-</button>
                         <input type="number"
                                class="form-control text-center"
                                name="number_{{ val[1] }}"
@@ -20,7 +17,7 @@
                                value="0"
                                min="0"
                                required>
-                        <button type="button" class="btn btn-success plus-btn" onclick="increment({{ kim_id }})">+</button>
+                        <button type="button" class="btn btn-green plus-btn" onclick="increment({{ kim_id }})">+</button>
                     </div>
                 </div>
 
@@ -51,9 +48,7 @@
             value++;
             input.value = value;
         }
-    </script>
+        </script>
     </div>
-
-
 
 {% endblock %}

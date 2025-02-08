@@ -11,7 +11,7 @@ button {
 
 .btn-blue{
     background: rgb(133, 171, 210);
-    color: black;
+    color: white;
 }
 
 .btn-blue:hover {
@@ -19,36 +19,33 @@ button {
     color: white;
 }
 
-
-.btn-violet{
-  background: rgb(178, 167, 227);
-    color: black;
+.bg-violet{
+  background: rgb(165, 153, 215);
+    color: white;
 }
 
 .btn-violet:hover {
     background: rgb(92, 71, 189);
     color: white;
 }
-
-.bg-violet{
-  background: rgb(178, 167, 227);
-    color: black;
+.btn-violet{
+    background: rgb(145, 131, 211);
+    color: white;
 }
 
-
 .btn-green {
-  background: rgb(154, 199, 137);
-    color: black;
+  background: rgb(125, 171, 108);
+    color: white;
 }
 
 .btn-green:hover {
-    background: rgb(88, 166, 59);
+    background: rgb(79, 143, 56);
     color: white;
 }
 
 .btn-red {
-  background: rgb(203, 135, 135);
-    color: black;
+  background: rgb(196, 124, 124);
+    color: white;
 }
 
 .btn-red:hover {

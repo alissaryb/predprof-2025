@@ -43,6 +43,8 @@ header
 }
 
 
+
+
 /*@media (max-width: 768px) {*/
 /*    .text-task {*/
 /*        font-size: 16px;*/
@@ -177,3 +179,53 @@ my-table {
     /* font-family: 'Arial', sans-serif;*/
     color: rgb(41, 35, 68);
 }
+
+
+
+
+
+
+
+
+.custom-radio {
+        display: none; /* Скрываем стандартный радио-инпут */
+    }
+
+    .custom-radio + .custom-radio-label {
+        position: relative;
+        cursor: pointer;
+        padding-left: 25px; /* Отступ для метки */
+        user-select: none; /* Запрет выделения текста */
+    }
+
+    .custom-radio-label::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        border: 1px solid #000; /* Цвет границы */
+        border-radius: 50%; /* Круглая форма */
+        background-color: white; /* Цвет фона */
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .custom-radio:checked + .custom-radio-label::before {
+        background-color: #876cb4; /* Цвет фона при выборе */
+        border-color: #000; /* Цвет границы при выборе */
+    }
+
+
+    .custom-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.custom-checkbox:checked {
+    background-color: #876cb4;
+    border: 1px solid #000; /* Цвет границы */
+}
+
