@@ -125,7 +125,6 @@ def work():
                 form_data[key.split("_")[1]] = int(val)
             tasks = get_tasks(form_data)
             session['tasks'] = tasks
-            print(tasks)
         if 'submit_answers' in request.form:
             correct_count = 0
             all_count = 0
@@ -172,16 +171,6 @@ def work():
     total_score = session.get('total_score')
     all_score = session.get("all_score")
     all_count = session.get("all_count")
-    print(tasks)
-    for i in range(len(tasks)):
-        print(tasks[i])
-        print()
-
-    print(results)
-    print(correct_count)
-    print(total_score)
-    print(all_score)
-    print(all_count)
 
     return render_template('work2.html',
                            tasks=session.get('results') if session.get("results") else session.get("tasks"),
