@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<style>
+
+
+</style>
+<div class="container py-5">
+    <h1 class="mb-4">Результаты варианта</h1>
+
+    {% for result in results %}
+
+    <table class="table table-bordered results-table">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Баллы</th>
+            <th>Максимум</th>
+            <th>Затраченное время</th>
+            <th>Оценка</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr>
+            <td>{{ result.name }}</td>
+            <td>{{ result.scores }}</td>
+            <td>{{ result.max_scores }}</td>
+            <td>{{ result.spend_time }}</td>
+            <td>В разработке</td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    {% endfor %}
+</div>
+
+{% endblock %}

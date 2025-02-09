@@ -22,12 +22,25 @@
 <div class="container py-4" style="width: 70%">
     <h1 class="mb-4 text-center">Список вариантов</h1>
 
+    {% if flag %}
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        Вариант отправлен группам
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+    </div>
+    {% endif %}
+
     <div class="list-group">
         {% for variant in variants %}
         <div class="list-group-item d-flex justify-content-between align-items-center">
             <h5 class="card-title">{{ variant.title }}</h5>
 
             <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-violet text-decoration-none d-flex align-items-center gap-1"
+                        type="button" data-bs-toggle="modal" data-bs-target="#variantToGroupModal{{variant.uuid}}">
+                    Назначить вариант
+                </button>
+
+
                 <a href="{{ variant.url }}"
                    class="btn btn-violet text-decoration-none d-flex align-items-center gap-1"
                    target="_blank">
@@ -50,7 +63,91 @@
 <div id="copyNotification">
     <i class="bi bi-check-circle"></i> Ссылка скопирована!
 </div>
+{% for variant in variants %}
+<form method="post" action="/my_variants">
+    <div class="modal fade" id="variantToGroupModal{{variant.uuid}}" tabindex="-1" aria-labelledby="variantToGroupModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="variantToGroupModalLabel">Введите данные</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label">Выберите группы:</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100"
+                                    type="button"
+                                    id="groupDropdown"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Выберите группы
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="groupDropdown">
+                                {% for val in groups %}
+                                <li>
+                                    <div class="form-check ms-3">
+                                        <input class="form-check-input" type="checkbox" id="group_{{val.uuid}}"
+                                               value="{{val.uuid}}" name="group_{{val.uuid}}">
+                                        <label class="form-check-label" for="group_{{val.uuid}}">{{val.title}}</label>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Критерии оценки:</label>
+                        <div class="row">
+                            {% for val in criteria %}
+                            <div class="col-md-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">На {{val}}</span>
+                                    <input type="number" class="form-control" id="criteria{{val}}" min="0"
+                                           max="100" name="criteria_{{val}}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Дата начала</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date">
+                    </div>
 
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">Дата конца</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Продолжительность (минуты)</label>
+                        <input type="number" class="form-control" id="duration" name="duration" min="0">
+                    </div>
+                    <div class="mb-3">
+
+                        <label class="form-label">Выберите вариант обратной связи:</label><br>
+                        {% for key, val in feedback.items() %}
+                        <div class="form-check form-check-inline">
+                            <input class="custom-radio" type="radio" name="option" id="option{{key}}"
+                                   value="{{key}}" checked>
+                            <label class="custom-radio-label" for="option{{key}}">{{val}}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-red" data-bs-dismiss="modal">Закрыть
+                        </button>
+                        <button type="submit" class="btn btn-green" name="test_uuid" value="{{variant.uuid}}">Перейти</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endfor %}
 
 <!-- Скрипт для копирования ссылки -->
 <script>

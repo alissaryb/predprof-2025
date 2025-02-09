@@ -29,7 +29,9 @@
     <h3>{{ group['title'] }}</h3>
 
     <div>Ссылка-приглашение в группу:
-        <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyLink(navigator.clipboard.writeText(window.location.hostname + ':' + window.location.port + '{{ group['link'] }}'))" title="Копировать ссылку">
+        <button class="btn btn-outline-secondary btn-sm" type="button"
+                onclick="copyLink('http://' + window.location.hostname + ':' + window.location.port + '{{ group['link'] }}')"
+                title="Копировать ссылку">
             <i class="bi bi-clipboard"></i>
         </button>
     </div>
@@ -44,17 +46,51 @@
             <tr style="border-bottom: 1px solid #dcdcdc;">
                 <th scope="col" style="background-color: #f7f5fa;">ФИО</th>
                 <th scope="col" style="background-color: #f7f5fa;">Класс</th>
+                <th scope="col" style="background-color: #f7f5fa;">Статистика</th>
             </tr>
             </thead>
             <tbody>
             {% for i in group['members_group'] %}
-                <tr style="border-bottom: 1px solid #dcdcdc;">
-                    <td style="background-color: #f7f5fa;">{{ i['fio'] }}</td>
-                    <td style="background-color: #f7f5fa;">{{ i['class_num'] }}</td>
-                </tr>
+            <tr style="border-bottom: 1px solid #dcdcdc;">
+                <td style="background-color: #f7f5fa;">{{ i['fio'] }}</td>
+                <td style="background-color: #f7f5fa;">{{ i['class_num'] }}</td>
+                <td style="background-color: #f7f5fa;"><a href="/page_group/{{group['uuid']}}/statistic/{{i['uuid']}}">Ссылка</a></td>
+            </tr>
             {% endfor %}
             </tbody>
         </table>
+    </div>
+    <div class="list-group">
+        {% for variant in variants %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <h5 class="card-title">{{ variant.title }}</h5>
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ variant.url_result }}"
+                   class="btn btn-violet text-decoration-none d-flex align-items-center gap-1"
+                   target="_blank">
+                    {% if is_author %}Результаты группы{% else %}Результат Работы{% endif %}
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+
+
+                <a href="{{ variant.url_test }}"
+                   class="btn btn-violet text-decoration-none d-flex align-items-center gap-1"
+                   target="_blank">
+                    Перейти к варианту
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+                <button class="btn btn-outline-secondary btn-sm"
+                        type="button"
+                        onclick="copyLink('{{ variant.url_test }}')"
+                        title="Копировать ссылку">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 
     <div id="copyNotification">

@@ -1,3 +1,4 @@
+import datetime
 import os
 import uuid
 
@@ -16,6 +17,8 @@ from sa_models.groups import Group
 from sa_models.kim_types import KimType
 from sa_models.problem_to_test import ProblemToTest
 from sa_models.problems import Problem
+from sa_models.test_results import Test_result
+from sa_models.test_to_group import TestToGroup
 from sa_models.test_variant import Test_variant
 from sa_models.lessons import Lesson
 from sa_models.users import User
@@ -237,7 +240,6 @@ def make_variant_to_db(data: list[str], user_id: uuid, title: string) -> uuid:
     db_sess.add(variant)
     db_sess.commit()
 
-
     for el in data:
         id_task = int(el)
         uuid_task = db_sess.query(Problem).where(id_task == Problem.id).first().uuid
@@ -252,6 +254,7 @@ def make_variant_to_db(data: list[str], user_id: uuid, title: string) -> uuid:
 
     return new_uuid
 
+
 def tasks_by_test_uuid(test_uuid: uuid) -> list[dict]:
     db_sess = db_session.create_session()
     test = db_sess.query(Test_variant).filter(test_uuid == Test_variant.uuid).first()
@@ -265,6 +268,7 @@ def tasks_by_test_uuid(test_uuid: uuid) -> list[dict]:
         res.append(tmp)
     return res
 
+
 def render_variant(variant: Test_variant):
     res = {
         "id": variant.id,
@@ -274,6 +278,7 @@ def render_variant(variant: Test_variant):
     }
     return res
 
+
 def get_variants_by_user_uuid(user_uuid: uuid):
     db_sess = db_session.create_session()
     variants = db_sess.query(Test_variant).where(Test_variant.user_uuid == user_uuid).all()
@@ -282,3 +287,45 @@ def get_variants_by_user_uuid(user_uuid: uuid):
         res.append(render_variant(el))
     db_sess.close()
     return res
+
+
+def get_json_data(filename: string) -> dict:
+    import json
+    with open(filename, "rt", encoding="utf8") as myfile:
+        return json.load(myfile)
+
+
+def give_variant_to_group(group_uuid: uuid, data: dict) -> None:
+    db_sess = db_session.create_session()
+    test_to_group = TestToGroup(
+        test_uuid=data.get("test_uuid"),
+        group_uuid=group_uuid,
+        date_start=datetime.datetime.strptime(data.get("start_date"), "%d/%m/%Y") if data.get("start_date") else None,
+        date_end=datetime.datetime.strptime(data.get("end_date"), "%d/%m/%Y") if data.get("end_date") else None,
+        duration=int(data.get("duration")) if data.get("duration") else None,
+        feedback=int(data.get("option")),
+        criteria_5=int(data.get("criteria_5")) if data.get("criteria_5") else None,
+        criteria_4=int(data.get("criteria_4")) if data.get("criteria_4") else None,
+        criteria_3=int(data.get("criteria_3")) if data.get("criteria_3") else None,
+        criteria_2=int(data.get("criteria_2")) if data.get("criteria_2") else None,
+    )
+    db_sess.add(test_to_group)
+    db_sess.commit()
+    db_sess.close()
+
+
+
+
+def get_user_result_of_test_by_user_uuid(user_uuid: uuid, test_uuid: uuid, group_uuid: uuid) -> dict:
+    db_sess = db_session.create_session()
+    result = db_sess.query(Test_result).filter(Test_result.user_uuid == user_uuid, Test_result.group_uuid == group_uuid,
+                                               Test_result.test_variant_uuid == test_uuid).first()
+    user = db_sess.query(User).where(User.uuid == user_uuid).first()
+    data = {
+        "name": f"{user.surname} {user.name} {user.lastname}",
+        "scores": result.res_scores if result else "Работа не пройдена",
+        "max_scores": result.max_scores if result else "Работа не пройдена",
+        "spend_time": (result.date_end - result.date_start).minutes if result and result.date_end else "Не указано"
+    }
+    db_sess.close()
+    return data
