@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, redirect, send_from_directory
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
 from authlib.integrations.flask_client import OAuth
+import requests
 
 from forms.groups import FormAddGroups
 from forms.register import FormRegisterUser, FormLoginUser
@@ -46,7 +47,9 @@ if not os.path.exists('database/'):
 
 app = Flask(__name__)
 db_session.global_init('database/portal.db')
-
+CLIENT_ID_YANDEX = '4d27ff558ac443cd85b5eefa46cc6653'
+REDIRECT_URI_YANDEX = 'http://127.0.0.1:8080/auth/yandex/callback'
+CLIENT_SECRET_YANDEX = 'ed4c1d3cde654c20bcbca38c083896b9'
 app.config['SECRET_KEY'] = 'wrbn2i3o4ufbnldq4nwku'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 oauth = OAuth(app)
@@ -810,6 +813,35 @@ def google_callback():
     user_info = google.parse_id_token(token, nonce=session.get('nonce'))
     print(user_info)
     return redirect('/')
+
+@app.route('/auth/yandex')
+def yandex_login():
+    auth_url = f"https://oauth.yandex.ru/authorize?response_type=code&client_id={CLIENT_ID_YANDEX}&redirect_uri={REDIRECT_URI_YANDEX}"
+    return redirect(auth_url)
+
+@app.route('/auth/yandex/callback')
+def callback():
+    code = request.args.get('code')
+    if not code:
+        return "Ошибка авторизации", 400
+    token_url = "https://oauth.yandex.ru/token"
+    data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "client_id": CLIENT_ID_YANDEX,
+        "client_secret": CLIENT_SECRET_YANDEX
+    }
+    response = requests.post(token_url, data=data)
+    if response.status_code != 200:
+        return "Ошибка получения токена", 400
+    access_token = response.json().get('access_token')
+    user_info_url = "https://login.yandex.ru/info"
+    headers = {"Authorization": f"OAuth {access_token}"}
+    user_info = requests.get(user_info_url, headers=headers).json()
+    session['user'] = user_info
+    print(user_info)
+    return redirect(url_for('profile'))
+
 
 @app.route('/login', methods=['GET', 'POST'])
 @login_forbidden
