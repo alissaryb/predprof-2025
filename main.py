@@ -322,7 +322,8 @@ def lesson_page(course_uuid, lesson_uuid):
         return render_template("error.html", title="Вы не зарегистрированы на курс",
                                err='Вы не зарегистрированы на курс')
 
-    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', "language-prefix"])
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', "language-prefix",
+    "tables"])
 
     lesson = exists.lesson
     lesson_data = {
@@ -372,6 +373,8 @@ def practice():
     db_sess = db_session.create_session()
 
     all_tasks = db_sess.query(Problem).all()
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', "language-prefix",
+    "tables"])
 
     problems = []
     for problem in all_tasks:
@@ -381,7 +384,7 @@ def practice():
             'text_type': problem.kim_type.title,
             'source': problem.source,
             'uuid': problem.id,
-            'text': problem.text.replace('\n', '<br>'),
+            'text': markdowner.convert(problem.text),
             'ans': problem.answer,
             'files_folder_path': []
         }
@@ -575,7 +578,8 @@ def course_by_uuid(course_uuid):
         'token': course.token,
         'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{course.made_on_datetime.strftime('%H:%M')}',
         'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.',
-        'author_uuid': course.author.uuid
+        'author_uuid': course.author.uuid,
+        'iframe': course.video_url
     }
 
     all_tags = []
@@ -614,6 +618,7 @@ def add_course():
         new_course.title = form.title.data
         new_course.description = form.description.data
         new_course.subject = form.subject.data
+        new_course.video_url = form.video_url.data
         new_course.uuid = new_uuid
         new_course.token = funcs_back.generate_token()
         new_course.user_uuid = current_user.uuid

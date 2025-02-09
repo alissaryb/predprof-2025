@@ -45,6 +45,16 @@
             {% endfor %}
         </div>
 
+        <div class="form-group mb-2">
+            {{ form.video_url.label }}<br>
+            {{ form.video_url(class="form-control", rows="5") }}<br>
+            {% for error in form.video_url.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+
 
 
 

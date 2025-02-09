@@ -235,3 +235,6 @@ my-table {
     border: 1px solid #000; /* Цвет границы */
 }
 
+.task-item > table > thead > tr > th, .task-item > table > tbody > tr > td {
+    border: 1px solid black;
+}
