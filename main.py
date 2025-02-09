@@ -813,16 +813,17 @@ def google_login():
 def google_callback():
     token = google.authorize_access_token()
     user_info = google.parse_id_token(token, nonce=session.get('nonce'))
-    print(user_info)
+    login_user(user_info, remember=True)
     return redirect('/')
 
 @app.route('/auth/yandex')
 def yandex_login():
-    auth_url = f"https://oauth.yandex.ru/authorize?response_type=code&client_id={CLIENT_ID_YANDEX}&redirect_uri={REDIRECT_URI_YANDEX}"
+    auth_url = ("https://oauth.yandex.ru/authorize?response_type=code&"
+                f"client_id={CLIENT_ID_YANDEX}&redirect_uri={REDIRECT_URI_YANDEX}")
     return redirect(auth_url)
 
-@app.route('/auth/yandex/callback')
-def callback():
+@app.route('/auth/yandex/callback', methods=['GET'])
+def yandex_callback():
     code = request.args.get('code')
     if not code:
         return "Ошибка авторизации", 400
@@ -834,15 +835,25 @@ def callback():
         "client_secret": CLIENT_SECRET_YANDEX
     }
     response = requests.post(token_url, data=data)
+    print("RESP, TEXT:", response.text)
     if response.status_code != 200:
         return "Ошибка получения токена", 400
     access_token = response.json().get('access_token')
     user_info_url = "https://login.yandex.ru/info"
     headers = {"Authorization": f"OAuth {access_token}"}
     user_info = requests.get(user_info_url, headers=headers).json()
-    session['user'] = user_info
-    print(user_info)
-    return redirect(url_for('profile'))
+
+    db_sess = db_session.create_session()
+    exists = db_sess.query(User).where(User.email == user_info['default_email']).first()
+    if exists is None:
+        db_sess.close()
+        return render_template("login.html", title="Авторизация",
+                               message="Такого пользователя не существует")
+
+    db_sess.close()
+    login_user(exists, remember=True)
+
+    return redirect("/")
 
 
 
