@@ -40,6 +40,7 @@ color: black;
 
 </style>
 <div class="container ">
+    <h5 class="text-center">{{title}}</h5>
         <table style="width: 100%;">
             <thead>
                 <tr>
@@ -65,6 +66,15 @@ color: black;
                     {% else %}
                         <td class="green-td">{{ arr[i]['pr'] | round(2) }}%</td>
                     {% endif %}
+                    {% if arr[i]['pr_10_last'] <= 25 %}
+                        <td class="red-td">{{ arr[i]['pr_10_last'] | round(2) }}%</td>
+                    {% elif arr[i]['pr_10_last'] <= 50 %}
+                        <td class="orange-td">{{ arr[i]['pr_10_last'] | round(2) }}%</td>
+                    {% elif arr[i]['pr_10_last'] <= 75 %}
+                        <td class="yellow-td">{{ arr[i]['pr_10_last'] | round(2) }}%</td>
+                    {% else %}
+                        <td class="green-td">{{ arr[i]['pr_10_last'] | round(2) }}%</td>
+                    {% endif %}
 
                 </tr>
                 {% endfor %}
@@ -79,7 +89,7 @@ color: black;
 
 
     <div class="tablo">
-        <h5 class="text-center">Статистика отрешанных полных вариантов ЕГЭ</h5>
+        <h5 class="text-center">Статистика отрешанных вариантов</h5>
         <canvas id="myChart" width="200"></canvas>
     </div>
 

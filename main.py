@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import datetime
 import os
 from functools import wraps
 
@@ -12,15 +11,15 @@ import requests
 
 from forms.groups import FormAddGroups
 from forms.register import FormRegisterUser, FormLoginUser
-from forms.tasks import FormAddTask, QuizForm
+from forms.tasks import FormAddTask
 from forms.courses import FormAddCourse, FormAddLesson
 
-import json
 import uuid
 import markdown2
 
-from py_scripts.funcs_back import get_user_data, add_lesson_database, get_kim_dict, get_tasks, get_json_data, \
-    get_groups_teach, give_variant_to_group, get_user_result_of_test_by_user_uuid
+from py_scripts.funcs_back import (add_lesson_database, get_json_data, get_groups_teach, give_variant_to_group,
+                                   get_user_result_of_test_by_user_uuid, get_statistic_for_table, \
+                                   get_statistic_for_graphic)
 from py_scripts.funcs_back import get_user_data, get_kim_dict, get_tasks, make_variant_to_db, \
     tasks_by_test_uuid, get_variants_by_user_uuid
 from sa_models import db_session
@@ -28,7 +27,6 @@ from sa_models.course_to_lesson import CourseToLesson
 from sa_models.each_task_result import EachTaskResult
 from sa_models.group_to_user import GroupToUser
 from sa_models.groups import Group
-from sa_models.lessons import Lesson
 from sa_models.test_results import Test_result
 from sa_models.test_to_group import TestToGroup
 from sa_models.users import User
@@ -152,6 +150,7 @@ def work():
                         kim_type_uuid=kim_uuid
                     )
                     db_sess.add(each_task_result)
+                    db_sess.commit()
 
                     if is_correct:
                         correct_count += 1
@@ -200,31 +199,19 @@ def profile():
     return render_template("profile.html", title="Личный кабинет", user=user_data)
 
 
-@app.route('/page_group/<group_uuid>/statistic/<user_uuid>', methods=['GET', 'POST'])
-def statistic(group_uuid, user_uuid):
+@app.route('/statistic', methods=['GET'])
+@app.route('/page_group/<group_uuid>/statistic/<user_uuid>', methods=['GET'])
+def statistic(user_uuid=None, group_uuid=None):
+    kwargs = dict()
+    kwargs['title'] = "Статистика по группе"
+    if user_uuid is None:
+        kwargs['title'] = "Статистика"
+        user_uuid = current_user.uuid
+    kwargs['arr'] = get_statistic_for_table(user_uuid, group_uuid=group_uuid)
+    kwargs['values'] = get_statistic_for_graphic(user_uuid, group_uuid=group_uuid)
+    # kwargs['full_variant'] = get_statistic_for_full_variant(user_uuid, group_uuid=group_uuid)
 
-    arr = dict()
-    db_sess = db_session.create_session()
-    kim_types = db_sess.query(KimType).all()
-    for kim in kim_types:
-        user_res = db_sess.query(EachTaskResult).filter(user_uuid == EachTaskResult.user_uuid,
-                                                        EachTaskResult.group_uuid == group_uuid,
-                                                        EachTaskResult.kim_type_uuid == kim.uuid).all()
-        cnt_correct = len(list(filter(lambda x: x.correct == 1, user_res)))
-        arr[kim.kim_id] = {
-            "correct": cnt_correct,
-            "all": len(user_res)
-        }
-
-    for i in arr.keys():
-        arr[i]['pr'] = arr[i]['correct'] / arr[i]['all'] * 100 if arr[i]['all'] != 0 else 0
-
-    values = [10, 70, 34, 52, 25, 88]
-    values = [el.res_scores / el.max_scores * 100 for el in
-              db_sess.query(Test_result).filter(user_uuid == EachTaskResult.user_uuid,
-                                                EachTaskResult.group_uuid == group_uuid).all()]
-    db_sess.close()
-    return render_template("statistic.html", arr=arr, values=values)
+    return render_template("statistic.html", **kwargs)
 
 
 @app.route('/group/<group_uuid>/invite', methods=['GET'])
@@ -343,7 +330,7 @@ def group_by_uuid(group_uuid):
     return render_template("page_group.html", title="Страница группы", **kwargs)
 
 
-@app.route('/page_group/<group_uuid>/test_result/<test_uuid>', methods=['GET'])
+@app.route('/page_group/<group_uuid>/test_result/<test_uuid>', methods=['GET', 'POST'])
 @login_required
 def page_group_test_result(group_uuid, test_uuid):
     db_sess = db_session.create_session()
@@ -361,13 +348,37 @@ def page_group_test_result(group_uuid, test_uuid):
     if is_registered is None and not is_author:
         db_sess.close()
         return render_template("error.html", title="Группа не найдена", err='Группа не найдена')
+    test_to_group = db_sess.query(TestToGroup).filter(TestToGroup.group_uuid == group_uuid,
+                                                      test_uuid == TestToGroup.test_uuid).first()
+    flag = 0
+    if request.method == 'POST':
+        test_to_group.criteria_5 = int(request.form.get("criteria_5", 0))
+        test_to_group.criteria_4 = int(request.form.get("criteria_4", 0))
+        test_to_group.criteria_3 = int(request.form.get("criteria_3", 0))
+        if test_to_group.feedback == 4:
+            test_to_group.feedback = 3
+        db_sess.merge(test_to_group)
+        db_sess.commit()
+        flag = 1
+
     results = list()
     if is_author:
         for user in group.users:
-            results.append(get_user_result_of_test_by_user_uuid(user.user_uuid, test_uuid, group_uuid))
+            results.append(get_user_result_of_test_by_user_uuid(user.user_uuid, test_uuid, group_uuid, is_author=True))
     else:
         results.append(get_user_result_of_test_by_user_uuid(current_user.uuid, test_uuid, group_uuid))
-    return render_template("test_results.html", results=results)
+
+    kwargs = {
+        "results": results,
+        "is_author": is_author,
+        "criteria": {
+            "5": test_to_group.criteria_5 if test_to_group.criteria_5 is not None else 0,
+            "4": test_to_group.criteria_4 if test_to_group.criteria_4 is not None else 0,
+            "3": test_to_group.criteria_3 if test_to_group.criteria_3 is not None else 0,
+        },
+        "flag": flag
+    }
+    return render_template("test_results.html", **kwargs)
 
 
 @app.route(f'/page_course/<course_uuid>/page_lesson/<lesson_uuid>', methods=['GET'])
@@ -589,7 +600,7 @@ def my_variants():
     kwargs["variants"] = get_variants_by_user_uuid(current_user.uuid)
     kwargs["groups"] = get_groups_teach(current_user.uuid)
     kwargs["feedback"] = get_json_data("py_scripts/feedback.json")
-    kwargs["criteria"] = [5, 4, 3, 2]
+    kwargs["criteria"] = [5, 4, 3]
     return render_template("my_variants.html", **kwargs)
 
 
@@ -800,12 +811,14 @@ def register():
 
     return render_template("register.html", title="Регистрация", form=form)
 
+
 @app.route('/auth/google')
 def google_login():
     nonce = "NENASOSALAPODARILY"
     session['nonce'] = "NENASOSALAPODARILY"
     redirect_uri = url_for('google_callback', _external=True)
     return google.authorize_redirect(redirect_uri, nonce=nonce)
+
 
 @app.route('/auth/google/callback')
 def google_callback():
@@ -841,6 +854,7 @@ def callback():
     session['user'] = user_info
     print(user_info)
     return redirect(url_for('profile'))
+
 
 
 @app.route('/login', methods=['GET', 'POST'])

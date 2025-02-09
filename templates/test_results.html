@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% block main_content %}
-<style>
 
 
-</style>
+
 <div class="container py-5">
     <h1 class="mb-4">Результаты варианта</h1>
+    {% if flag %}
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        Оценки отправлены
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+    </div>
+    {% endif %}
 
     {% for result in results %}
 
@@ -26,13 +31,60 @@
             <td>{{ result.scores }}</td>
             <td>{{ result.max_scores }}</td>
             <td>{{ result.spend_time }}</td>
-            <td>В разработке</td>
+            <td>{{ result.mark }}</td>
         </tr>
 
         </tbody>
     </table>
 
     {% endfor %}
+    {% if is_author %}
+    <button class="btn btn-violet text-decoration-none mx-auto"
+            type="button" data-bs-toggle="modal" data-bs-target="#variantToGroupModal">
+        Выставить оценки
+    </button>
+    {% endif %}
 </div>
+
+
+{% if is_author %}
+<form method="post">
+    <div class="modal fade" id="variantToGroupModal" tabindex="-1"
+         aria-labelledby="variantToGroupModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="variantToGroupModalLabel">Критерии для оценок</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label">В процентах до 100:</label>
+                        <div class="row">
+                            {% for key, val in criteria.items() %}
+                            <div class="col-md-6">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">На {{key}}</span>
+                                    <input type="number" class="form-control" id="criteria{{key}}" min="0"
+                                           max="100" name="criteria_{{key}}" value="{{val}}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-red" data-bs-dismiss="modal">Закрыть
+                        </button>
+                        <button type="submit" class="btn btn-green">Выдать оценки</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endif %}
 
 {% endblock %}
