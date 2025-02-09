@@ -15,8 +15,8 @@
                     <div class="card-body d-flex flex-column p-4">
                         <h4>{{ i['title'] }}</h4>
                         <div>Предмет: {{ i['subject'] }}</div>
-                        <div>Токен: {{ i['token'] }}</div>
-                        <br>
+                        <hr>
+                        {{ i['description']|safe }}
                         <div>Автор: {{ i['author'] }}</div>
                         <div>Создан {{ i['made_on_datetime'] }}</div>
                         <br>
@@ -43,9 +43,9 @@
                         <div class="card-body d-flex flex-column p-4">
                             <h4>{{ i['title'] }}</h4>
                             <div>Предмет: {{ i['subject'] }}</div>
+                            <hr>
                             <div>Токен: {{ i['token'] }}</div>
-                            <br>
-
+                            {{ i['description']|safe }}
                             <div>Создан {{ i['made_on_datetime'] }}</div>
                             <br>
                             <div class="mt-auto">

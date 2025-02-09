@@ -29,7 +29,7 @@
 
                     <p>Источник: {{ task.source}}</p>
                     <b><i>Сложность: {{ task.difficulty }}</i></b>
-                    <p>{{ task.text }}</p>
+                    <p>{{ task.text|safe }}</p>
 
 
                     <div class="input-group">

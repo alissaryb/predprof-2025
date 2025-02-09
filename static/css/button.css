@@ -10,12 +10,12 @@ button {
 }
 
 .btn-blue{
-    background: rgb(133, 171, 210);
+    background: rgb(67, 120, 175);
     color: white;
 }
 
 .btn-blue:hover {
-    background: rgb(67, 120, 175);
+    background: rgb(133, 171, 210);
     color: white;
 }
 
@@ -25,31 +25,31 @@ button {
 }
 
 .btn-violet:hover {
-    background: rgb(92, 71, 189);
+    background: rgb(145, 131, 211);
     color: white;
 }
 .btn-violet{
-    background: rgb(145, 131, 211);
+    background: rgb(92, 71, 189);
     color: white;
 }
 
 .btn-green {
-  background: rgb(125, 171, 108);
-    color: white;
-}
-
-.btn-green:hover {
     background: rgb(79, 143, 56);
     color: white;
 }
 
+.btn-green:hover {
+    background: rgb(125, 171, 108);
+    color: white;
+}
+
 .btn-red {
-  background: rgb(196, 124, 124);
+    background: rgb(165, 60, 60);
     color: white;
 }
 
 .btn-red:hover {
-    background: rgb(165, 60, 60);
+    background: rgb(196, 124, 124);
     color: white;
 }
 

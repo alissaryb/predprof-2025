@@ -5,7 +5,7 @@
 <div class="p-5 mt-5 " style="margin: 5%;">
 
     <h3>{{ lesson['title'] }}</h3>
-    <p>{{ lesson['description'] }}</p>
+    {{ lesson['description']|safe }}
     <br>
 
     <div class="tablo">

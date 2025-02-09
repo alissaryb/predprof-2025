@@ -13,6 +13,7 @@ class Course(SqlAlchemyBase):
     subject = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, default='Нет описания.')
     token = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    video_url = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     made_on_datetime = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
     user_uuid = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"))

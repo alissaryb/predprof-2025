@@ -36,6 +36,7 @@ from sa_models.kim_types import KimType
 from sa_models.course_to_user import CourseToUser
 from py_scripts import funcs_back, consts
 
+
 if not os.path.exists('problems_materials/'):
     os.mkdir('problems_materials/')
 if not os.path.exists('lessons_materials/'):
@@ -283,10 +284,12 @@ def group_by_uuid(group_uuid):
         db_sess.close()
         return render_template("error.html", title="Группа не найдена", err='Группа не найдена')
 
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     group_data = {
         'title': group.title,
         'link': f'/group/{group_uuid}/invite',
-        'description': group.description,
+        'description': markdowner.convert(group.description),
         'author': f'{group.author.surname} {group.author.name[0]}. {group.author.lastname[0]}.',
         'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
         'members_group': [],
@@ -393,14 +396,15 @@ def lesson_page(course_uuid, lesson_uuid):
         return render_template("error.html", title="Вы не зарегистрированы на курс",
                                err='Вы не зарегистрированы на курс')
 
-    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', "language-prefix"])
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+    'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
 
     lesson = exists.lesson
     lesson_data = {
         'course_uuid': course_uuid,
         'lesson_uuid': lesson_uuid,
         'title': lesson.title,
-        'description': lesson.description,
+        'description': markdowner.convert(lesson.description),
         'text': markdowner.convert(lesson.text),
         'author': f'{lesson.author.surname} {lesson.author.name[0]}. {lesson.author.lastname[0]}.',
         'made_on_datetime': f'{lesson.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{lesson.made_on_datetime.strftime('%H:%M')}',
@@ -443,6 +447,8 @@ def practice():
     db_sess = db_session.create_session()
 
     all_tasks = db_sess.query(Problem).all()
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+    'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
 
     problems = []
     for problem in all_tasks:
@@ -452,7 +458,7 @@ def practice():
             'text_type': problem.kim_type.title,
             'source': problem.source,
             'uuid': problem.id,
-            'text': problem.text.replace('\n', '<br>'),
+            'text': markdowner.convert(problem.text),
             'ans': problem.answer,
             'files_folder_path': []
         }
@@ -470,10 +476,6 @@ def practice():
             data['files_folder_path'] = sorted(data['files_folder_path'], key=lambda x: (x[1] != 'other', x))
         problems.append(data)
 
-    for i in problems:
-        print(i)
-        print()
-
     return render_template("practice.html", title="", tasks=problems)
 
 
@@ -482,6 +484,10 @@ def practice():
 def add_work():
     db_sess = db_session.create_session()
     all_tasks = db_sess.query(Problem).all()
+
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
+
     problems = []
     for problem in all_tasks:
         data = {
@@ -490,7 +496,7 @@ def add_work():
             'text_type': problem.kim_type.title,
             'source': problem.source,
             'uuid': problem.id,
-            'text': problem.text.replace('\n', '<br>'),
+            'text': markdowner.convert(problem.text),
             'ans': problem.answer,
             'files_folder_path': []
         }
@@ -659,15 +665,18 @@ def course_by_uuid(course_uuid):
         db_sess.close()
         return redirect(f'/page_course/{course_uuid}')
 
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     course_data = {
         'uuid': course_uuid,
         'title': course.title,
         'subject': course.subject,
-        'description': course.description,
+        'description': markdowner.convert(course.description),
         'token': course.token,
         'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{course.made_on_datetime.strftime('%H:%M')}',
         'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.',
-        'author_uuid': course.author.uuid
+        'author_uuid': course.author.uuid,
+        'iframe': course.video_url
     }
 
     all_tags = []
@@ -678,7 +687,7 @@ def course_by_uuid(course_uuid):
         note_data = {
             'uuid': note.uuid,
             'title': note.title,
-            'description': note.description,
+            'description': markdowner.convert(note.description),
             'made_on_datetime': f'{note.made_on_datetime.strftime('%d.%m.%Y')} в '
                                 f'{note.made_on_datetime.strftime('%H:%M')}',
             'tag': ', '.join([i.strip().lower() for i in note.tag.split(',')]),
@@ -706,6 +715,7 @@ def add_course():
         new_course.title = form.title.data
         new_course.description = form.description.data
         new_course.subject = form.subject.data
+        new_course.video_url = form.video_url.data
         new_course.uuid = new_uuid
         new_course.token = funcs_back.generate_token()
         new_course.user_uuid = current_user.uuid
@@ -735,13 +745,15 @@ def all_courses():
         for course in registered_courses_uuids:
             courses_data_by_uuid[course['uuid']] = True
 
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     courses = []
     for course in all_:
         d = {
             'title': course.title,
             'subject': course.subject,
             'token': course.token,
-            'description': course.description,
+            'description': markdowner.convert(course.description),
             'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.',
             'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в '
                                 f'{course.made_on_datetime.strftime('%H:%M')}',
@@ -854,7 +866,6 @@ def yandex_callback():
     login_user(exists, remember=True)
 
     return redirect("/")
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
