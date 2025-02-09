@@ -825,7 +825,17 @@ def google_login():
 def google_callback():
     token = google.authorize_access_token()
     user_info = google.parse_id_token(token, nonce=session.get('nonce'))
-    login_user(user_info, remember=True)
+
+    db_sess = db_session.create_session()
+    exists = db_sess.query(User).where(User.email == user_info['email']).first()
+    print(user_info)
+    if exists is None:
+        db_sess.close()
+        return redirect('/register')
+
+    db_sess.close()
+
+    login_user(exists, remember=True)
     return redirect('/')
 
 @app.route('/auth/yandex')
