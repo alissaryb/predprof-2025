@@ -199,9 +199,7 @@ def profile():
 
 @app.route('/page_group/<group_uuid>/statistic/<user_uuid>', methods=['GET', 'POST'])
 def statistic(group_uuid, user_uuid):
-    arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15},
-           3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100},
-           5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
+
     arr = dict()
     db_sess = db_session.create_session()
     kim_types = db_sess.query(KimType).all()
