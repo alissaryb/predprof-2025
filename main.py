@@ -859,8 +859,7 @@ def yandex_callback():
     exists = db_sess.query(User).where(User.email == user_info['default_email']).first()
     if exists is None:
         db_sess.close()
-        return render_template("login.html", title="Авторизация",
-                               message="Такого пользователя не существует")
+        return redirect('/register')
 
     db_sess.close()
     login_user(exists, remember=True)

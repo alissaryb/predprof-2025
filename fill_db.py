@@ -137,7 +137,8 @@ def courses(user_uuid):
             description=el['description'],
             token=el['token'],
             made_on_datetime=el['made_on_datetime'],
-            user_uuid=el['user_uuid']
+            user_uuid=el['user_uuid'],
+            video_url='<iframe width="720" height="405" src="https://rutube.ru/play/embed/8ac7d1439fcfddb601bec871059a09d6/" frameBorder="0" allow="clipboard-write; autoplay" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
         )
         db_sess.add(course)
     db_sess.commit()
@@ -161,7 +162,7 @@ def new_user():
 
 
 new_user_uuid = new_user()
-kim()
+# kim()
 courses(new_user_uuid)
 
 db_sess.close()

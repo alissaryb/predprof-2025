@@ -330,7 +330,7 @@ def give_variant_to_group(group_uuid: uuid, data: dict) -> None:
 def get_mark_of_test_in_group(ttg: TestToGroup, result: Test_result) -> int | str:
     if not result:
         return "Работа не пройдена"
-    if ttg.criteria_5 is None or ttg.criteria_4 is None or ttg.criteria_3 is None or ttg.criteria_2 is None:
+    if ttg.criteria_5 is None or ttg.criteria_4 is None or ttg.criteria_3 is None:
         return "Нет оценки"
     user_res = result.res_scores * 100 / result.max_scores
     if user_res >= ttg.criteria_5:
