@@ -358,8 +358,9 @@ def get_user_result_of_test_by_user_uuid(user_uuid: uuid, test_uuid: uuid, group
         "mark": get_mark_of_test_in_group(test_to_group, result)
     }
 
-    if test_to_group.feedback == 4 and not is_author:
-        data["scores"] = "Ожидает проверки учителя"
+    if test_to_group.feedback == 4:
+        if not is_author:
+            data["scores"] = "Ожидает проверки учителя"
         data["mark"] = "Ожидает проверки учителя"
     db_sess.close()
     return data

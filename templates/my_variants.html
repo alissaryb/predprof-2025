@@ -162,7 +162,7 @@
                         {% for key, val in feedback.items() %}
                         <div class="form-check form-check-inline">
                             <input class="custom-radio" type="radio" name="option" id="option{{key}}"
-                                   value="{{key}}" checked>
+                                   value="{{key}}" {% if loop.index0 == 0 %} checked {% endif %}>
                             <label class="custom-radio-label" for="option{{key}}">{{val}}</label>
                         </div>
                         {% endfor %}
