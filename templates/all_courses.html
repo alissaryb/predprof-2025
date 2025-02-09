@@ -10,11 +10,8 @@
             <div class="card-body d-flex flex-column p-4">
                 <h4>{{ i['title'] }}</h4>
                 <div>Предмет: {{ i['subject'] }}</div>
-{#                <div>Токен: {{ i['token'] }}</div>#}
-
-                <br>
-                <p>{{ i['description'] }}</p>
-
+                <hr>
+                {{ i['description']|safe }}
                 <div>Автор:  {{ i['author'] }}</div>
                 <div>Создан {{ i['made_on_datetime'] }}</div>
                 <br>

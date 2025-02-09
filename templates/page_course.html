@@ -6,16 +6,12 @@
 
      <h3>{{ course['title'] }}</h3>
     <div>Предмет: {{ course['subject'] }}</div>
-    <div>Токен: {{ course['token'] }}</div>
-
     <br>
-    <p>{{ course['description'] }}</p>
-
-    <div style="height: 20%; margin: auto;">{{ course['iframe'] }}</div>
+    {{ course['description']|safe }}
 
     <div>Автор:  {{ course['author'] }}</div>
     <div>Создан {{ course['made_on_datetime'] }}</div>
-    <br>
+    <div>{{ course['iframe']|safe }}</div>
 
     {% if current_user.uuid == course['author_uuid'] %}
         <div class="col-md-4 col-lg-2">
@@ -27,8 +23,7 @@
         <div class="tablo">
             <h5>{{ i['title'] }}</h5>
             <hr>
-            <div>{{ i['description'] }}</div>
-            <br>
+            {{ i['description']|safe }}
             <div>Теги: {{ i['tag'] }}</div>
             <div>Создано {{ i['made_on_datetime'] }}</div>
             <br>

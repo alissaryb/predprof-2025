@@ -1,6 +1,7 @@
 import os
 import uuid
 
+import markdown2
 from werkzeug.utils import secure_filename
 
 from py_scripts import consts
@@ -29,6 +30,8 @@ def get_courses_learn(user_uuid):
     all_ = sorted(all_, key=lambda x: x.course.made_on_datetime, reverse=True)
     courses = []
 
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     for course_to_user in all_:
         course = course_to_user.course
         user = course_to_user.user
@@ -37,7 +40,7 @@ def get_courses_learn(user_uuid):
             'title': course.title,
             'subject': course.subject,
             'token': course.token,
-            'description': course.description,
+            'description': markdowner.convert(course.description),
             'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{course.made_on_datetime.strftime('%H:%M')}',
             'uuid': course.uuid,
             'author': f'{user.surname} {user.name[0]}. {user.lastname[0]}.'
@@ -55,12 +58,14 @@ def get_courses_teach(user_uuid):
     all_ = db_sess.query(Course).where(Course.user_uuid == user_uuid).order_by(Course.made_on_datetime.desc()).all()
     courses = []
 
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     for course in all_:
         d = {
             'title': course.title,
             'subject': course.subject,
             'token': course.token,
-            'description': course.description,
+            'description': markdowner.convert(course.description),
             'made_on_datetime': f'{course.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{course.made_on_datetime.strftime('%H:%M')}',
             'uuid': course.uuid,
             'author': f'{course.author.surname} {course.author.name[0]}. {course.author.lastname[0]}.'
@@ -144,10 +149,12 @@ def get_kim_dict():
 
 
 def task_render(task: Problem):
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     res = {
         "uuid": task.uuid,
-        "text": task.text if task.text is not None else "Нет описания",
-        "source": task.source if task.source is not None else "Источник не указан",
+        "text": markdowner.convert(task.text),
+        "source": task.source,
         "answer": task.answer,
         "difficulty": task.difficulty,
         'files_folder_path': []
@@ -187,13 +194,15 @@ def get_groups_learn(user_uuid):
     all_ = sorted(all_, key=lambda x: x.group.made_on_datetime, reverse=True)
     groups = []
 
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     for group_to_user in all_:
         group = group_to_user.group
         user = group_to_user.user
 
         d = {
             'title': group.title,
-            'description': group.description,
+            'description': markdowner.convert(group.description),
             'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
             'uuid': group.uuid,
             'author': f'{user.surname} {user.name[0]}. {user.lastname[0]}.'
@@ -211,10 +220,12 @@ def get_groups_teach(user_uuid):
     all_ = db_sess.query(Group).where(Group.user_uuid == user_uuid).order_by(Group.made_on_datetime.desc()).all()
     groups = []
 
+    markdowner = markdown2.Markdown(extras=['fenced-code-blocks', 'highlightjs-lang', 'latex', 'language-prefix',
+                                            'tables', 'wiki-tables', 'breaks', 'cuddled-lists'])
     for group in all_:
         d = {
             'title': group.title,
-            'description': group.description,
+            'description': markdowner.convert(group.description),
             'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
             'uuid': group.uuid,
             'author': f'{group.author.surname} {group.author.name[0]}. {group.author.lastname[0]}.'

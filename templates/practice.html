@@ -51,7 +51,6 @@
                         <b><i>Источник: {{i["source"]}}</i></b>
                         <div class="small-br"></div>
 
-                        <div>Условие:</div>
                         <p class="text-task">{{ i['text']|safe }} </p>
 
                         <div style="display: flex; align-items: center;">
@@ -60,7 +59,7 @@
                             </button>
                             <div class="answer" id="answer-{{i['uuid']}}" style="display: none; margin-left: 10px;">
                                 <div class="custom-box">
-                                    {{ i['ans']|safe }}
+                                    {{ i['ans'] }}
                                 </div>
                             </div>
                         </div>
