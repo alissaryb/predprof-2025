@@ -2,6 +2,7 @@ import datetime
 import os
 import uuid
 
+from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 
 from py_scripts import consts
@@ -12,6 +13,7 @@ from sa_models.course_to_user import CourseToUser
 import string
 import random
 
+from sa_models.each_task_result import EachTaskResult
 from sa_models.group_to_user import GroupToUser
 from sa_models.groups import Group
 from sa_models.kim_types import KimType
@@ -300,32 +302,104 @@ def give_variant_to_group(group_uuid: uuid, data: dict) -> None:
     test_to_group = TestToGroup(
         test_uuid=data.get("test_uuid"),
         group_uuid=group_uuid,
-        date_start=datetime.datetime.strptime(data.get("start_date"), "%d/%m/%Y") if data.get("start_date") else None,
-        date_end=datetime.datetime.strptime(data.get("end_date"), "%d/%m/%Y") if data.get("end_date") else None,
+        date_start=datetime.datetime.strptime(data.get("start_date"), "%Y-%m-%d") if data.get("start_date") else None,
+        date_end=datetime.datetime.strptime(data.get("end_date"), "%Y-%m-%d") if data.get("end_date") else None,
         duration=int(data.get("duration")) if data.get("duration") else None,
         feedback=int(data.get("option")),
-        criteria_5=int(data.get("criteria_5")) if data.get("criteria_5") else None,
-        criteria_4=int(data.get("criteria_4")) if data.get("criteria_4") else None,
-        criteria_3=int(data.get("criteria_3")) if data.get("criteria_3") else None,
-        criteria_2=int(data.get("criteria_2")) if data.get("criteria_2") else None,
+        criteria_5=int(data.get("criteria_5")) if data.get("criteria_5") is not None else None,
+        criteria_4=int(data.get("criteria_4")) if data.get("criteria_4") is not None else None,
+        criteria_3=int(data.get("criteria_3")) if data.get("criteria_3") is not None else None,
+        criteria_2=int(data.get("criteria_2")) if data.get("criteria_2") is not None else None,
     )
     db_sess.add(test_to_group)
     db_sess.commit()
     db_sess.close()
 
 
+def get_mark_of_test_in_group(ttg: TestToGroup, result: Test_result) -> int | str:
+    if not result:
+        return "Работа не пройдена"
+    if ttg.criteria_5 is None or ttg.criteria_4 is None or ttg.criteria_3 is None or ttg.criteria_2 is None:
+        return "Нет оценки"
+    user_res = result.res_scores * 100 / result.max_scores
+    if user_res >= ttg.criteria_5:
+        return 5
+    if user_res >= ttg.criteria_4:
+        return 4
+    if user_res >= ttg.criteria_3:
+        return 3
+    return 2
 
 
-def get_user_result_of_test_by_user_uuid(user_uuid: uuid, test_uuid: uuid, group_uuid: uuid) -> dict:
+def get_user_result_of_test_by_user_uuid(user_uuid: uuid, test_uuid: uuid, group_uuid: uuid,
+                                         is_author: bool = False) -> dict:
     db_sess = db_session.create_session()
     result = db_sess.query(Test_result).filter(Test_result.user_uuid == user_uuid, Test_result.group_uuid == group_uuid,
                                                Test_result.test_variant_uuid == test_uuid).first()
     user = db_sess.query(User).where(User.uuid == user_uuid).first()
+    test_to_group = db_sess.query(TestToGroup).filter(TestToGroup.group_uuid == group_uuid,
+                                                      test_uuid == TestToGroup.test_uuid).first()
     data = {
         "name": f"{user.surname} {user.name} {user.lastname}",
         "scores": result.res_scores if result else "Работа не пройдена",
         "max_scores": result.max_scores if result else "Работа не пройдена",
-        "spend_time": (result.date_end - result.date_start).minutes if result and result.date_end else "Не указано"
+        "spend_time": (result.date_end - result.date_start).minutes if result and result.date_end else "Не указано",
+        "mark": get_mark_of_test_in_group(test_to_group, result)
     }
+
+    if test_to_group.feedback == 4 and not is_author:
+        data["scores"] = "Ожидает проверки учителя"
+        data["mark"] = "Ожидает проверки учителя"
     db_sess.close()
     return data
+
+
+def get_statistic_for_table(user_uuid: uuid, group_uuid=None) -> dict:
+    res = dict()
+    db_sess = db_session.create_session()
+    kim_types = db_sess.query(KimType).all()
+    for kim in kim_types:
+        if group_uuid is not None:
+            user_res = db_sess.query(EachTaskResult).filter(user_uuid == EachTaskResult.user_uuid,
+                                                            EachTaskResult.group_uuid == group_uuid,
+                                                            EachTaskResult.kim_type_uuid == kim.uuid).order_by(
+                desc(EachTaskResult.id)).all()
+        else:
+            user_res = db_sess.query(EachTaskResult).filter(user_uuid == EachTaskResult.user_uuid,
+                                                            EachTaskResult.kim_type_uuid == kim.uuid).order_by(
+                desc(EachTaskResult.id)).all()
+        cnt_correct = len(list(filter(lambda x: x.correct == 1, user_res)))
+        last_10_cnt_correct = len(list(filter(lambda x: x.correct == 1, user_res[:10])))
+        res[kim.kim_id] = {
+            "correct": cnt_correct,
+            "all": len(user_res),
+            "last_10_correct": last_10_cnt_correct
+        }
+    db_sess.close()
+    for i in res.keys():
+        res[i]['pr'] = res[i]['correct'] / res[i]['all'] * 100 if res[i]['all'] != 0 else 0
+        res[i]['pr_10_last'] = res[i]['last_10_correct'] / min(10, res[i]['all']) * 100 if res[i]['all'] != 0 else 0
+    return res
+
+
+def get_statistic_for_graphic(user_uuid: uuid, group_uuid=None) -> list:
+    db_sess = db_session.create_session()
+    if group_uuid is not None:
+        all_test_results = db_sess.query(Test_result).filter(user_uuid == EachTaskResult.user_uuid,
+                                                             EachTaskResult.group_uuid == group_uuid).all()
+    else:
+        all_test_results = db_sess.query(Test_result).filter(user_uuid == EachTaskResult.user_uuid).all()
+    values = [el.res_scores / el.max_scores * 100 for el in all_test_results]
+    db_sess.close()
+    return values
+
+# TODO: В разработке
+# def get_statistic_for_full_variant(user_uuid: uuid, group_uuid=None) -> list | None:
+#     db_sess = db_session.create_session()
+#     if group_uuid is not None:
+#         group = db_sess.query(Group).filter(Group.uuid == group_uuid).first()
+#         for test in group.tests:
+#             if len(test.tasks) == len(set([el.uuid for el in test.tasks])) == db_sess.query(KimType).count():
+#                 pass
+#     else:
+#         all_test_results = db_sess.query(Test_result).filter(user_uuid == EachTaskResult.user_uuid).all()
