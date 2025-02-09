@@ -10,3 +10,4 @@ email-validator
 sqlalchemy-serializer
 markdown2[all]
 authlib
+Flask-Session[cachelib]
