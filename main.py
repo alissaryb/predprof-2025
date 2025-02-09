@@ -7,6 +7,7 @@ from functools import wraps
 from flask import Flask, render_template, request, redirect, send_from_directory, session, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
+from authlib.integrations.flask_client import OAuth
 
 from forms.groups import FormAddGroups
 from forms.register import FormRegisterUser, FormLoginUser
@@ -17,23 +18,24 @@ import json
 import uuid
 import markdown2
 
-from py_scripts.funcs_back import get_user_data, add_lesson_database, get_kim_dict, get_tasks
-from py_scripts.funcs_back import get_user_data,  get_kim_dict, get_tasks, make_variant_to_db, \
+from py_scripts.funcs_back import get_user_data, add_lesson_database, get_kim_dict, get_tasks, get_json_data, \
+    get_groups_teach, give_variant_to_group, get_user_result_of_test_by_user_uuid
+from py_scripts.funcs_back import get_user_data, get_kim_dict, get_tasks, make_variant_to_db, \
     tasks_by_test_uuid, get_variants_by_user_uuid
 from sa_models import db_session
 from sa_models.course_to_lesson import CourseToLesson
+from sa_models.each_task_result import EachTaskResult
 from sa_models.group_to_user import GroupToUser
 from sa_models.groups import Group
 from sa_models.lessons import Lesson
 from sa_models.test_results import Test_result
+from sa_models.test_to_group import TestToGroup
 from sa_models.users import User
 from sa_models.courses import Course
 from sa_models.problems import Problem
 from sa_models.kim_types import KimType
 from sa_models.course_to_user import CourseToUser
 from py_scripts import funcs_back, consts
-
-
 
 if not os.path.exists('problems_materials/'):
     os.mkdir('problems_materials/')
@@ -47,6 +49,20 @@ db_session.global_init('database/portal.db')
 
 app.config['SECRET_KEY'] = 'wrbn2i3o4ufbnldq4nwku'
 app.config['UPLOAD_FOLDER'] = 'uploads'
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id='417695286666-s04voncdt0hjlnll2lcr2nhrl5ir7tlu.apps.googleusercontent.com',
+    client_secret='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',
+    authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
+    authorize_params=None,
+    access_token_url='https://oauth2.googleapis.com/token',
+    access_token_params=None,
+    refresh_token_url=None,
+    redirect_uri='http://127.0.0.1:8080/auth/google/callback',
+    client_kwargs={'scope': 'openid profile email'},
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -108,6 +124,7 @@ def work():
                 form_data[key.split("_")[1]] = int(val)
             tasks = get_tasks(form_data)
             session['tasks'] = tasks
+            print(tasks)
         if 'submit_answers' in request.form:
             correct_count = 0
             all_count = 0
@@ -126,6 +143,12 @@ def work():
                 for task in el["value"]:
                     user_answer = request.form.get(f"answer_{kim_uuid}_{task['uuid']}", "").strip()
                     is_correct = (user_answer.lower() == task['answer'].lower())
+                    each_task_result = EachTaskResult(
+                        user_uuid=current_user.uuid,
+                        correct=is_correct,
+                        kim_type_uuid=kim_uuid
+                    )
+                    db_sess.add(each_task_result)
 
                     if is_correct:
                         correct_count += 1
@@ -152,8 +175,6 @@ def work():
         print(tasks[i])
         print()
 
-
-
     print(results)
     print(correct_count)
     print(total_score)
@@ -176,20 +197,33 @@ def profile():
     return render_template("profile.html", title="Личный кабинет", user=user_data)
 
 
-@app.route('/statistic', methods=['GET', 'POST'])
-def statistic():
+@app.route('/page_group/<group_uuid>/statistic/<user_uuid>', methods=['GET', 'POST'])
+def statistic(group_uuid, user_uuid):
     arr = {1: {"correct": 10, "all": 23}, 2: {"correct": 15, "all": 15},
            3: {"correct": 1, "all": 20}, 4: {"correct": 34, "all": 100},
            5: {"correct": 22, "all": 37}, 6: {"correct": 16, "all": 56}}
-    d = [i for i in range(1, len(arr) + 1)]
+    arr = dict()
+    db_sess = db_session.create_session()
+    kim_types = db_sess.query(KimType).all()
+    for kim in kim_types:
+        user_res = db_sess.query(EachTaskResult).filter(user_uuid == EachTaskResult.user_uuid,
+                                                        EachTaskResult.group_uuid == group_uuid,
+                                                        EachTaskResult.kim_type_uuid == kim.uuid).all()
+        cnt_correct = len(list(filter(lambda x: x.correct == 1, user_res)))
+        arr[kim.kim_id] = {
+            "correct": cnt_correct,
+            "all": len(user_res)
+        }
 
-    for i in d:
-        p = arr[i]['correct'] / arr[i]['all'] * 100
-        arr[i]['pr'] = p
-    print(arr)
+    for i in arr.keys():
+        arr[i]['pr'] = arr[i]['correct'] / arr[i]['all'] * 100 if arr[i]['all'] != 0 else 0
 
     values = [10, 70, 34, 52, 25, 88]
-    return render_template("statistic.html", arr=arr, d=d, values=values)
+    values = [el.res_scores / el.max_scores * 100 for el in
+              db_sess.query(Test_result).filter(user_uuid == EachTaskResult.user_uuid,
+                                                EachTaskResult.group_uuid == group_uuid).all()]
+    db_sess.close()
+    return render_template("statistic.html", arr=arr, values=values)
 
 
 @app.route('/group/<group_uuid>/invite', methods=['GET'])
@@ -204,12 +238,12 @@ def group_invite(group_uuid):
         return render_template("error.html", title="Группа не найдена", err='Курс не найдена')
 
     is_registered = db_sess.query(GroupToUser).where(GroupToUser.user_uuid == current_user.uuid,
-                                                      GroupToUser.group_uuid == group_uuid).first()
+                                                     GroupToUser.group_uuid == group_uuid).first()
     is_author = group.author.uuid == current_user.uuid
 
     if is_author or is_registered:
         db_sess.close()
-        return redirect(f'page_group/{group_uuid}')
+        return redirect(f'/page_group/{group_uuid}')
 
     new_relation = GroupToUser(user_uuid=current_user.uuid, group_uuid=group_uuid)
     db_sess.add(new_relation)
@@ -265,7 +299,7 @@ def group_by_uuid(group_uuid):
         return render_template("error.html", title="Группа не найдена", err='Группа не найдена')
 
     is_registered = db_sess.query(GroupToUser).where(GroupToUser.group_uuid == group_uuid,
-                                                      GroupToUser.user_uuid == current_user.uuid).first()
+                                                     GroupToUser.user_uuid == current_user.uuid).first()
 
     is_author = group.author.uuid == current_user.uuid
     if is_registered is None and not is_author:
@@ -278,7 +312,8 @@ def group_by_uuid(group_uuid):
         'description': group.description,
         'author': f'{group.author.surname} {group.author.name[0]}. {group.author.lastname[0]}.',
         'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
-        'members_group': []
+        'members_group': [],
+        "uuid": group_uuid
     }
 
     for relation in group.users:
@@ -292,11 +327,46 @@ def group_by_uuid(group_uuid):
             'class_num': member.class_number
         }
         group_data['members_group'].append(d)
-
+    variants = list()
+    for el in group.tests:
+        tmp = {
+            "uuid": el.test.uuid,
+            "title": el.test.title,
+            "url_result": f"http://{consts.HOST}:{consts.PORT}/page_group/{group_uuid}/test_result/{el.test.uuid}",
+            "url_test": f"http://{consts.HOST}:{consts.PORT}/page_group/{group_uuid}/test/{el.test.uuid}"
+        }
+        variants.append(tmp)
+    kwargs = {"group": group_data, "variants": variants, "is_author": is_author}
     db_sess.close()
-    print(group_data)
 
-    return render_template("page_group.html", title="Страница группы", group=group_data)
+    return render_template("page_group.html", title="Страница группы", **kwargs)
+
+
+@app.route('/page_group/<group_uuid>/test_result/<test_uuid>', methods=['GET'])
+@login_required
+def page_group_test_result(group_uuid, test_uuid):
+    db_sess = db_session.create_session()
+
+    group = db_sess.query(Group).where(Group.uuid == group_uuid).first()
+
+    if group is None:
+        db_sess.close()
+        return render_template("error.html", title="Группа не найдена", err='Группа не найдена')
+
+    is_registered = db_sess.query(GroupToUser).where(GroupToUser.group_uuid == group_uuid,
+                                                     GroupToUser.user_uuid == current_user.uuid).first()
+
+    is_author = group.author.uuid == current_user.uuid
+    if is_registered is None and not is_author:
+        db_sess.close()
+        return render_template("error.html", title="Группа не найдена", err='Группа не найдена')
+    results = list()
+    if is_author:
+        for user in group.users:
+            results.append(get_user_result_of_test_by_user_uuid(user.user_uuid, test_uuid, group_uuid))
+    else:
+        results.append(get_user_result_of_test_by_user_uuid(current_user.uuid, test_uuid, group_uuid))
+    return render_template("test_results.html", results=results)
 
 
 @app.route(f'/page_course/<course_uuid>/page_lesson/<lesson_uuid>', methods=['GET'])
@@ -410,9 +480,7 @@ def practice():
 @login_required
 def add_work():
     db_sess = db_session.create_session()
-
     all_tasks = db_sess.query(Problem).all()
-
     problems = []
     for problem in all_tasks:
         data = {
@@ -439,11 +507,10 @@ def add_work():
             data['files_folder_path'] = sorted(data['files_folder_path'], key=lambda x: (x[1] != 'other', x))
         problems.append(data)
 
-    feedback = {1: 'Полная', 2: 'Частичная', 3: 'Только баллы', 4: 'Отсутствие обратной связи'}
-
-    return render_template("add_work.html", title="", tasks=problems, feedback=feedback)
+    return render_template("add_work.html", title="", tasks=problems)
 
 
+# TODO: выводи название варианта
 @login_required
 @app.route('/make_variant', methods=['POST'])
 def make_variant():
@@ -451,16 +518,22 @@ def make_variant():
     if not selected and request.form.get("button"):
         selected = request.form.get("button").split(";")
     test_uuid = make_variant_to_db(selected, current_user.uuid, request.form.get('title'))
-    return redirect(url_for('test_page', test_uuid=test_uuid, feedback=request.form.get('option')))
+    return redirect(url_for('test_page', test_uuid=test_uuid))
+
 
 @login_required
 @app.route('/test/<test_uuid>', methods=['GET', 'POST'])
-def test_page(test_uuid):
-    feedback = int(request.args.get('feedback', 0))
+@app.route('/page_group/<group_uuid>/test/<test_uuid>', methods=['GET', 'POST'])
+def test_page(test_uuid, group_uuid=None):
     tasks = tasks_by_test_uuid(test_uuid)
     kwargs = dict()
     kwargs['result'] = 0
-    kwargs['feedback'] = feedback
+    kwargs['feedback'] = 1
+    if group_uuid:
+        db_sess = db_session.create_session()
+        kwargs['feedback'] = db_sess.query(TestToGroup).filter(TestToGroup.group_uuid == group_uuid,
+                                                               TestToGroup.test_uuid == test_uuid).first().feedback
+        db_sess.close()
     if request.method == 'POST':
         kwargs['correct_count'] = kwargs['total_score'] = kwargs['all_count'] = kwargs['all_score'] = 0
         db_sess = db_session.create_session()
@@ -472,6 +545,14 @@ def test_page(test_uuid):
             user_answer = request.form.get(f"answer_{kim_uuid}_{task['value']['uuid']}", "").strip()
             is_correct = (user_answer.lower() == task['value']['answer'].lower())
 
+            each_task_result = EachTaskResult(
+                test_variant_uuid=test_uuid,
+                group_uuid=group_uuid,
+                user_uuid=current_user.uuid,
+                correct=is_correct,
+                kim_type_uuid=kim_uuid
+            )
+            db_sess.add(each_task_result)
             if is_correct:
                 kwargs['correct_count'] += 1
                 kwargs['total_score'] += points
@@ -481,8 +562,8 @@ def test_page(test_uuid):
             tasks[ind]['value']['is_correct'] = is_correct
         kwargs['result'] = 1
 
-
         test_result = Test_result(
+            group_uuid=group_uuid,
             test_variant_uuid=test_uuid,
             user_uuid=current_user.uuid,
             res_scores=kwargs['total_score'],
@@ -493,12 +574,22 @@ def test_page(test_uuid):
         db_sess.close()
     return render_template('work3.html', title='Вариант', tasks=tasks, **kwargs)
 
-@app.route('/my_variants')
+
+@app.route('/my_variants', methods=['GET', 'POST'])
 @login_required
 def my_variants():
-    variants = get_variants_by_user_uuid(current_user.uuid)
-    return render_template("my_variants.html", variants=variants)
+    kwargs = dict()
+    kwargs["flag"] = 0
+    if request.method == "POST":
+        for key, val in filter(lambda x: "group" in x[0], request.form.items()):
+            give_variant_to_group(val, request.form.to_dict())
+        kwargs["flag"] = 1
 
+    kwargs["variants"] = get_variants_by_user_uuid(current_user.uuid)
+    kwargs["groups"] = get_groups_teach(current_user.uuid)
+    kwargs["feedback"] = get_json_data("py_scripts/feedback.json")
+    kwargs["criteria"] = [5, 4, 3, 2]
+    return render_template("my_variants.html", **kwargs)
 
 
 @app.route('/add_task', methods=['GET', 'POST'])
@@ -708,6 +799,19 @@ def register():
 
     return render_template("register.html", title="Регистрация", form=form)
 
+@app.route('/auth/google')
+def google_login():
+    nonce = "NENASOSALAPODARILY"
+    session['nonce'] = "NENASOSALAPODARILY"
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri, nonce=nonce)
+
+@app.route('/auth/google/callback')
+def google_callback():
+    token = google.authorize_access_token()
+    user_info = google.parse_id_token(token, nonce=session.get('nonce'))
+    print(user_info)
+    return redirect('/')
 
 @app.route('/login', methods=['GET', 'POST'])
 @login_forbidden

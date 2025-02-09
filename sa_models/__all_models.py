@@ -12,3 +12,5 @@ from . import problems
 from . import problem_to_test
 from . import test_variant
 from . import test_results
+from . import test_to_group
+from . import each_task_result
