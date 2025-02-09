@@ -5,6 +5,8 @@ from functools import wraps
 
 from flask import Flask, render_template, request, redirect, send_from_directory, session, url_for
 from flask_login import LoginManager, login_required, current_user, login_user, logout_user
+from flask_session import Session
+from cachelib.file import FileSystemCache
 from werkzeug.utils import secure_filename
 from authlib.integrations.flask_client import OAuth
 import requests
@@ -43,8 +45,18 @@ if not os.path.exists('lessons_materials/'):
     os.mkdir('lessons_materials/')
 if not os.path.exists('database/'):
     os.mkdir('database/')
+if not os.path.exists('my_sessions/'):
+    os.mkdir('my_sessions/')
 
 app = Flask(__name__)
+
+ABS_PATH = os.path.abspath('my_sessions/')
+SESSION_TYPE = 'cachelib'
+SESSION_SERIALIZATION_FORMAT = 'json'
+SESSION_CACHELIB = FileSystemCache(threshold=1000, cache_dir=ABS_PATH)
+app.config.from_object(__name__)
+Session(app)
+
 db_session.global_init('database/portal.db')
 CLIENT_ID_YANDEX = '4d27ff558ac443cd85b5eefa46cc6653'
 REDIRECT_URI_YANDEX = 'http://127.0.0.1:8080/auth/yandex/callback'
