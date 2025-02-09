@@ -120,7 +120,7 @@ def work():
     if 'submit_answers' not in request.form and "results" in session:
         session["results"].clear()
     if request.method == 'POST':
-        if 'tasks' not in session:
+        if 'submit_answers' not in request.form and 'tasks' not in session:
             form_data = dict()
             for key, val in request.form.to_dict().items():
                 form_data[key.split("_")[1]] = int(val)
@@ -165,13 +165,6 @@ def work():
                     session['total_score'] = total_score
                     session['all_count'] = all_count
                     session['all_score'] = all_score
-
-    tasks = session.get('results') if session.get("results") else session.get("tasks")
-    results = bool(session.get("results"))
-    correct_count = session.get('correct_count')
-    total_score = session.get('total_score')
-    all_score = session.get("all_score")
-    all_count = session.get("all_count")
 
     return render_template('work2.html',
                            tasks=session.get('results') if session.get("results") else session.get("tasks"),
