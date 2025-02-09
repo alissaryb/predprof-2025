@@ -32,7 +32,7 @@
 
                     <p>Источник: {{ task['value'].source}}</p>
                     <b><i>Сложность: {{ task['value'].difficulty }}</i></b>
-                    <p>{{ task['value'].text }}</p>
+                    <p>{{ task['value'].text|safe }}</p>
 
 
                     <div class="input-group mb-3">
