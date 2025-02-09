@@ -8,7 +8,8 @@ from flask_wtf.file import FileAllowed, FileRequired
 from py_scripts.funcs_back import get_title_courses_by_user_uuid, get_courses_teach
 
 
-SUBJECTS = ['Информатика', 'Математика', 'Русский язык']
+SUBJECTS = ['Информатика', 'Фронтенд', 'Бэкенд', 'Анализ данных', 'DevOps', 'Программирование',
+            'Промышленная разработка', 'Искусственный интеллект']
 
 
 class FormAddCourse(FlaskForm):

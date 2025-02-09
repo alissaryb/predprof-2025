@@ -38,6 +38,8 @@ from sa_models.kim_types import KimType
 from sa_models.course_to_user import CourseToUser
 from py_scripts import funcs_back, consts
 
+import parser
+
 
 if not os.path.exists('problems_materials/'):
     os.mkdir('problems_materials/')
@@ -45,6 +47,10 @@ if not os.path.exists('lessons_materials/'):
     os.mkdir('lessons_materials/')
 if not os.path.exists('database/'):
     os.mkdir('database/')
+    parser.main()
+elif not os.path.exists(f'database/portal.db'):
+    parser.main()
+
 if not os.path.exists('my_sessions/'):
     os.mkdir('my_sessions/')
 

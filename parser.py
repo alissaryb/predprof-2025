@@ -1,21 +1,24 @@
+import datetime
 import os
 import random
+import re
 import ssl
 import uuid
+from os.path import basename
+from urllib.parse import urljoin
+from urllib.parse import urlparse
 
 import certifi
 import requests
-import re
-from urllib.parse import urlparse
-
 from bs4 import BeautifulSoup, Tag, Comment
-from urllib.parse import urljoin
 from werkzeug.utils import secure_filename
-from os.path import basename
 
+from py_scripts.funcs_back import generate_token
 from sa_models import db_session
-from sa_models.problems import Problem
+from sa_models.courses import Course
 from sa_models.kim_types import KimType
+from sa_models.problems import Problem
+from sa_models.users import User
 
 
 def create_kim():
@@ -198,7 +201,115 @@ def parse_problems(url):
     return problems
 
 
-if __name__ == "__main__":
+def courses(user_uuid, db_sess):
+    arr = [
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "Подготовка к ЕГЭ по Информатике",
+            'subject': 'Информатика',
+            'description': 'Подготовка к экспертами ЕГЭ на 100 баллов!',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "PyQT | Создание приложений",
+            'subject': 'Промышленная разработка',
+            'description': 'Научим разрабатывать собственные оконные приложения на Python',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "Excel - Базовый уровень",
+            'subject': 'Информатика',
+            'description': 'Начальное погружение в Excel',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "Django | Начала бэкенд-разработки",
+            'subject': 'Бэкенд',
+            'description': 'Начальное погружение в Django',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "Структуры данных в C++",
+            'subject': 'Алгоритмы',
+            'description': 'Подготовка к олимпиадам по олимпиадному программированию',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "Администратор Kubernetes",
+            'subject': 'DevOps',
+            'description': 'Освоение Kubernetes с нуля',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "Здравствуй, ИИ!",
+            'subject': 'Искусственный интеллект',
+            'description': 'Введение в линейную алгебру и машинное обучение',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+        {
+            'uuid': str(uuid.uuid4()),
+            'title': "Кумир для самых маленьких",
+            'subject': 'Информатика',
+            'description': 'Начнем программировать еще школьниками!',
+            'token': generate_token(),
+            'made_on_datetime': datetime.datetime.now(),
+            "user_uuid": user_uuid
+        },
+    ]
+    for el in arr:
+        course = Course(
+            uuid=el['uuid'],
+            title=el['title'],
+            subject=el['subject'],
+            description=el['description'],
+            token=el['token'],
+            made_on_datetime=el['made_on_datetime'],
+            user_uuid=el['user_uuid'],
+            video_url='<iframe width="720" height="405" src="https://rutube.ru/play/embed/3cb648b12534b67cf019b7ec01171d3c/" frameBorder="0" allow="clipboard-write; autoplay" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>'
+        )
+        db_sess.add(course)
+    db_sess.commit()
+
+
+def create_user(db_sess):
+    user = User()
+    user.uuid = str(uuid.uuid4())
+    user.email = 'example@yandex.ru'
+    user.name = "Nikita"
+    user.surname = "Mulyar"
+    user.username = "nikm"
+    user.lastname = "Mikhailovich"
+    user.class_number = 11
+    user.school = 'Л2Ш'
+    user.set_password("1234567a")
+    user.access_level = 'user'
+    user.phone_number = '89999999999'
+    db_sess.add(user)
+    db_sess.commit()
+    return user.uuid
+
+
+def main():
     LEVEL = ['Очевидная', 'Очень легкая', 'Легкая', 'Средняя', 'Тяжелая', 'Очень тяжелая', 'Гроб']
     url = "https://inf-ege.sdamgia.ru/test?id=17583978&print=true"
     results = parse_problems(url)
@@ -206,6 +317,8 @@ if __name__ == "__main__":
     db_session.global_init('database/portal.db')
     create_kim()
     db_sess = db_session.create_session()
+    user_uuid = create_user(db_sess)
+    courses(user_uuid, db_sess)
 
     i = 0
     context = ssl.create_default_context(cafile=certifi.where())
