@@ -824,10 +824,20 @@ def register():
     return render_template("register.html", title="Регистрация", form=form)
 
 
-@app.route('/auth/google')
+@app.route('/auth/reg/google')
+def google_reg():
+    nonce = "NENASOSALAPODARILY"
+    session['nonce'] = "NENASOSALAPODARILY"
+    session['STATUS_GOOGLE'] = 'reg'
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri, nonce=nonce)
+
+
+@app.route('/auth/login/google')
 def google_login():
     nonce = "NENASOSALAPODARILY"
     session['nonce'] = "NENASOSALAPODARILY"
+    session['STATUS_GOOGLE'] = 'login'
     redirect_uri = url_for('google_callback', _external=True)
     return google.authorize_redirect(redirect_uri, nonce=nonce)
 
@@ -839,21 +849,52 @@ def google_callback():
 
     db_sess = db_session.create_session()
     exists = db_sess.query(User).where(User.email == user_info['email']).first()
-    print(user_info)
-    if exists is None:
+    if session['STATUS_GOOGLE'] == 'login':
+        if exists is None:
+            db_sess.close()
+            return redirect('/register')
+
         db_sess.close()
-        return redirect('/register')
+
+        login_user(exists, remember=True)
+
+        return redirect('/')
+
+    user = User()
+    user.uuid = str(uuid.uuid4())
+    user.email = user_info['email']
+    user.name = user_info['given_name']
+    user.surname = user_info['family_name']
+    user.username = user_info['email'].split("@")[0]
+    user.lastname = "Не указано"
+    user.class_number = None
+    user.school = "Не указана"
+    user.set_password(consts.PASSWORD_FOR_FOREIGN_USERS)
+    user.access_level = 'user'
+    user.phone_number = ""
+    db_sess.add(user)
+    db_sess.commit()
 
     db_sess.close()
 
-    login_user(exists, remember=True)
-    return redirect('/')
+    return redirect('/login')
 
-@app.route('/auth/yandex')
+
+@app.route('/auth/reg/yandex')
+def yandex_reg():
+    auth_url = ("https://oauth.yandex.ru/authorize?response_type=code&"
+                f"client_id={CLIENT_ID_YANDEX}&redirect_uri={REDIRECT_URI_YANDEX}")
+    session['STATUS_YANDEX'] = 'reg'
+    return redirect(auth_url)
+
+
+@app.route('/auth/login/yandex')
 def yandex_login():
     auth_url = ("https://oauth.yandex.ru/authorize?response_type=code&"
                 f"client_id={CLIENT_ID_YANDEX}&redirect_uri={REDIRECT_URI_YANDEX}")
+    session['STATUS_YANDEX'] = 'login'
     return redirect(auth_url)
+
 
 @app.route('/auth/yandex/callback', methods=['GET'])
 def yandex_callback():
@@ -877,15 +918,36 @@ def yandex_callback():
     user_info = requests.get(user_info_url, headers=headers).json()
 
     db_sess = db_session.create_session()
-    exists = db_sess.query(User).where(User.email == user_info['default_email']).first()
-    if exists is None:
+    if session['STATUS_YANDEX'] == 'login':
+        exists = db_sess.query(User).where(User.email == user_info['default_email']).first()
+        if exists is None:
+            db_sess.close()
+            return redirect('/register')
+
         db_sess.close()
-        return redirect('/register')
+
+        login_user(exists, remember=True)
+
+        return redirect('/')
+
+    user = User()
+    user.uuid = str(uuid.uuid4())
+    user.email = user_info['default_email']
+    user.name = user_info['first_name']
+    user.surname = user_info['last_name']
+    user.username = user_info['login']
+    user.lastname = "Не указано"
+    user.class_number = None
+    user.school = "Не указана"
+    user.set_password(consts.PASSWORD_FOR_FOREIGN_USERS)
+    user.access_level = 'user'
+    user.phone_number = ""
+    db_sess.add(user)
+    db_sess.commit()
 
     db_sess.close()
-    login_user(exists, remember=True)
 
-    return redirect("/")
+    return redirect('/login')
 
 
 @app.route('/login', methods=['GET', 'POST'])
