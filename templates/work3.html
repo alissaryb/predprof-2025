@@ -30,8 +30,13 @@
                                     {% if task['value'].is_correct %}my-is-valid{% else %}my-is-invalid{% endif %}
                                     text-white rounded{% endif %}">
 
-                    <p>Источник: {{ task['value'].source}}</p>
-                    <b><i>Сложность: {{ task['value'].difficulty }}</i></b>
+                    <p><b><i>
+                        {% if task['value'].source != None %}
+                            Источник: {{ task['value'].source }}<br>
+                        {% endif %}
+                        Сложность: {{ task['value'].difficulty }}
+                    </i></b></p>
+
                     <p>{{ task['value'].text|safe }}</p>
 
 

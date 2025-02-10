@@ -182,7 +182,8 @@ def get_tasks(data) -> list[dict]:
     res = list()
     for key, val in data.items():
         tmp = list()
-        tasks = db_sess.query(Problem).filter(Problem.kim_type_uuid == key).limit(val).all()
+        tasks = db_sess.query(Problem).filter(Problem.kim_type_uuid == key).all()
+        tasks = random.choices(tasks, k=val)
         for el in tasks:
             tmp.append(task_render(el))
         if tmp:

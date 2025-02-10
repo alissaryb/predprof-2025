@@ -88,10 +88,12 @@
                         <h6>ID {{i["uuid"]}}</h6>
 
                         <div class="small-br"></div>
-                        <b><i>Сложность: {{i['level']}}</i></b>
-                        <div class="small-br"></div>
-                        <b><i>Источник: {{i["source"]}}</i></b>
-                        <div class="small-br"></div>
+                        <p><b><i>
+                            {% if i['source'] != None %}
+                                Источник: {{ i['source'] }}<br>
+                            {% endif %}
+                            Сложность: {{ i['level'] }}
+                        </i></b></p>
 
                         <p class="text-task">{{ i['text']|safe }} </p>
 

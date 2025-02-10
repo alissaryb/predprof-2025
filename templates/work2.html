@@ -26,9 +26,14 @@
                 <div class="mb-3 p-3 {% if results %}
                                     {% if task.is_correct %}my-is-valid{% else %}my-is-invalid{% endif %}
                                     text-white rounded{% endif %}">
-
-                    <p>Источник: {{ task.source}}</p>
-                    <b><i>Сложность: {{ task.difficulty }}</i></b>
+                    <hr>
+                    <h6>Задание №{{ loop.index }}</h6>
+                    <p><b><i>
+                        {% if task.source != None %}
+                            Источник: {{ task.source }}<br>
+                        {% endif %}
+                        Сложность: {{ task.difficulty }}
+                    </i></b></p>
                     <p>{{ task.text|safe }}</p>
 
 

@@ -12,9 +12,12 @@
 
             <div class="small-br"></div>
 
-            <b><i>Сложность: {{el["difficulty"]}}</i></b>
-            <div class="small-br"></div>
-            <p>Источник: {{el["source"]}}</p>
+            <p><b><i>
+                {% if i['source'] != None %}
+                    Источник: {{ i['source'] }}<br>
+                {% endif %}
+                Сложность: {{ i['level'] }}
+            </i></b></p>
 
             <p>{{el['text']}}</p>
 
