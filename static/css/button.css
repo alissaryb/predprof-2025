@@ -6,10 +6,10 @@ button {
 }
 
 .btn-answer {
-  width: 150px;
+    width: 160px;
 }
 
-.btn-blue{
+.btn-blue {
     background: rgb(67, 120, 175);
     color: white;
 }
@@ -19,8 +19,8 @@ button {
     color: white;
 }
 
-.bg-violet{
-  background: rgb(165, 153, 215);
+.bg-violet {
+    background: rgb(165, 153, 215);
     color: white;
 }
 
@@ -28,8 +28,9 @@ button {
     background: rgb(145, 131, 211);
     color: white;
 }
-.btn-violet{
-    background: rgb(92, 71, 189);
+
+.btn-violet {
+    background: rgb(129, 104, 196);
     color: white;
 }
 
@@ -54,8 +55,7 @@ button {
 }
 
 
-.btn-theme
-{
+.btn-theme {
     background: rgb(236, 236, 236);
     color: black;
 }
@@ -63,4 +63,29 @@ button {
 .mini {
     width: 10px;
     height: 10px;
+}
+
+
+.aut {
+    color: #6016b0;
+    text-decoration: none;
+    position: relative;
+    font-size: 18px;
+}
+
+.aut::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: #5309a0;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.aut:hover::after {
+    transform: scaleX(1);
 }
