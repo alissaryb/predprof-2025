@@ -57,10 +57,12 @@
                         <div class="small-br"></div>
                         <b>ID {{i["uuid"]}}</b>
                         <div class="small-br"></div>
-                        <i><b>Сложность:</b> {{i['level']}}</i>
-                        <div class="small-br"></div>
-                        <i><b>Источник:</b> {{i["source"]}}</i>
-                        <div class="small-br"></div>
+                        <p><b><i>
+                            {% if i['source'] != None %}
+                                Источник: {{ i['source'] }}<br>
+                            {% endif %}
+                            Сложность: {{ i['level'] }}
+                        </i></b></p>
 
                         <p class="text-task">{{ i['text']|safe }} </p>
 
@@ -143,7 +145,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-red" data-bs-dismiss="modal">Закрыть
                             </button>
-                            <button type="submit" class="btn btn-green">Перейти</button>
+                            <button type="submit" class="btn btn-green">Создать варинт</button>
                         </div>
                     </div>
                 </div>

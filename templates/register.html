@@ -2,10 +2,11 @@
 {% block main_content %}
 
 <div class="main tablo-block-reg col-md-10 col-lg-6 cen">
-    <a href="/auth/reg/google">Зарегестрироваться через Google</a>
-    <a href="/auth/reg/yandex">Зарегестрироваться через Yandex</a>
     <form action="" method="post">
         <h1 class="text-center">{{ title }}</h1>
+
+        <a class="aut" href="/auth/reg/google">Зарегестрироваться через Google</a><div class="small-br"></div>
+        <a class="aut" href="/auth/reg/yandex">Зарегестрироваться через Yandex</a><br><br>
 
         {{ form.hidden_tag() }}
 

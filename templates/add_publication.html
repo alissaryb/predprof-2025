@@ -55,10 +55,12 @@
         <div class="form-group mb-3">
             {{ form.my_courses.label }}<br>
             {% for subfield in form.my_courses %}
-            <tr class="row">
-                <td scope="col">{{ subfield }}</td>
-                <td scope="col">{{ subfield.label }}</td>
+            <table style="border: none; border-collapse: collapse;">
+            <tr style="border: none; border-collapse: collapse;">
+                <td style="border: none; border-collapse: collapse;">{{ subfield }}</td>
+                <td style="border: none; border-collapse: collapse;">{{ subfield.label }}</td>
             </tr>
+            </table>
             {% endfor %}
             {% for error in form.my_courses.errors %}
             <div class="alert alert-danger" role="alert">

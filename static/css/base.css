@@ -18,7 +18,10 @@ header
 }
 
 .highlight {
-    background-color: #f7f5fa;
+    background-color: #f3f6ff;
+}
+
+.docher {
     display: inline-block;
 }
 

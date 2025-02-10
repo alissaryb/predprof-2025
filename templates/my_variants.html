@@ -129,6 +129,7 @@
                         </div>
                     </div>
                     <div class="mb-4">
+                        <label class="form-label">Макс. количество баллов: {{variant.max_scores}} </label>
                         <label class="form-label">Критерии оценки (в процентах до 100):</label>
                         <div class="row">
                             {% for val in criteria %}
@@ -165,6 +166,7 @@
                                    value="{{key}}" {% if loop.index0 == 0 %} checked {% endif %}>
                             <label class="custom-radio-label" for="option{{key}}">{{val}}</label>
                         </div>
+                        <br>
                         {% endfor %}
                     </div>
                     <div class="modal-footer">

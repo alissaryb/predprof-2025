@@ -182,7 +182,8 @@ def get_tasks(data) -> list[dict]:
     res = list()
     for key, val in data.items():
         tmp = list()
-        tasks = db_sess.query(Problem).filter(Problem.kim_type_uuid == key).limit(val).all()
+        tasks = db_sess.query(Problem).filter(Problem.kim_type_uuid == key).all()
+        tasks = random.choices(tasks, k=val)
         for el in tasks:
             tmp.append(task_render(el))
         if tmp:
@@ -289,6 +290,10 @@ def render_variant(variant: Test_variant):
         "title": variant.title,
         "url": f"http://{consts.HOST}:{consts.PORT}/test/{variant.uuid}"
     }
+    max_scores = 0
+    for task in variant.tasks:
+        max_scores += task.problem.kim_type.points
+    res['max_scores'] = max_scores
     return res
 
 
@@ -310,6 +315,7 @@ def get_json_data(filename: string) -> dict:
 
 def give_variant_to_group(group_uuid: uuid, data: dict) -> None:
     db_sess = db_session.create_session()
+    print(data.get("criteria_5") == '')
     test_to_group = TestToGroup(
         test_uuid=data.get("test_uuid"),
         group_uuid=group_uuid,
@@ -317,10 +323,9 @@ def give_variant_to_group(group_uuid: uuid, data: dict) -> None:
         date_end=datetime.datetime.strptime(data.get("end_date"), "%Y-%m-%d") if data.get("end_date") else None,
         duration=int(data.get("duration")) if data.get("duration") else None,
         feedback=int(data.get("option")),
-        criteria_5=int(data.get("criteria_5")) if data.get("criteria_5") is not None else None,
-        criteria_4=int(data.get("criteria_4")) if data.get("criteria_4") is not None else None,
-        criteria_3=int(data.get("criteria_3")) if data.get("criteria_3") is not None else None,
-        criteria_2=int(data.get("criteria_2")) if data.get("criteria_2") is not None else None,
+        criteria_5=int(data.get("criteria_5")) if data.get("criteria_5") != '' else None,
+        criteria_4=int(data.get("criteria_4")) if data.get("criteria_4") != '' else None,
+        criteria_3=int(data.get("criteria_3")) if data.get("criteria_3") != '' else None,
     )
     db_sess.add(test_to_group)
     db_sess.commit()
@@ -358,7 +363,7 @@ def get_user_result_of_test_by_user_uuid(user_uuid: uuid, test_uuid: uuid, group
         "mark": get_mark_of_test_in_group(test_to_group, result)
     }
 
-    if test_to_group.feedback == 4:
+    if result and test_to_group.feedback == 4:
         if not is_author:
             data["scores"] = "Ожидает проверки учителя"
         data["mark"] = "Ожидает проверки учителя"
