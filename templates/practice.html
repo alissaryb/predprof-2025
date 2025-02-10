@@ -56,7 +56,7 @@
                         <p class="text-task">{{ i['text']|safe }} </p>
 
                         <div style="display: flex; align-items: center;">
-                            <button class="button btn-answer btn-violet" id="toggleButton-{{i['uuid']}}"
+                            <button class="btn-violet" style="width: 160px" id="toggleButton-{{i['uuid']}}"
                                     onclick="toggleAnswer('{{i['uuid']}}')">Показать ответ
                             </button>
                             <div class="answer" id="answer-{{i['uuid']}}" style="display: none; margin-left: 10px;">
@@ -78,14 +78,14 @@
                                     <source src="{{i['files_folder_path'][j][0]}}" type="video/{{ tmp_type_video }}">
                                 </video>
                                 <br>
-                                <a href="{{i['files_folder_path'][j][0]}}" class="btn btn-violet" style="width: 160px;margin-bottom: 20px;">
+                                <a href="{{i['files_folder_path'][j][0]}}" class="btn btn btn-violet" style="width: 160px;margin-bottom: 20px;">
                                     Открыть видео
                                 </a>
                             {% elif i['files_folder_path'][j][1] == 'img' %}
                                 <img src="{{i['files_folder_path'][j][0]}}" class="bi me-2"
                                      style="object-fit: contain; max-width: 60%; max-height: 300px; margin-bottom: 10px;">
                                 <br>
-                                <a href="{{i['files_folder_path'][j][0]}}" class="btn btn-violet" style="width: 160px; margin-bottom: 20px;">
+                                <a href="{{i['files_folder_path'][j][0]}}" class="btn  btn-violet" style="width: 160px; margin-bottom: 20px;">
                                     Открыть фото
                                 </a>
                             {% else %}

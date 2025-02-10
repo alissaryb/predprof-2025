@@ -3,15 +3,17 @@
 
 
 <div class="p-5 mt-5 " style="margin: 5%;">
-
+    <div class="tablo highlight">
      <h3>{{ course['title'] }}</h3>
     <div>Предмет: {{ course['subject'] }}</div>
     <br>
     {{ course['description']|safe }}
-
+    <div class="small-br"></div>
     <div>Автор:  {{ course['author'] }}</div>
     <div>Создан {{ course['made_on_datetime'] }}</div>
+    <div class="small-br"></div>
     <div>{{ course['iframe']|safe }}</div>
+    </div>
 
     {% for i in lessons %}
         <div class="tablo">

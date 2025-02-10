@@ -3,6 +3,7 @@
     <div class="container">
         <h1 class="text_title_violet">Мои группы</h1>
 
+        {% if current_user.access_level == 'teacher' %}
         <h3 class="text_title_violet">Преподаю</h3>
         {% if teacher_groups | length == 0 %}
             <div>У Вас нет таких групп</div>
@@ -30,6 +31,7 @@
         {% endfor %}
         </div>
         <br>
+        {% endif %}
 
         <h3 class="text_title_violet">Учусь</h3>
         {% if student_groups | length == 0 %}

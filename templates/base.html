@@ -47,7 +47,7 @@
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown2">
                     <li><a class="dropdown-item" href="/practice">Практика</a></li>
                     <li><a class="dropdown-item" href="/all_courses">Каталог курсов</a></li>
-                    <li><a class="dropdown-item" href="/random_work">Генерация варианта ЕГЭ</a></li>
+                    <li><a class="dropdown-item" href="/random_work">Генерация варианта</a></li>
                 </ul>
             </li>
 
@@ -59,12 +59,15 @@
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown3">
                         <li><a class="dropdown-item" href="/profile">Профиль</a></li>
                         <li><a class="dropdown-item" href="/statistic">Статистика</a></li>
-                        <li><a class="dropdown-item" href="/my_groups">Мои группы</a></li>
                         <li><a class="dropdown-item" href="/my_courses">Мои курсы</a></li>
+                        <li><a class="dropdown-item" href="/my_groups">Мои группы</a></li>
+                        {% if current_user.access_level == 'teacher' %}
                         <li><a class="dropdown-item" href="/my_variants">Мои варианты</a></li>
+                        {% endif %}
                     </ul>
                 </li>
 
+                {% if current_user.access_level == 'teacher' %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown5" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Учитель
@@ -77,6 +80,7 @@
                         <li><a class="dropdown-item" href="/add_lesson">Добавить урок</a></li>
                     </ul>
                 </li>
+                {% endif %}
             {% endif %}
 
         </ul>
