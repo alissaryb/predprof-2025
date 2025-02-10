@@ -860,6 +860,10 @@ def google_callback():
 
         return redirect('/')
 
+    if exists:
+        db_sess.close()
+        return redirect('/login')
+
     user = User()
     user.uuid = str(uuid.uuid4())
     user.email = user_info['email']
@@ -918,8 +922,8 @@ def yandex_callback():
     user_info = requests.get(user_info_url, headers=headers).json()
 
     db_sess = db_session.create_session()
+    exists = db_sess.query(User).where(User.email == user_info['default_email']).first()
     if session['STATUS_YANDEX'] == 'login':
-        exists = db_sess.query(User).where(User.email == user_info['default_email']).first()
         if exists is None:
             db_sess.close()
             return redirect('/register')
@@ -929,6 +933,11 @@ def yandex_callback():
         login_user(exists, remember=True)
 
         return redirect('/')
+
+    if exists:
+        db_sess.close()
+        return redirect('/login')
+
 
     user = User()
     user.uuid = str(uuid.uuid4())
