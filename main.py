@@ -304,7 +304,8 @@ def group_by_uuid(group_uuid):
         'author': f'{group.author.surname} {group.author.name[0]}. {group.author.lastname[0]}.',
         'made_on_datetime': f'{group.made_on_datetime.strftime('%d.%m.%Y')} в 'f'{group.made_on_datetime.strftime('%H:%M')}',
         'members_group': [],
-        "uuid": group_uuid
+        "uuid": group_uuid,
+        'author_uuid': group.author.uuid
     }
 
     for relation in group.users:

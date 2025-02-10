@@ -48,7 +48,9 @@
             <tr style="border-bottom: 1px solid #dcdcdc;">
                 <th scope="col" style="background-color: #f3f6ff;">ФИО</th>
                 <th scope="col" style="background-color: #f3f6ff;">Класс</th>
-                <th scope="col" style="background-color: #f7f5fa;">Статистика</th>
+                {% if current_user.uuid == group['author_uuid'] %}
+                    <th scope="col" style="background-color: #f7f5fa;">Статистика</th>
+                {% endif %}
             </tr>
             </thead>
             <tbody>
@@ -56,7 +58,9 @@
             <tr style="border-bottom: 1px solid #dcdcdc;">
                 <td style="background-color: #f7f5fa;">{{ i['fio'] }}</td>
                 <td style="background-color: #f7f5fa;">{{ i['class_num'] }}</td>
-                <td style="background-color: #f7f5fa;"><a href="/page_group/{{group['uuid']}}/statistic/{{i['uuid']}}">Ссылка</a></td>
+                {% if current_user.uuid == group['author_uuid'] %}
+                    <td style="background-color: #f7f5fa;"><a href="/page_group/{{group['uuid']}}/statistic/{{i['uuid']}}">Ссылка</a></td>
+                {% endif %}
             </tr>
             {% endfor %}
             </tbody>
