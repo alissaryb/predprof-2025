@@ -12,3 +12,4 @@ markdown2[all]
 authlib
 Flask-Session[cachelib]
 beautifulsoup4
+requests
