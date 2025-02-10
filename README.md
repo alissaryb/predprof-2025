@@ -4,7 +4,7 @@
 
 ##### Команда "Отчебурашим": Рыбакова Алиса, Румянцев Артем, Давидян Матвей, Муляр Никита, Семеновых Арсений
 
-## Локальная установка проекта
+## Локальная установка проекта: Linux и macOS
 
 Клонируем репозиторий
 
@@ -17,6 +17,32 @@ git clone https://github.com/alissaryb/predprof-2025
 ```bash
 python3 -m venv venv
 source venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+Запускаем файл `main.py`
+
+```bash
+python3 main.py
+```
+
+Если решение запускается впервые, то начнется создание базы данных и запрос заданий.
+
+В консоль выведется ссылка на локальный сервер.
+
+## Локальная установка проекта: Windows
+
+Клонируем репозиторий
+
+```bash
+git clone https://github.com/alissaryb/predprof-2025
+```
+
+Создаем виртуальное окружение и устанавливаем зависимости
+
+```bash
+python3 -m venv venv
+venv\Scripts\activate.bat
 pip3 install -r requirements.txt
 ```
 
