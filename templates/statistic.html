@@ -66,6 +66,7 @@ color: black;
                     {% else %}
                         <td class="green-td">{{ arr[i]['pr'] | round(2) }}%</td>
                     {% endif %}
+
                     {% if arr[i]['pr_10_last'] <= 25 %}
                         <td class="red-td">{{ arr[i]['pr_10_last'] | round(2) }}%</td>
                     {% elif arr[i]['pr_10_last'] <= 50 %}

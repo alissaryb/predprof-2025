@@ -17,7 +17,12 @@
           <div class="bright">{{user['lastname']}}</div>
 
           <div class="dim">Класс обучения</div>
-          <div class="bright">{{user['class_num']}}</div>
+          {% if current_user.access_level == 'teacher' %}
+               <div class="bright">Учитель</div>
+          {% else %}
+               <div class="bright">{{user['class_num']}}</div>
+          {% endif%}
+
       </div>
 
 

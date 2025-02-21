@@ -61,13 +61,13 @@
                         <li><a class="dropdown-item" href="/statistic">Статистика</a></li>
                         <li><a class="dropdown-item" href="/my_courses">Мои курсы</a></li>
                         <li><a class="dropdown-item" href="/my_groups">Мои группы</a></li>
-                        {% if current_user.access_level == 'teacher' %}
+                        {% if current_user.access_level == 'teacher' or current_user.email == 'example@yandex.ru' %}
                         <li><a class="dropdown-item" href="/my_variants">Мои варианты</a></li>
                         {% endif %}
                     </ul>
                 </li>
 
-                {% if current_user.access_level == 'teacher' %}
+                {% if current_user.access_level == 'teacher' or current_user.email == 'example@yandex.ru' %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown5" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Учитель

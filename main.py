@@ -110,7 +110,7 @@ def e401(code):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template("index.html", title="")
+    return render_template("3.html", title="")
 
 
 @app.route('/lessons_materials/<material_uuid>/<filename>', methods=['GET'])
